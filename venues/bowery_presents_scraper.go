@@ -57,7 +57,7 @@ func (s *BoweryPresentsScraper) ScrapeShows(venue Venue) ([]Show, error) {
 			continue
 		}
 
-		artist := strings.TrimSpace(match[1])
+		title := strings.TrimSpace(match[1])
 		dateStr := strings.TrimSpace(match[2])
 		venueName := strings.TrimSpace(match[3])
 		eventURL := match[4]
@@ -65,14 +65,14 @@ func (s *BoweryPresentsScraper) ScrapeShows(venue Venue) ([]Show, error) {
 		// Parse date (format: "Mon, October 14, 2025")
 		date, err := parseBoweryPresentsDate(dateStr)
 		if err != nil {
-			fmt.Printf("    Warning: could not parse date '%s' for %s\n", dateStr, artist)
+			fmt.Printf("    Warning: could not parse date '%s' for %s\n", dateStr, title)
 			continue
 		}
 
 		// Return all shows from the calendar
 		// The actual venue name comes from the page (Webster Hall, Music Hall of Williamsburg, etc.)
 		shows = append(shows, Show{
-			Artist:   artist,
+			Title:    title,
 			Venue:    venueName,
 			Date:     date,
 			Price:    "", // Price not available on calendar page

@@ -62,18 +62,26 @@ func main() {
 		return
 	}
 
-	// Sort shows by date (Monday first, then Tuesday, etc.)
-	sort.Slice(shows, func(i, j int) bool {
-		return shows[i].Date.Before(shows[j].Date)
+	// Normalize shows to extract individual artists
+	fmt.Println("Normalizing show data and extracting artists...")
+	normalizedShows := venues.NormalizeShows(shows)
+
+	// Sort normalized shows by date (Monday first, then Tuesday, etc.)
+	sort.Slice(normalizedShows, func(i, j int) bool {
+		return normalizedShows[i].Date.Before(normalizedShows[j].Date)
 	})
 
 	// Print shows in chronological order
-	for _, show := range shows {
-		fmt.Printf("📅 %s - %s at %s\n", show.Date.Format("Mon Jan 2"), show.Artist, show.Venue)
+	totalArtists := 0
+	for _, show := range normalizedShows {
+		// Display all artists for this show
+		artistList := strings.Join(show.Artists, ", ")
+		fmt.Printf("📅 %s - %s at %s\n", show.Date.Format("Mon Jan 2"), artistList, show.Venue)
 		if show.Price != "" {
 			fmt.Printf("   💵 %s\n", show.Price)
 		}
 		fmt.Printf("   🔗 %s\n\n", show.URL)
+		totalArtists += len(show.Artists)
 	}
 
 	// Initialize Tidal service
@@ -83,18 +91,20 @@ func main() {
 	tidalService := tidal.NewService(auth)
 
 	// Deduplicate artists while preserving chronological order
-	// Since shows are sorted by date, the first occurrence of each artist is their earliest show
+	// Extract all artists from normalized shows
 	uniqueArtists := make(map[string]bool)
 	var artistsToSearch []string
-	for _, show := range shows {
-		if !uniqueArtists[show.Artist] {
-			uniqueArtists[show.Artist] = true
-			artistsToSearch = append(artistsToSearch, show.Artist)
+	for _, show := range normalizedShows {
+		for _, artist := range show.Artists {
+			if !uniqueArtists[artist] {
+				uniqueArtists[artist] = true
+				artistsToSearch = append(artistsToSearch, artist)
+			}
 		}
 	}
-	// artistsToSearch now contains unique artists in chronological order of their first show
 
-	fmt.Printf("\nFound %d unique artists from %d shows\n", len(artistsToSearch), len(shows))
+	fmt.Printf("\nExtracted %d unique artists from %d shows (%d total artist performances)\n",
+		len(artistsToSearch), len(normalizedShows), totalArtists)
 
 	// Search for each artist on Tidal and collect track IDs
 	fmt.Println("Searching for artists on Tidal...")

@@ -12,7 +12,7 @@ type Venue struct {
 
 // Show represents a concert/show at a venue
 type Show struct {
-	Artist    string
+	Title     string    // Full show title (may contain multiple artists)
 	Venue     string
 	Date      time.Time
 	Price     string

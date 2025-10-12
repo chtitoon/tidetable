@@ -11,7 +11,14 @@
       "Bash(curl -s \"https://mercuryeastpresents.com/calendar-mr/\")",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "WebFetch(domain:www.websterhall.com)",
+      "Bash(curl -s \"https://www.websterhall.com/shows/\")",
+      "Bash(curl -s \"https://www.websterhall.com/shows/\" -H \"User-Agent: Mozilla/5.0\")",
+      "Bash(curl -s \"https://www.websterhall.com/wp-json/wp/v2/event\")",
+      "Bash(curl:*)",
+      "Bash(go build:*)",
+      "Bash(timeout 15 op run:*)"
     ],
     "deny": [],
     "ask": []

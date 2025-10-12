@@ -60,18 +60,18 @@ func (s *MercuryEastScraper) ScrapeShows(venue Venue) ([]Show, error) {
 		}
 
 		datePart := parts[len(parts)-1]
-		artistParts := parts[:len(parts)-1]
-		artist := strings.TrimSpace(strings.Join(artistParts, " "))
+		titleParts := parts[:len(parts)-1]
+		title := strings.TrimSpace(strings.Join(titleParts, " "))
 
 		// Parse date (format: 10/12 or 1/5)
 		date, err := parseMercuryEastDate(datePart, currentYear)
 		if err != nil {
-			fmt.Printf("    Warning: could not parse date '%s' for %s\n", datePart, artist)
+			fmt.Printf("    Warning: could not parse date '%s' for %s\n", datePart, title)
 			continue
 		}
 
 		shows = append(shows, Show{
-			Artist:   artist,
+			Title:    title,
 			Venue:    venue.Name,
 			Date:     date,
 			Price:    "", // Price not available on calendar, would need to scrape individual event pages
