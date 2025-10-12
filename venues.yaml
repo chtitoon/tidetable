@@ -1,0 +1,22 @@
+venues:
+  - name: "Mercury Lounge / Bowery Ballroom"
+    url: "https://mercuryeastpresents.com/calendar-mr/"
+    location: "New York, NY"
+    scraper_type: "mercury_east"
+
+  # Add more Mercury East Presents venues
+  # - name: "Bowery Ballroom"
+  #   url: "https://mercuryeastpresents.com/calendar-bb/"
+  #   location: "New York, NY"
+  #   scraper_type: "mercury_east"
+
+# Add your own venues here
+# Each venue needs:
+#   name: Human-readable venue name
+#   url: URL to the venue's calendar/events page
+#   location: City, State
+#   scraper_type: Identifier for which scraping logic to use
+#
+# Supported scraper types:
+#   - mercury_east: For Mercury East Presents venues (Mercury Lounge, Bowery Ballroom, etc.)
+#   - generic: Basic fallback scraper (needs customization per venue)

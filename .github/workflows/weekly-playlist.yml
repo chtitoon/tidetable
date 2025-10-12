@@ -1,0 +1,30 @@
+name: Weekly Playlist Update
+
+on:
+  schedule:
+    # Run every Friday at 9 AM UTC (4 AM EST / 5 AM EDT)
+    - cron: '0 9 * * 5'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-playlist:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Run TideTable
+        env:
+          TIDAL_CLIENT_ID: ${{ secrets.TIDAL_CLIENT_ID }}
+          TIDAL_CLIENT_SECRET: ${{ secrets.TIDAL_CLIENT_SECRET }}
+          TIDAL_ACCESS_TOKEN: ${{ secrets.TIDAL_ACCESS_TOKEN }}
+          TIDAL_REFRESH_TOKEN: ${{ secrets.TIDAL_REFRESH_TOKEN }}
+          PLAYLIST_NAME: "This Week's Shows"
+          VENUES_FILE: "venues.yaml"
+        run: go run main.go
