@@ -4,8 +4,12 @@ venues:
     location: "New York, NY"
     scraper_type: "mercury_east"
 
-  # Webster Hall - requires custom scraper (JavaScript-rendered page)
-  # Uncomment when scraper is implemented
+  # Webster Hall - Requires JavaScript rendering (SPA)
+  # The website uses client-side JavaScript to load events dynamically
+  # Options to implement:
+  #   1. Use headless browser (Playwright/Puppeteer/chromedp)
+  #   2. Reverse engineer their API endpoint
+  #   3. Use a third-party service for JavaScript rendering
   # - name: "Webster Hall"
   #   url: "https://www.websterhall.com/shows/"
   #   location: "New York, NY"
