@@ -25,6 +25,7 @@ jobs:
           TIDAL_CLIENT_SECRET: ${{ secrets.TIDAL_CLIENT_SECRET }}
           TIDAL_ACCESS_TOKEN: ${{ secrets.TIDAL_ACCESS_TOKEN }}
           TIDAL_REFRESH_TOKEN: ${{ secrets.TIDAL_REFRESH_TOKEN }}
-          PLAYLIST_NAME: "This Week's Shows"
+          PLAYLIST_NAME_BASE: "Shows"
+          DAYS_AHEAD: "7"  # Weekly: 7 days ahead
           VENUES_FILE: "venues.yaml"
         run: go run main.go

@@ -23,11 +23,11 @@ func GetScraper(scraperType string) (Scraper, error) {
 	}
 }
 
-// ScrapeAllVenues scrapes all configured venues and returns shows happening in the next week
-func ScrapeAllVenues(venues []Venue) ([]Show, error) {
+// ScrapeAllVenues scrapes all configured venues and returns shows happening in the next N days
+func ScrapeAllVenues(venues []Venue, daysAhead int) ([]Show, error) {
 	var allShows []Show
 	now := time.Now()
-	oneWeekFromNow := now.AddDate(0, 0, 7)
+	endDate := now.AddDate(0, 0, daysAhead)
 
 	for _, venue := range venues {
 		fmt.Printf("Scraping %s...\n", venue.Name)
@@ -46,17 +46,17 @@ func ScrapeAllVenues(venues []Venue) ([]Show, error) {
 
 		fmt.Printf("  Scraped %d total shows\n", len(shows))
 
-		// Filter for shows in the next week (including today)
-		weekShows := 0
+		// Filter for shows in the configured time window (including today)
+		matchingShows := 0
 		for _, show := range shows {
 			// Use After(now.AddDate(0,0,-1)) to include shows today
-			if show.Date.After(now.AddDate(0, 0, -1)) && show.Date.Before(oneWeekFromNow) {
+			if show.Date.After(now.AddDate(0, 0, -1)) && show.Date.Before(endDate) {
 				allShows = append(allShows, show)
-				weekShows++
+				matchingShows++
 			}
 		}
 
-		fmt.Printf("  Found %d shows this week\n", weekShows)
+		fmt.Printf("  Found %d shows in the next %d days\n", matchingShows, daysAhead)
 	}
 
 	return allShows, nil
