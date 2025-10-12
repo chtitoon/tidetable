@@ -96,5 +96,9 @@ func parseBoweryPresentsDate(dateStr string) (time.Time, error) {
 		}
 	}
 
+	// Set time to local timezone at midnight for proper comparison
+	now := time.Now()
+	date = time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, now.Location())
+
 	return date, nil
 }

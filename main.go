@@ -82,7 +82,8 @@ func main() {
 	auth.SetTokens(cfg.TidalAccessToken, cfg.TidalRefreshToken)
 	tidalService := tidal.NewService(auth)
 
-	// Deduplicate artists (venues may list the same show multiple times)
+	// Deduplicate artists while preserving chronological order
+	// Since shows are sorted by date, the first occurrence of each artist is their earliest show
 	uniqueArtists := make(map[string]bool)
 	var artistsToSearch []string
 	for _, show := range shows {
@@ -91,6 +92,7 @@ func main() {
 			artistsToSearch = append(artistsToSearch, show.Artist)
 		}
 	}
+	// artistsToSearch now contains unique artists in chronological order of their first show
 
 	fmt.Printf("\nFound %d unique artists from %d shows\n", len(artistsToSearch), len(shows))
 
