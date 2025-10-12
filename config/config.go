@@ -11,6 +11,7 @@ type Config struct {
 	TidalAccessToken  string
 	TidalRefreshToken string
 	VenuesFile        string
+	PlaylistName      string
 }
 
 func Load() (*Config, error) {
@@ -20,11 +21,15 @@ func Load() (*Config, error) {
 		TidalAccessToken:  os.Getenv("TIDAL_ACCESS_TOKEN"),
 		TidalRefreshToken: os.Getenv("TIDAL_REFRESH_TOKEN"),
 		VenuesFile:        os.Getenv("VENUES_FILE"),
+		PlaylistName:      os.Getenv("PLAYLIST_NAME"),
 	}
 
 	// Set defaults
 	if cfg.VenuesFile == "" {
 		cfg.VenuesFile = "venues.yaml"
+	}
+	if cfg.PlaylistName == "" {
+		cfg.PlaylistName = "Rolling Through"
 	}
 
 	// Validate required fields

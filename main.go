@@ -127,8 +127,8 @@ func main() {
 
 	fmt.Printf("\n=== Creating playlist with %d tracks ===\n", len(trackIDs))
 
-	// Fixed playlist name
-	playlistName := "Coming Up This Week"
+	// Get playlist name from config
+	playlistName := cfg.PlaylistName
 
 	// Get unique venues
 	venueMap := make(map[string]bool)
