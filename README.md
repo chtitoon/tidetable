@@ -1,23 +1,33 @@
 # TideTable
 
-Automatically sync concerts from your favorite Tidal artists to Google Calendar using GitHub Actions.
+Automatically creates a weekly Tidal playlist with artists performing at your favorite venues.
 
 ## Features
 
-- Fetches your favorite artists from Tidal
-- Finds upcoming concerts via Bandsintown API
-- Adds concerts to your Google Calendar (with duplicate checking)
-- Runs automatically via GitHub Actions (daily at 9 AM UTC)
-- Minimalist CLI application with no UI
+- Scrapes venue websites for upcoming shows
+- Searches Tidal for each performing artist
+- Creates/updates a weekly playlist with one track per artist
+- Handles rate limiting gracefully with retries and delays
+- Supports multiple artist profiles (picks most popular by default)
+- Runs automatically via GitHub Actions every Friday
+- Minimalist CLI application
+
+## How It Works
+
+1. **Venue Scraping**: Scrapes configured venue websites for upcoming shows in the next 7 days
+2. **Artist Discovery**: Extracts artist names from show listings
+3. **Tidal Search**: Searches Tidal for each artist, preferring exact name matches with highest popularity
+4. **Playlist Creation**: Creates or updates a playlist with one track per artist
+5. **Weekly Updates**: GitHub Actions runs every Friday to refresh the playlist
 
 ## Setup
 
 ### 1. Prerequisites
 
-- Go 1.23+ installed locally (for initial setup)
-- A Tidal account with favorite artists
-- A Google account
-- A GitHub account
+- Go 1.21+ installed locally (for initial setup)
+- A Tidal account
+- A GitHub account (for automated runs)
+- 1Password CLI (optional, for secret management)
 
 ### 2. Clone and Install
 
@@ -27,13 +37,7 @@ cd tidetable
 go mod download
 ```
 
-### 3. Bandsintown API
-
-The Bandsintown API requires an `app_id` parameter, but for public read-only access (like fetching concert info), it doesn't strictly validate this. You can use any identifier like your app name or email address.
-
-Set `BANDSINTOWN_APP_ID` to something like `tidetable` or your email.
-
-### 4. Get Tidal Developer Access
+### 3. Get Tidal Developer Access
 
 1. Visit https://developer.tidal.com/
 2. Create an account and register a new application
@@ -46,154 +50,85 @@ TIDAL_CLIENT_ID=your_client_id TIDAL_CLIENT_SECRET=your_client_secret go run cmd
 ```
 
 6. Your browser will open automatically for Tidal login
-7. Log in and authorize the application
+7. Log in and authorize the application with `collection.read playlists.write` scopes
 8. The tokens will be displayed in your terminal - save them for later
 
-### 5. Setup Google Calendar Access
+### 4. Configure Venues
 
-**Simple OAuth - No Service Account Required!** Just like Tidal, this is a one-time browser login.
+Edit `venues.yaml` to add your favorite venues:
 
-#### Step 1: Create OAuth Credentials (One-time, ~5 minutes)
+```yaml
+venues:
+  - name: "Mercury Lounge / Bowery Ballroom"
+    url: "https://mercuryeastpresents.com/calendar-mr/"
+    location: "New York, NY"
+    scraper_type: "mercury_east"
 
-Google requires you to register your app through Google Cloud Console to get OAuth credentials. Don't worry - it's free and straightforward:
-
-1. **Go to [Google Cloud Console](https://console.cloud.google.com/)**
-2. **Create a project:**
-   - Click the project dropdown at the top
-   - Click "New Project"
-   - Name it anything (e.g., "TideTable")
-   - Click "Create"
-3. **Enable Calendar API:**
-   - In the search bar, type "Google Calendar API"
-   - Click on it and click "Enable"
-4. **Configure OAuth consent screen:**
-   - Go to "APIs & Services" → "OAuth consent screen" (left sidebar)
-   - Choose "External" user type
-   - Click "Create"
-   - Fill in:
-     - App name: "TideTable" (or anything)
-     - User support email: your email
-     - Developer contact: your email
-   - Click "Save and Continue"
-   - Click "Add or Remove Scopes"
-     - Search for "calendar" and check the box for `.../auth/calendar` scope
-     - Click "Update" then "Save and Continue"
-   - **Add Test Users:**
-     - Click "Add Users"
-     - Enter YOUR Google email address
-     - Click "Add" then "Save and Continue"
-   - Click "Back to Dashboard"
-5. **Create OAuth credentials:**
-   - Go to "Credentials" (left sidebar)
-   - Click "Create Credentials" → "OAuth client ID"
-   - Application type: **Desktop app**
-   - Name: "TideTable Desktop"
-   - Click "Create"
-6. **Download credentials:**
-   - Click the download button (⬇) next to your newly created OAuth client
-   - Save the downloaded file as `credentials.json` in your project root directory
-
-**Note:** The `credentials.json` file is just your OAuth client config (not a secret). It tells Google this is your app.
-
-#### Step 2: Authenticate Your Google Account (One-time, ~1 minute)
-
-Run the setup script:
-
-```bash
-go run cmd/setup-calendar/main.go
+  # Add more venues here
+  # - name: "Your Venue"
+  #   url: "https://example.com/calendar"
+  #   location: "City, State"
+  #   scraper_type: "generic"
 ```
 
-- Browser opens automatically
-- Log in to Google
-- Approve calendar access (Google will show a warning - click "Advanced" → "Go to TideTable (unsafe)" - this is normal for personal apps)
-- Done! A `token.json` file is created
+**Supported Scraper Types:**
+- `mercury_east`: Mercury East Presents venues (Mercury Lounge, Bowery Ballroom, etc.)
+- `generic`: Basic scraper (needs customization for specific venues)
 
-**The `token.json` contains your access token and refresh token - it auto-renews and lasts forever!**
+### 5. Configure Environment Variables
 
-**Important:**
-- `credentials.json` = OAuth client config (can commit to git)
-- `token.json` = Your personal access token (do NOT commit, already in .gitignore)
-
-### 6. Setup Google Maps API (for location filtering)
-
-The app automatically fetches your home location from Google Maps to filter concerts within your chosen radius.
-
-1. **In the same Google Cloud Console project:**
-   - Search for "Geocoding API"
-   - Click "Enable"
-2. **Create an API key:**
-   - Go to "Credentials" (left sidebar)
-   - Click "Create Credentials" → "API key"
-   - Copy the API key
-   - (Optional) Click "Restrict Key" and limit it to "Geocoding API" for security
-3. **Save "Home" in Google Maps:**
-   - Go to [Google Maps](https://maps.google.com)
-   - Search for your home address
-   - Click "Save" → "Labeled" → Select or create "Home"
-
-The app will automatically fetch your home coordinates and filter concerts within your specified radius!
-
-### 7. Configure Environment Variables
-
-Copy `.env.example` to `.env`:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your credentials:
+Create a `.env` file:
 
 ```env
-BANDSINTOWN_APP_ID=tidetable
 TIDAL_CLIENT_ID=your_tidal_client_id
 TIDAL_CLIENT_SECRET=your_tidal_client_secret
 TIDAL_ACCESS_TOKEN=your_tidal_access_token
 TIDAL_REFRESH_TOKEN=your_tidal_refresh_token
-GOOGLE_CALENDAR_TOKEN=<contents of token.json as single line>
-GOOGLE_CALENDAR_ID=primary
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-RADIUS_KM=100
+PLAYLIST_NAME="This Week's Shows"
+VENUES_FILE="venues.yaml"
 ```
 
-**Configuration details:**
+**Using 1Password (Recommended):**
 
-- `BANDSINTOWN_APP_ID`: Can be any identifier (e.g., `tidetable` or your email)
-- `TIDAL_CLIENT_ID` / `TIDAL_CLIENT_SECRET`: From Tidal Developer Portal
-- `TIDAL_ACCESS_TOKEN` / `TIDAL_REFRESH_TOKEN`: Generated by `go run cmd/auth/main.go`
-- `GOOGLE_CALENDAR_TOKEN`: Copy the entire contents of `token.json` as a single line (all the JSON on one line)
-- `GOOGLE_CALENDAR_ID`:
-  - Use `primary` for your main calendar (recommended)
-  - Or get a specific calendar ID:
-    1. Go to [Google Calendar](https://calendar.google.com)
-    2. Click the three dots next to a calendar → "Settings and sharing"
-    3. Scroll to "Integrate calendar" and copy the Calendar ID
-    4. It looks like: `abc123@group.calendar.google.com`
-- `GOOGLE_MAPS_API_KEY`: API key from Google Cloud Console (Geocoding API enabled)
-- `RADIUS_KM`: Distance in kilometers to search for concerts around your home (default: 100)
+If you use 1Password, you can store secrets there and use the CLI to inject them:
 
-### 7. Test Locally
+```bash
+op run --env-file=.env -- go run main.go
+```
+
+Store your secrets in 1Password and reference them in `.env`:
+```env
+TIDAL_CLIENT_ID="op://Private/Tidal/tidetable/clientId"
+TIDAL_CLIENT_SECRET="op://Private/Tidal/tidetable/clientSecret"
+TIDAL_ACCESS_TOKEN="op://Private/Tidal/tidetable/accessToken"
+TIDAL_REFRESH_TOKEN="op://Private/Tidal/tidetable/refreshToken"
+```
+
+### 6. Test Locally
+
+```bash
+./run.sh
+```
+
+Or without 1Password:
 
 ```bash
 go run main.go
 ```
 
-You should see output showing artists being checked and events being added to your calendar.
+You should see output showing venues being scraped, artists being searched, and the playlist being created/updated.
 
-### 8. Deploy to GitHub Actions
+### 7. Deploy to GitHub Actions
 
-1. Push your code to GitHub (make sure `credentials.json` and `token.json` are NOT committed!)
-2. Add the `credentials.json` content to your repository:
-   - Commit it directly (it's not secret, just OAuth client config)
-3. Add the following secrets to your GitHub repository (Settings → Secrets and variables → Actions):
-   - `BANDSINTOWN_APP_ID`
+1. Add the following secrets to your GitHub repository (Settings → Secrets and variables → Actions):
    - `TIDAL_CLIENT_ID`
    - `TIDAL_CLIENT_SECRET`
    - `TIDAL_ACCESS_TOKEN`
    - `TIDAL_REFRESH_TOKEN`
-   - `GOOGLE_CALENDAR_TOKEN` (entire contents of token.json)
-   - `GOOGLE_CALENDAR_ID` (usually "primary")
 
-The workflow will run automatically every day at 9 AM UTC, or you can trigger it manually from the Actions tab.
+2. The workflow (`.github/workflows/weekly-playlist.yml`) will run automatically every Friday at 9 AM UTC
+
+3. You can also trigger it manually from the Actions tab
 
 ## Project Structure
 
@@ -201,74 +136,108 @@ The workflow will run automatically every day at 9 AM UTC, or you can trigger it
 tidetable/
 ├── .github/
 │   └── workflows/
-│       └── sync-concerts.yml   # GitHub Actions workflow
-├── bandsintown/
-│   └── client.go               # Bandsintown API client
-├── calendar/
-│   └── client.go               # Google Calendar client
+│       └── weekly-playlist.yml  # GitHub Actions workflow for Friday runs
 ├── cmd/
-│   ├── auth/
-│   │   └── main.go             # Tidal authentication helper
-│   └── setup-calendar/
-│       └── main.go             # Google Calendar setup helper
+│   └── auth/
+│       └── main.go              # Tidal authentication helper
 ├── config/
-│   └── config.go               # Configuration loader
+│   └── config.go                # Configuration loader
 ├── tidal/
-│   └── client.go               # Tidal API client with OAuth device flow
-├── main.go                     # Main application
-├── .env.example                # Example environment variables
-├── .gitignore                  # Git ignore file
-└── README.md                   # This file
+│   └── client.go                # Tidal API client with OAuth 2.0 PKCE
+├── venues/
+│   ├── types.go                 # Venue and Show data structures
+│   ├── loader.go                # YAML venue configuration loader
+│   ├── scraper.go               # Scraper interface and orchestration
+│   └── scrapers.go              # Venue-specific scraper implementations
+├── main.go                      # Main application
+├── run.sh                       # Helper script for 1Password integration
+├── venues.yaml                  # Venue configuration
+├── .env                         # Environment variables (not committed)
+├── .gitignore                   # Git ignore file
+└── README.md                    # This file
 ```
 
-## How It Works
+## Rate Limiting
 
-1. **Tidal Integration**: Uses OAuth 2.1 device flow to authenticate and fetch your favorite artists
-2. **Concert Discovery**: For each artist, queries Bandsintown API for upcoming concerts
-3. **Duplicate Prevention**: Checks your calendar for existing events before adding new ones
-4. **Auto-sync**: GitHub Actions runs the sync daily, keeping your calendar updated
+The Tidal API has strict rate limits. The app handles this by:
+
+- Adding 500ms delay between artist searches
+- Adding 300ms delay between search and track fetching
+- Retrying with 2-second backoff on 429 (Too Many Requests) responses
+- Gracefully continuing when rate limited (some artists may be skipped)
+
+For 19 unique artists, expect about 14-15 tracks in the final playlist due to rate limits and artists not found on Tidal.
+
+## Artist Matching
+
+When multiple artists have the same name on Tidal, the app:
+
+1. Prefers exact name matches (case-insensitive)
+2. Selects the artist with highest popularity score
+3. Falls back to the first result if no exact match
+
+This ensures the correct artist is selected when there are multiple profiles with the same name.
 
 ## Customization
 
 ### Change Sync Schedule
 
-Edit `.github/workflows/sync-concerts.yml` and modify the cron expression:
+Edit `.github/workflows/weekly-playlist.yml` and modify the cron expression:
 
 ```yaml
 schedule:
-  - cron: '0 9 * * *'  # Daily at 9 AM UTC
+  - cron: '0 9 * * 5'  # Every Friday at 9 AM UTC
 ```
 
-### Change Calendar
+### Change Playlist Name
 
-Set `GOOGLE_CALENDAR_ID` to a different calendar ID (found in Google Calendar settings).
+Set `PLAYLIST_NAME` in your `.env` file.
+
+### Add More Venues
+
+Edit `venues.yaml` and add additional venues with appropriate scraper types.
 
 ## Troubleshooting
 
-### "Failed to fetch favorite artists"
+### "Failed to authenticate with Tidal"
 
-- Check your Tidal access token is valid
+- Check your Tidal tokens are valid
 - Re-run `go run cmd/auth/main.go` to get fresh tokens
+- Ensure you granted both `collection.read` and `playlists.write` scopes
 
-### "Unable to read credentials.json"
+### "No shows found"
 
-- Make sure `credentials.json` is in the project root
-- Verify it's properly formatted JSON
+- Verify your `venues.yaml` URLs are correct
+- Check the venue websites are accessible
+- Ensure the scraper type matches the venue format
 
-### "Request failed with status 401"
+### Many artists showing "not found" or "✓ added 0 track(s)"
 
-- Your Google Calendar token may have expired
-- Re-run `go run cmd/setup-calendar/main.go` to refresh
+This is usually due to:
+- **Rate limiting**: Tidal API has strict limits; the app handles this gracefully
+- **Artist not on Tidal**: Some artists may not have a Tidal profile
+- **Multiple artist profiles**: The app selects by popularity, but the highest-ranked profile might have no tracks
 
-### No concerts found
+### Playlist has fewer tracks than artists found
 
-- Verify your Tidal favorite artists list is not empty
-- Check Bandsintown has data for those artists
+This is normal due to:
+- Rate limiting from Tidal API
+- Multi-artist shows (e.g., "Artist A, Artist B") not found as single entity
+- Artists with promotional text (e.g., "Artist Name - Tour Name") not matching Tidal profiles
+- Some artists legitimately having no tracks available in your region
+
+## Contributing
+
+Pull requests welcome! To add a new venue scraper:
+
+1. Implement the `Scraper` interface in `venues/scrapers.go`
+2. Add the scraper type to `GetScraper()` switch statement
+3. Test with your venue's URL
 
 ## License
 
 MIT
 
-## Contributing
+## Credits
 
-Pull requests welcome!
+Built with Claude Code
