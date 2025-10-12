@@ -40,40 +40,67 @@ The best part? It's all automatic. You just wake up, hit play, and discover.
 
 ## Setup
 
-### Quick Start
+This is a GitHub Actions-first setup. Everything runs automatically once configured.
 
 **Prerequisites:**
-- Go 1.21+ installed
 - A Tidal account (HiFi or HiFi Plus)
-- A GitHub account for auto-updates
-- 1Password CLI (optional but recommended for secret management)
+- A GitHub account
+- Go 1.21+ installed (only needed for one-time token generation)
 
-### 1. Clone and Install
+### 1. Fork This Repository
+
+Click the "Fork" button at the top of this page to create your own copy.
+
+### 2. Get Tidal Developer Credentials
+
+Register as a Tidal developer to get your API credentials:
+
+1. Go to https://developer.tidal.com/
+2. Create an account and register a new application
+3. Set the **Redirect URI** to: `http://localhost:8080/callback`
+4. Copy your **Client ID** and **Client Secret**
+
+### 3. Add Client Credentials to GitHub Secrets
+
+In your forked repository:
+
+1. Go to **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret** and add:
+   - Name: `TIDAL_CLIENT_ID` / Value: `your_client_id`
+   - Name: `TIDAL_CLIENT_SECRET` / Value: `your_client_secret`
+
+### 4. Generate Tidal Access Tokens (One-Time Setup)
+
+**This step must be done locally** because OAuth requires browser login.
+
+Clone your forked repository:
 
 ```bash
-git clone https://github.com/chtitoon/tidetable.git
+git clone https://github.com/YOUR_USERNAME/tidetable.git
 cd tidetable
 go mod download
 ```
 
-### 2. Get Tidal Developer Access
-
-First, you need to register as a Tidal developer:
-
-1. Go to https://developer.tidal.com/
-2. Create an account and register a new app
-3. Set the **Redirect URI** to: `http://localhost:8080/callback`
-4. Grab your Client ID and Client Secret
-
-Now authenticate:
+Run the authentication helper:
 
 ```bash
 TIDAL_CLIENT_ID=your_client_id TIDAL_CLIENT_SECRET=your_client_secret go run cmd/auth/main.go
 ```
 
-Your browser will open, you'll log into Tidal, authorize the app, and boom—your access tokens appear in the terminal. Save these for the next step.
+Your browser will open for Tidal login. After authorizing:
+- Copy the **Access Token** from the terminal
+- Copy the **Refresh Token** from the terminal
 
-### 3. Configure Your Venues
+**You won't need to run this again.** Tokens refresh automatically.
+
+### 5. Add Access Tokens to GitHub Secrets
+
+Back in your repository's **Settings** → **Secrets and variables** → **Actions**, add two more secrets:
+
+- Name: `TIDAL_ACCESS_TOKEN` / Value: `your_access_token`
+- Name: `TIDAL_REFRESH_TOKEN` / Value: `your_refresh_token`
+
+### 6. Configure Your Venues
 
 Edit `venues.yaml` to add your go-to spots:
 
@@ -96,63 +123,29 @@ venues:
 
 Want your local venue supported? PRs welcome or open an issue.
 
-### 4. Set Up Environment Variables
-
-Create a `.env` file:
-
-```env
-TIDAL_CLIENT_ID=your_tidal_client_id
-TIDAL_CLIENT_SECRET=your_tidal_client_secret
-TIDAL_ACCESS_TOKEN=your_tidal_access_token
-TIDAL_REFRESH_TOKEN=your_tidal_refresh_token
-PLAYLIST_NAME="Rolling Through"
-VENUES_FILE="venues.yaml"
-```
-
-**Using 1Password (Recommended):**
-
-Store your secrets in 1Password and reference them:
-
-```env
-TIDAL_CLIENT_ID="op://Private/Tidal/tidetable/clientId"
-TIDAL_CLIENT_SECRET="op://Private/Tidal/tidetable/clientSecret"
-TIDAL_ACCESS_TOKEN="op://Private/Tidal/tidetable/accessToken"
-TIDAL_REFRESH_TOKEN="op://Private/Tidal/tidetable/refreshToken"
-```
-
-Then run with:
-```bash
-op run --env-file=.env -- go run main.go
-```
-
-Or just use the helper script:
-```bash
-./run.sh
-```
-
-### 5. Test It Out
+Commit and push your `venues.yaml` changes to your fork:
 
 ```bash
-./run.sh
+git add venues.yaml
+git commit -m "Configure my favorite venues"
+git push
 ```
 
-You'll see it scraping venues, finding artists, building your playlist. In a minute or two, check Tidal—your playlist is live.
+### 7. Test the Workflow
 
-### 6. Automate with GitHub Actions
+In your GitHub repository:
 
-Set it and forget it:
+1. Go to the **Actions** tab
+2. Select **Weekly Playlist Update**
+3. Click **Run workflow** → **Run workflow**
 
-1. Add these secrets to your GitHub repo (Settings → Secrets and variables → Actions):
-   - `TIDAL_CLIENT_ID`
-   - `TIDAL_CLIENT_SECRET`
-   - `TIDAL_ACCESS_TOKEN`
-   - `TIDAL_REFRESH_TOKEN`
+Watch it run! In about a minute, check your Tidal account for the new playlist.
 
-2. The workflow runs automatically every Friday at 9 AM UTC (5 AM EST)
+### 8. Done!
 
-3. Want to run it manually? Go to Actions tab → Weekly Playlist Update → Run workflow
+That's it. Every Friday at 9 AM UTC (5 AM EST), your playlist updates automatically with fresh artists from the upcoming week's shows.
 
-Done. Every Friday, fresh playlist. Every weekend, new discoveries.
+No maintenance required. Just wake up, listen, and discover.
 
 ## Customization
 
@@ -167,13 +160,14 @@ schedule:
 
 ### Change the Playlist Name
 
-Set `PLAYLIST_NAME` in your `.env` file or GitHub secrets:
+Edit `.github/workflows/weekly-playlist.yml` and change the `PLAYLIST_NAME` value:
 
-```env
-PLAYLIST_NAME="Coming Up This Week"
+```yaml
+env:
+  PLAYLIST_NAME: "Your Custom Name"
 ```
 
-Default is "Rolling Through" if you don't set it.
+Default is "Rolling Through".
 
 ### Add More Venues
 

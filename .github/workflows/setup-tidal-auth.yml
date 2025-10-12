@@ -1,0 +1,41 @@
+name: Setup Tidal Authentication
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  authenticate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Run Tidal Authentication
+        env:
+          TIDAL_CLIENT_ID: ${{ secrets.TIDAL_CLIENT_ID }}
+          TIDAL_CLIENT_SECRET: ${{ secrets.TIDAL_CLIENT_SECRET }}
+        run: |
+          echo "🎵 Starting Tidal OAuth authentication..."
+          echo ""
+          echo "⚠️  IMPORTANT: This workflow requires manual intervention!"
+          echo ""
+          echo "You need to run this authentication step LOCALLY on your machine."
+          echo "GitHub Actions cannot open a browser for OAuth login."
+          echo ""
+          echo "Steps to generate your tokens:"
+          echo "1. Clone this repository to your local machine"
+          echo "2. Run: TIDAL_CLIENT_ID=${{ secrets.TIDAL_CLIENT_ID }} TIDAL_CLIENT_SECRET=${{ secrets.TIDAL_CLIENT_SECRET }} go run cmd/auth/main.go"
+          echo "3. Your browser will open for Tidal login"
+          echo "4. After authorizing, copy the Access Token and Refresh Token from the terminal"
+          echo "5. Add them as GitHub secrets:"
+          echo "   - TIDAL_ACCESS_TOKEN"
+          echo "   - TIDAL_REFRESH_TOKEN"
+          echo ""
+          echo "Once tokens are added as secrets, the Weekly Playlist workflow will work automatically."
+          exit 1
