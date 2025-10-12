@@ -14,8 +14,10 @@ type Scraper interface {
 // GetScraper returns the appropriate scraper for a venue type
 func GetScraper(scraperType string) (Scraper, error) {
 	switch scraperType {
-	case "mercury_east", "bowery_presents":
+	case "mercury_east":
 		return &MercuryEastScraper{}, nil
+	case "bowery_presents":
+		return &BoweryPresentsScraper{}, nil
 	case "generic":
 		return &GenericScraper{}, nil
 	default:

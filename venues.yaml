@@ -4,16 +4,12 @@ venues:
     location: "New York, NY"
     scraper_type: "mercury_east"
 
-  # Webster Hall - Requires JavaScript rendering (SPA)
-  # The website uses client-side JavaScript to load events dynamically
-  # Options to implement:
-  #   1. Use headless browser (Playwright/Puppeteer/chromedp)
-  #   2. Reverse engineer their API endpoint
-  #   3. Use a third-party service for JavaScript rendering
-  # - name: "Webster Hall"
-  #   url: "https://www.websterhall.com/shows/"
-  #   location: "New York, NY"
-  #   scraper_type: "webster_hall"
+  # Bowery Presents - Unified calendar for multiple venues
+  # Includes: Webster Hall, Music Hall of Williamsburg, Brooklyn Steel, Terminal 5, and more
+  - name: "Bowery Presents NYC"
+    url: "https://www.bowerypresents.com/new-york-metro/calendar/"
+    location: "New York, NY / Brooklyn, NY"
+    scraper_type: "bowery_presents"
 
   # Add more Mercury East Presents venues
   # - name: "Bowery Ballroom"
