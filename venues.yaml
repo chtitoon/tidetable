@@ -4,6 +4,13 @@ venues:
     location: "New York, NY"
     scraper_type: "mercury_east"
 
+  # Webster Hall - requires custom scraper (JavaScript-rendered page)
+  # Uncomment when scraper is implemented
+  # - name: "Webster Hall"
+  #   url: "https://www.websterhall.com/shows/"
+  #   location: "New York, NY"
+  #   scraper_type: "webster_hall"
+
   # Add more Mercury East Presents venues
   # - name: "Bowery Ballroom"
   #   url: "https://mercuryeastpresents.com/calendar-bb/"
