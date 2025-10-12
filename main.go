@@ -31,14 +31,14 @@ func main() {
 
 	fmt.Printf("Loaded %d venue(s)\n\n", len(venueList))
 
-	// Calculate date range: Monday of current week to Sunday
+	// Calculate date range: Next Monday to next Sunday (upcoming week)
 	now := time.Now()
 
-	// Find the Monday of the current week
+	// Find the next Monday (or today if today is Monday)
 	weekday := now.Weekday()
 	daysUntilMonday := int(time.Monday - weekday)
-	if daysUntilMonday > 0 {
-		daysUntilMonday -= 7 // Go to previous Monday if today is Sunday
+	if daysUntilMonday <= 0 {
+		daysUntilMonday += 7 // Go to next Monday
 	}
 	monday := now.AddDate(0, 0, daysUntilMonday)
 
