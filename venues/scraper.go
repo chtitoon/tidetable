@@ -23,11 +23,9 @@ func GetScraper(scraperType string) (Scraper, error) {
 	}
 }
 
-// ScrapeAllVenues scrapes all configured venues and returns shows happening in the next N days
-func ScrapeAllVenues(venues []Venue, daysAhead int) ([]Show, error) {
+// ScrapeAllVenuesForWeek scrapes all configured venues and returns shows happening between start and end dates
+func ScrapeAllVenuesForWeek(venues []Venue, startDate, endDate time.Time) ([]Show, error) {
 	var allShows []Show
-	now := time.Now()
-	endDate := now.AddDate(0, 0, daysAhead)
 
 	for _, venue := range venues {
 		fmt.Printf("Scraping %s...\n", venue.Name)
@@ -46,17 +44,21 @@ func ScrapeAllVenues(venues []Venue, daysAhead int) ([]Show, error) {
 
 		fmt.Printf("  Scraped %d total shows\n", len(shows))
 
-		// Filter for shows in the configured time window (including today)
+		// Filter for shows within the date range (inclusive)
 		matchingShows := 0
 		for _, show := range shows {
-			// Use After(now.AddDate(0,0,-1)) to include shows today
-			if show.Date.After(now.AddDate(0, 0, -1)) && show.Date.Before(endDate) {
+			// Check if show is on or after startDate and on or before endDate
+			showDate := time.Date(show.Date.Year(), show.Date.Month(), show.Date.Day(), 0, 0, 0, 0, show.Date.Location())
+			start := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, startDate.Location())
+			end := time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 23, 59, 59, 0, endDate.Location())
+
+			if (showDate.Equal(start) || showDate.After(start)) && (showDate.Equal(end) || showDate.Before(end)) {
 				allShows = append(allShows, show)
 				matchingShows++
 			}
 		}
 
-		fmt.Printf("  Found %d shows in the next %d days\n", matchingShows, daysAhead)
+		fmt.Printf("  Found %d shows this week\n", matchingShows)
 	}
 
 	return allShows, nil
