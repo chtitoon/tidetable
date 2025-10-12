@@ -26,4 +26,4 @@ venues:
 #
 # Supported scraper types:
 #   - mercury_east: For Mercury East Presents venues (Mercury Lounge, Bowery Ballroom, etc.)
-#   - generic: Basic fallback scraper (needs customization per venue)
+#   - bowery_presents: For Bowery Presents unified calendar (Webster Hall, Music Hall of Williamsburg, Brooklyn Steel, etc.)

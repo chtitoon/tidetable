@@ -18,8 +18,6 @@ func GetScraper(scraperType string) (Scraper, error) {
 		return &MercuryEastScraper{}, nil
 	case "bowery_presents":
 		return &BoweryPresentsScraper{}, nil
-	case "generic":
-		return &GenericScraper{}, nil
 	default:
 		return nil, fmt.Errorf("unknown scraper type: %s", scraperType)
 	}
