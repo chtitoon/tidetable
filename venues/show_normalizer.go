@@ -72,20 +72,20 @@ func cleanTitle(title string) string {
 	title = strings.TrimSpace(title)
 
 	// Remove common performance annotations (case-insensitive)
-	// Examples: "(Live)", "- Live", "(DJ Set)", "- Acoustic", etc.
+	// Examples: "(Live)", "- Live", "- Live 2025", "(DJ Set)", "- Acoustic", etc.
 	patterns := []string{
 		`(?i)\s*\(live\)\s*$`,
-		`(?i)\s*-\s*live\s*$`,
+		`(?i)\s*-\s*live\s*\d*\s*$`,
 		`(?i)\s*\(dj set\)\s*$`,
-		`(?i)\s*-\s*dj set\s*$`,
+		`(?i)\s*-\s*dj set\s*\d*\s*$`,
 		`(?i)\s*\(acoustic\)\s*$`,
-		`(?i)\s*-\s*acoustic\s*$`,
+		`(?i)\s*-\s*acoustic\s*\d*\s*$`,
 		`(?i)\s*\(solo\)\s*$`,
-		`(?i)\s*-\s*solo\s*$`,
+		`(?i)\s*-\s*solo\s*\d*\s*$`,
 		`(?i)\s*\(full band\)\s*$`,
-		`(?i)\s*-\s*full band\s*$`,
+		`(?i)\s*-\s*full band\s*\d*\s*$`,
 		`(?i)\s*\(unplugged\)\s*$`,
-		`(?i)\s*-\s*unplugged\s*$`,
+		`(?i)\s*-\s*unplugged\s*\d*\s*$`,
 	}
 
 	for _, pattern := range patterns {
