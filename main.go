@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 	"time"
 
@@ -61,7 +62,12 @@ func main() {
 		return
 	}
 
-	// Print shows
+	// Sort shows by date (Monday first, then Tuesday, etc.)
+	sort.Slice(shows, func(i, j int) bool {
+		return shows[i].Date.Before(shows[j].Date)
+	})
+
+	// Print shows in chronological order
 	for _, show := range shows {
 		fmt.Printf("📅 %s - %s at %s\n", show.Date.Format("Mon Jan 2"), show.Artist, show.Venue)
 		if show.Price != "" {
