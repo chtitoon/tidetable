@@ -23,9 +23,9 @@ func main() {
 		log.Fatal("TIDAL_CLIENT_ID and TIDAL_CLIENT_SECRET must be set")
 	}
 
-	client := tidal.NewClient(clientID, clientSecret, redirectURI)
+	auth := tidal.NewAuthenticator(clientID, clientSecret, redirectURI)
 
-	authURL, codeVerifier, err := client.GenerateAuthURL()
+	authURL, codeVerifier, err := auth.GenerateAuthURL()
 	if err != nil {
 		log.Fatalf("Failed to generate auth URL: %v", err)
 	}
@@ -73,11 +73,11 @@ func main() {
 		server.Shutdown(ctx)
 
 		// Exchange code for token
-		if err := client.ExchangeCodeForToken(authCode, codeVerifier); err != nil {
+		if err := auth.ExchangeCodeForToken(authCode, codeVerifier); err != nil {
 			log.Fatalf("Failed to exchange code for token: %v", err)
 		}
 
-		accessToken, refreshToken := client.GetTokens()
+		accessToken, refreshToken := auth.GetTokens()
 
 		fmt.Printf("\n=== Authentication Successful! ===\n")
 		fmt.Printf("Add these to your .env file or GitHub Secrets:\n\n")

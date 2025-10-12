@@ -70,10 +70,11 @@ func main() {
 		fmt.Printf("   🔗 %s\n\n", show.URL)
 	}
 
-	// Initialize Tidal client
+	// Initialize Tidal service
 	fmt.Println("Connecting to Tidal...")
-	tidalClient := tidal.NewClient(cfg.TidalClientID, cfg.TidalClientSecret, "")
-	tidalClient.SetTokens(cfg.TidalAccessToken, cfg.TidalRefreshToken)
+	auth := tidal.NewAuthenticator(cfg.TidalClientID, cfg.TidalClientSecret, "")
+	auth.SetTokens(cfg.TidalAccessToken, cfg.TidalRefreshToken)
+	tidalService := tidal.NewService(auth)
 
 	// Deduplicate artists (venues may list the same show multiple times)
 	uniqueArtists := make(map[string]bool)
@@ -100,7 +101,7 @@ func main() {
 
 		fmt.Printf("  Searching for %s...", artist)
 
-		artistID, err := tidalClient.SearchArtist(ctx, artist)
+		artistID, err := tidalService.SearchArtist(ctx, artist)
 		if err != nil {
 			fmt.Printf(" not found\n")
 			continue
@@ -110,7 +111,7 @@ func main() {
 		time.Sleep(300 * time.Millisecond)
 
 		// Get top track for this artist (just 1 song)
-		tracks, err := tidalClient.GetArtistTopTracks(ctx, artistID, 1) // Get just 1 track
+		tracks, err := tidalService.GetArtistTopTracks(ctx, artistID, 1) // Get just 1 track
 		if err != nil {
 			fmt.Printf(" found but no tracks\n")
 			continue
@@ -148,7 +149,7 @@ func main() {
 		mondayStr, sundayStr, strings.Join(venueNames, ", "))
 
 	// Create or update playlist
-	playlistID, err := tidalClient.CreateOrUpdatePlaylist(ctx, playlistName, description, trackIDs)
+	playlistID, err := tidalService.CreateOrUpdatePlaylist(ctx, playlistName, description, trackIDs)
 	if err != nil {
 		log.Fatalf("Failed to create playlist: %v", err)
 	}
