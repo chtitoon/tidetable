@@ -1,33 +1,14 @@
-# TideTable 🎵
+# TideTable 🎸
 
-> **Discover live music differently.** Stop scrolling through the same old playlists. Start with the venues you love.
+> Listen First, Buy Tickets Later
 
-## The Problem
+Your favorite local venues book great artists every week. Problem is, you’ve never heard of them.
 
-You know that feeling? You're listening to the same artists on repeat. Ticket prices for big-name shows are insane. Meanwhile, incredible music is happening every week at your favorite local venues—artists you've never heard of, genres you didn't know you'd love.
+TideTable fixes that. Pick your venues, and every Friday we check their upcoming lineups, pull the music from Tidal, and build you a playlist. Now you’ve got the weekend to listen before shows sell out.
 
-What if you could discover new music based on who's actually playing near you, instead of what Spotify's algorithm thinks you like?
+It’s music discovery that starts with who’s actually playing near you—not what an algorithm thinks you’ll like. Which means you’re catching $20 shows instead of $100 ones, your library’s actually growing, and occasionally you get to say “yeah, I saw them when they played to 200 people.”
 
-## The Solution
-
-**TideTable flips music discovery on its head.** Instead of starting with artists you already know, it starts with venues you love.
-
-Every week, TideTable:
-1. Checks what shows are coming up at your favorite venues
-2. Finds each artist on Tidal
-3. Creates a fresh playlist with a taste of everyone performing
-
-Now you have the weekend to listen, vibe, and decide: "Wait, who is this? I need to see them live."
-
-Suddenly you're catching amazing shows for $15-25, discovering artists before they blow up, and your music library is actually growing instead of calcifying around the same dozen bands.
-
-## Why This Rocks
-
-- **Escape the echo chamber**: Your music taste shouldn't be a closed loop
-- **Affordable live music**: Local shows = reasonable prices (and better sound anyway)
-- **Support rising artists**: Catch them in small venues before they're playing arenas
-- **Zero effort**: Set it up once, get fresh music every Friday
-- **Perfect timing**: Updated Fridays so you have the weekend to listen and plan
+Set your venues once. Get fresh music every week. Go to better shows.​​​​​​​​​​​​​​​​
 
 ## How It Works
 
@@ -265,4 +246,4 @@ Built with love (and Claude Code) for people who still believe live music is mag
 
 ---
 
-**Now go discover something amazing.** 🎸
+**Now go discover something amazing.**
