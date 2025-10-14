@@ -6,7 +6,7 @@ TideTable is a project I started over a gloomy weekend of October.
 
 I initially thought about connecting shows of my favorite artists on Tidal with a google calendar. But after struggling with BandsInTown and Songkick APIs, I pivoted to something simpler: create a weekly playlist from artists I've probably never heard of. That way, eventually—maybe, really maybe, if I'm in the mood and have an empty agenda—I'll go to one of them. That's it. That's the whole idea.
 
-<img width="590" height="1134" alt="image" src="https://github.com/user-attachments/assets/ae5f22b5-023d-4ef4-8d7b-ef3790143525" />
+<img width="290" alt="image" src="https://github.com/user-attachments/assets/ae5f22b5-023d-4ef4-8d7b-ef3790143525" />
 
 
 
