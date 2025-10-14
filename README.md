@@ -1,17 +1,17 @@
 # TideTable 🎸
 
+> Discover new artists playing near you week in and week out.
+
 TideTable is a project I started over a gloomy weekend of October.
 
-I initially thought about connecting shows of my favorite artists on Tidal with a google calendar. But after struggling with BandsInTown and Songkick API, I pivoted with something simpler: create a weekly playlist from artist I probably never heard of, so that eventually, maybe, really maybe, if i am in the mood and have an empty agenda, I'll go. that's it. that's the whole idea.
+I initially thought about connecting shows of my favorite artists on Tidal with a google calendar. But after struggling with BandsInTown and Songkick APIs, I pivoted to something simpler: create a weekly playlist from artists I've probably never heard of. That way, eventually—maybe, really maybe, if I'm in the mood and have an empty agenda—I'll go to one of them. That's it. That's the whole idea.
 
 
 ## How It Works
 
-1. **Venue Scraping**: Automatically checks your favorite venues for upcoming shows (Monday-Sunday of the following week)
-2. **Artist Discovery**: Grabs every artist name from the lineups
-3. **Playlist Magic**: Searches Tidal, picks a top track from each artist, bundles them into a weekly playlist
-4. **Friday Vibes**: GitHub Actions runs every Friday morning—your playlist is ready before your coffee
-
+1. Every Friday, using github actions, it automatically checks your favorite [venues](venues.yaml) for upcoming shows (Monday-Sunday of the following week)
+2. Grabs every artist name from the lineups
+3. Searches Tidal, picks a top track from each artist, bundles them into a weekly "Rolling Through" playlist 
 
 ## Setup
 
@@ -94,7 +94,6 @@ venues:
 
 **Supported Scraper Types:**
 - `mercury_east`: Works for Mercury East Presents venues (Mercury Lounge, Bowery Ballroom, etc.)
-- `generic`: Basic HTML scraper (may need customization)
 
 Want your local venue supported? PRs welcome or open an issue.
 
@@ -117,118 +116,9 @@ In your GitHub repository:
 Watch it run! In about a minute, check your Tidal account for the new playlist.
 
 ### 8. Done!
-
 That's it. Every Friday at 9 AM UTC (5 AM EST), your playlist updates automatically with fresh artists from the upcoming week's shows.
 
-No maintenance required. Just wake up, listen, and discover.
-
-## Customization
-
-### Change the Schedule
-
-Edit `.github/workflows/weekly-playlist.yml`:
-
-```yaml
-schedule:
-  - cron: '0 9 * * 5'  # Every Friday at 9 AM UTC
-```
-
-### Change the Playlist Name
-
-Edit `.github/workflows/weekly-playlist.yml` and change the `PLAYLIST_NAME` value:
-
-```yaml
-env:
-  PLAYLIST_NAME: "Your Custom Name"
-```
-
-Default is "Rolling Through".
-
-### Add More Venues
-
-Just edit `venues.yaml` and add as many as you want. The more venues, the more variety.
-
-## Project Structure
-
-```
-tidetable/
-├── .github/workflows/
-│   └── weekly-playlist.yml  # Auto-runs every Friday
-├── cmd/auth/
-│   └── main.go              # Tidal OAuth helper
-├── config/
-│   └── config.go            # Config loader
-├── tidal/
-│   └── client.go            # Tidal API magic
-├── venues/
-│   ├── types.go             # Data structures
-│   ├── loader.go            # YAML venue loader
-│   ├── scraper.go           # Scraper orchestration
-│   └── scrapers.go          # Venue-specific scrapers
-├── main.go                  # Main app
-├── run.sh                   # 1Password helper script
-├── venues.yaml              # Your venues
-└── .env                     # Secrets (not committed)
-```
-
-## Technical Notes
-
-### Rate Limiting
-
-Tidal's API has strict rate limits. The app handles this gracefully:
-
-- 500ms delay between artist searches
-- 300ms delay between search and fetching tracks
-- Auto-retry with 2-second backoff on rate limit errors
-- Keeps going even if some artists get skipped
-
-If you have 20 artists and end up with 15 tracks, that's normal. Some artists won't be on Tidal, some might get rate-limited, and that's okay.
-
-### Artist Matching
-
-When multiple artists share a name:
-1. Prefers exact name match (case-insensitive)
-2. Picks the one with highest popularity score
-3. Falls back to first result if no exact match
-
-This mostly gets it right, but sometimes "John Smith" the indie rocker gets confused with "John Smith" the jazz pianist. The algorithm tries its best.
-
-## Troubleshooting
-
-**"Failed to authenticate with Tidal"**
-- Re-run `go run cmd/auth/main.go` to get fresh tokens
-- Make sure you granted both `collection.read` and `playlists.write` scopes
-
-**"No shows found"**
-- Check your `venues.yaml` URLs are correct
-- Try visiting the URLs in a browser to confirm they're working
-- The venue might have changed their website layout (PRs welcome to fix scrapers!)
-
-**Many artists showing "not found"**
-- Some artists just aren't on Tidal yet
-- Rate limiting might skip a few (this is expected)
-- Multi-artist shows like "Band A w/ Band B" might not parse perfectly
-
-**Playlist has fewer tracks than artists**
-- Totally normal! Rate limits, missing artists, regional restrictions all play a role
-- The playlist will still give you plenty to discover
-
-## Contributing
-
-Want to add a new venue scraper? Love PRs:
-
-1. Implement the `Scraper` interface in `venues/scrapers.go`
-2. Add your scraper type to the `GetScraper()` function
-3. Test it with a real venue URL
-4. Submit a PR with a description of the venue(s) it supports
-
-Feature ideas, bug reports, venue requests—all welcome in Issues.
-
-## Philosophy
-
-Music discovery should be an adventure, not an algorithm. The best shows aren't always the most popular ones. Your next favorite band might be playing next Tuesday at that venue you walk past every day.
-
-Let TideTable do the legwork. You do the discovering.
+No maintenance required. Just listen, and discover.
 
 ## License
 
@@ -236,8 +126,4 @@ MIT
 
 ## Credits
 
-Built with love (and Claude Code) for people who still believe live music is magic.
-
----
-
-**Now go discover something amazing.**
+Built with (some) love (and Claude Code).
