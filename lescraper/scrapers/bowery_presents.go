@@ -1,4 +1,4 @@
-package venues
+package scrapers
 
 import (
 	"fmt"
@@ -7,21 +7,47 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/chtitoon/tidetable/lescraper/core"
 )
 
-// BoweryPresentsScraper handles Bowery Presents venues
-// Scrapes the unified New York Metro calendar which lists all venues together:
-// - Webster Hall
-// - Music Hall of Williamsburg
-// - Brooklyn Steel
-// - Terminal 5
-// - And more
-type BoweryPresentsScraper struct{}
+const boweryPresentsCalendarURL = "https://www.bowerypresents.com/new-york-metro/calendar/"
+
+// BoweryPresents scraper handles all Bowery Presents venues
+// Scrapes the unified New York Metro calendar which lists all venues together
+type BoweryPresents struct{}
+
+// Venues managed by Bowery Presents (updated as new venues are discovered)
+var boweryPresentsVenues = []string{
+	"Webster Hall",
+	"Music Hall of Williamsburg",
+	"Brooklyn Steel",
+	"Terminal 5",
+	"Racket NYC",
+	"The Rooftop at Pier 17",
+	// Add more as discovered from the calendar
+}
+
+func init() {
+	// Register all Bowery Presents venues with the registry
+	scraper := &BoweryPresents{}
+	core.RegisterVenues(scraper.GetVenues(), scraper)
+}
+
+// GetVenues returns all venues managed by Bowery Presents
+func (s *BoweryPresents) GetVenues() []string {
+	return boweryPresentsVenues
+}
+
+// GetName returns the scraper name
+func (s *BoweryPresents) GetName() string {
+	return "Bowery Presents"
+}
 
 // ScrapeShows implements the Scraper interface for Bowery Presents venues
-func (s *BoweryPresentsScraper) ScrapeShows(venue Venue) ([]Show, error) {
+func (s *BoweryPresents) ScrapeShows() ([]core.Show, error) {
 	// Fetch the page
-	resp, err := http.Get(venue.URL)
+	resp, err := http.Get(boweryPresentsCalendarURL)
 	if err != nil {
 		return nil, fmt.Errorf("fetching page: %w", err)
 	}
@@ -51,7 +77,7 @@ func (s *BoweryPresentsScraper) ScrapeShows(venue Venue) ([]Show, error) {
 	eventBlockRe := regexp.MustCompile(`(?s)class="event-headliner event-text">([^<]+)</h4>.*?class="event-date event-text">([^<]+)</p>.*?class="event-venue event-text">([^<]+)</p>.*?href="(https://www\.axs\.com/events/[^"]+)"`)
 	matches := eventBlockRe.FindAllStringSubmatch(htmlContent, -1)
 
-	var shows []Show
+	var shows []core.Show
 	for _, match := range matches {
 		if len(match) < 5 {
 			continue
@@ -71,13 +97,13 @@ func (s *BoweryPresentsScraper) ScrapeShows(venue Venue) ([]Show, error) {
 
 		// Return all shows from the calendar
 		// The actual venue name comes from the page (Webster Hall, Music Hall of Williamsburg, etc.)
-		shows = append(shows, Show{
+		shows = append(shows, core.Show{
 			Title:    title,
 			Venue:    venueName,
 			Date:     date,
 			Price:    "", // Price not available on calendar page
 			URL:      eventURL,
-			VenueURL: venue.URL,
+			VenueURL: boweryPresentsCalendarURL,
 		})
 	}
 

@@ -1,4 +1,4 @@
-package venues
+package scrapers
 
 import (
 	"fmt"
@@ -7,14 +7,67 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/chtitoon/tidetable/lescraper/core"
 )
 
-// MercuryEastScraper handles Mercury East Presents venues (Mercury Lounge, Bowery Ballroom, etc.)
-// These venues embed event data in JavaScript using EventData.events.push() format
-type MercuryEastScraper struct{}
+// MercuryEast scraper handles all Mercury East Presents venues
+// Each venue has its own calendar URL with the same structure
+type MercuryEast struct{}
+
+// Venue info for Mercury East venues
+type mercuryEastVenue struct {
+	Name string
+	URL  string
+}
+
+// Mercury East Presents venues with their calendar URLs
+var mercuryEastVenues = []mercuryEastVenue{
+	{Name: "Mercury Lounge", URL: "https://mercuryeastpresents.com/calendar-mr/"},
+	{Name: "Bowery Ballroom", URL: "https://mercuryeastpresents.com/boweryballroom/"},
+	// Add more Mercury East venues as discovered
+}
+
+func init() {
+	// Register all Mercury East venues with the registry
+	scraper := &MercuryEast{}
+	core.RegisterVenues(scraper.GetVenues(), scraper)
+}
+
+// GetVenues returns all venues managed by Mercury East Presents
+func (s *MercuryEast) GetVenues() []string {
+	venues := make([]string, len(mercuryEastVenues))
+	for i, v := range mercuryEastVenues {
+		venues[i] = v.Name
+	}
+	return venues
+}
+
+// GetName returns the scraper name
+func (s *MercuryEast) GetName() string {
+	return "Mercury East"
+}
 
 // ScrapeShows implements the Scraper interface for Mercury East venues
-func (s *MercuryEastScraper) ScrapeShows(venue Venue) ([]Show, error) {
+func (s *MercuryEast) ScrapeShows() ([]core.Show, error) {
+	var allShows []core.Show
+
+	// Scrape each Mercury East venue
+	for _, venue := range mercuryEastVenues {
+		shows, err := s.scrapeVenue(venue)
+		if err != nil {
+			// Log error but continue with other venues
+			fmt.Printf("Warning: failed to scrape %s: %v\n", venue.Name, err)
+			continue
+		}
+		allShows = append(allShows, shows...)
+	}
+
+	return allShows, nil
+}
+
+// scrapeVenue scrapes a single Mercury East venue
+func (s *MercuryEast) scrapeVenue(venue mercuryEastVenue) ([]core.Show, error) {
 	// Fetch the page
 	resp, err := http.Get(venue.URL)
 	if err != nil {
@@ -31,7 +84,7 @@ func (s *MercuryEastScraper) ScrapeShows(venue Venue) ([]Show, error) {
 		return nil, fmt.Errorf("reading body: %w", err)
 	}
 
-	var shows []Show
+	var shows []core.Show
 
 	// Parse event entries added via EventData.events.push()
 	// Format: EventData.events.push({"value" : "Artist Name 10/12", ...});
@@ -70,7 +123,7 @@ func (s *MercuryEastScraper) ScrapeShows(venue Venue) ([]Show, error) {
 			continue
 		}
 
-		shows = append(shows, Show{
+		shows = append(shows, core.Show{
 			Title:    title,
 			Venue:    venue.Name,
 			Date:     date,
