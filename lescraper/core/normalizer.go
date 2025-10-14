@@ -82,9 +82,12 @@ func cleanTitle(title string) string {
 		title = re.ReplaceAllString(title, "")
 	}
 
-	// Remove tour names in format "Artist Name - Tour Name Tour"
-	// Example: "Artist Name - World Tour 2025" -> "Artist Name"
-	tourPattern := regexp.MustCompile(`(?i)\s*[-–]\s*.*?(tour|concert|show|presents)\s*\d*\s*$`)
+	// Remove tour names in various formats:
+	// "Artist Name - Tour Name Tour" -> "Artist Name"
+	// "Artist Name: Tour Name Tour" -> "Artist Name"
+	// "Artist Name - World Tour 2025" -> "Artist Name"
+	// "LOJAY: XOXO Tour" -> "LOJAY"
+	tourPattern := regexp.MustCompile(`(?i)\s*[-–:]\s*.*?(tour|concert|show|presents)\s*\d*\s*$`)
 	title = tourPattern.ReplaceAllString(title, "")
 
 	return strings.TrimSpace(title)
