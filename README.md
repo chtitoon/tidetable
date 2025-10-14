@@ -1,14 +1,9 @@
 # TideTable 🎸
 
-> Listen First, Buy Tickets Later
+TideTable is a project I started over a gloomy weekend of October.
 
-Your favorite local venues book great artists every week. Problem is, you’ve never heard of them.
+I initially thought about connecting shows of my favorite artists on Tidal with a google calendar. But after struggling with BandsInTown and Songkick API, I pivoted with something simpler: create a weekly playlist from artist I probably never heard of, so that eventually, maybe, really maybe, if i am in the mood and have an empty agenda, I'll go. that's it. that's the whole idea.
 
-TideTable fixes that. Pick your venues, and every Friday we check their upcoming lineups, pull the music from Tidal, and build you a playlist. Now you’ve got the weekend to listen before shows sell out.
-
-It’s music discovery that starts with who’s actually playing near you—not what an algorithm thinks you’ll like. Which means you’re catching $20 shows instead of $100 ones, your library’s actually growing, and occasionally you get to say “yeah, I saw them when they played to 200 people.”
-
-Set your venues once. Get fresh music every week. Go to better shows.​​​​​​​​​​​​​​​​
 
 ## How It Works
 
@@ -17,7 +12,6 @@ Set your venues once. Get fresh music every week. Go to better shows.​​​�
 3. **Playlist Magic**: Searches Tidal, picks a top track from each artist, bundles them into a weekly playlist
 4. **Friday Vibes**: GitHub Actions runs every Friday morning—your playlist is ready before your coffee
 
-The best part? It's all automatic. You just wake up, hit play, and discover.
 
 ## Setup
 
