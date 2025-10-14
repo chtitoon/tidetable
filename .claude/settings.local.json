@@ -18,7 +18,8 @@
       "Bash(curl -s \"https://www.websterhall.com/wp-json/wp/v2/event\")",
       "Bash(curl:*)",
       "Bash(go build:*)",
-      "Bash(timeout 15 op run:*)"
+      "Bash(timeout 15 op run:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

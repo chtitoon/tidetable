@@ -1,4 +1,4 @@
-package venues
+package config
 
 import (
 	"fmt"
@@ -7,14 +7,19 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// LoadVenues loads venue configuration from a YAML file
-func LoadVenues(filepath string) ([]Venue, error) {
+// VenueConfig represents the simple venue list
+type VenueConfig struct {
+	Venues []string `yaml:"venues"`
+}
+
+// LoadVenues loads venue names from a YAML file
+func LoadVenues(filepath string) ([]string, error) {
 	data, err := os.ReadFile(filepath)
 	if err != nil {
 		return nil, fmt.Errorf("reading venues file: %w", err)
 	}
 
-	var config Config
+	var config VenueConfig
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, fmt.Errorf("parsing venues YAML: %w", err)
 	}

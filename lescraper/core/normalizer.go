@@ -1,20 +1,9 @@
-package venues
+package core
 
 import (
 	"regexp"
 	"strings"
-	"time"
 )
-
-// NormalizedShow represents a show with cleaned and extracted artist information
-type NormalizedShow struct {
-	Artists  []string // Multiple artists extracted from the show title
-	Venue    string
-	Date     time.Time
-	Price    string
-	URL      string
-	VenueURL string
-}
 
 // NormalizeShows processes raw shows and extracts individual artists
 // Handles cases like:
