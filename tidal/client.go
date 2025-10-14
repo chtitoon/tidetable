@@ -139,10 +139,10 @@ func (c *Client) SearchArtists(ctx context.Context, query string) ([]Artist, err
 
 // ===== Artist Tracks API =====
 
-// GetArtistTracks retrieves tracks for an artist
-// Returns track IDs from the artist's catalog
+// GetArtistTracks retrieves tracks for an artist sorted by popularity
+// Returns track IDs from the artist's catalog, ordered by most popular first
 func (c *Client) GetArtistTracks(ctx context.Context, artistID string) ([]string, error) {
-	endpoint := fmt.Sprintf("/v2/artists/%s/relationships/tracks?countryCode=US&collapseBy=FINGERPRINT&include=tracks", artistID)
+	endpoint := fmt.Sprintf("/v2/artists/%s/relationships/tracks?countryCode=US&collapseBy=FINGERPRINT&orderBy=popularity&order=DESC&include=tracks", artistID)
 
 	resp, err := c.makeRequest(ctx, "GET", endpoint, nil)
 	if err != nil {
