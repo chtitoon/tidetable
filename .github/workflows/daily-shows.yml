@@ -1,7 +1,7 @@
 name: Shows Export
 
-# Scrapes the venues in venues.yaml and commits data/shows.json (every show
-# in the next ~4 months). Needs no secrets. See "Show listings" in the README.
+# Scrapes the venues in venues.yaml and commits data/shows.json (every
+# upcoming show they list, however far out). Needs no secrets. See "Show listings" in the README.
 
 on:
   schedule:
@@ -35,7 +35,8 @@ jobs:
         run: go test ./lescraper/... ./showexport
 
       # Exits non-zero (failing the job) only if every venue fails. A venue
-      # that fails on its own is recorded in the file with ok:false.
+      # that fails on its own is recorded in the file with ok:false (with its
+      # shows kept if it only stopped short, e.g. at the page cap).
       - name: Scrape venues
         run: go run . -out data/shows.json
 

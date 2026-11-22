@@ -22,11 +22,16 @@ type Doc struct {
 
 // Venue reports how scraping one configured venue went.
 type Venue struct {
-	Name  string  `json:"name"`
-	URL   string  `json:"url"`
-	OK    bool    `json:"ok"`
-	Shows int     `json:"shows"`
-	Error *string `json:"error"`
+	Name  string `json:"name"`
+	URL   string `json:"url"`
+	OK    bool   `json:"ok"`
+	Shows int    `json:"shows"`
+	// Skipped counts listings left out for a placeholder headliner ("@", "TBA").
+	Skipped int `json:"skipped"`
+	// LatestDate is the date of the venue's last show in the file
+	// (YYYY-MM-DD): how far its listing reaches. Null with no shows.
+	LatestDate *string `json:"latest_date"`
+	Error      *string `json:"error"`
 }
 
 // Show is one listing.
@@ -52,16 +57,20 @@ func Build(results []lescraper.VenueResult, generatedAt time.Time) Doc {
 		Shows:       []Show{},
 	}
 	for _, r := range results {
-		v := Venue{Name: r.Name, URL: r.URL, OK: r.Err == nil}
+		v := Venue{Name: r.Name, URL: r.URL, OK: r.Err == nil, Shows: len(r.Shows), Skipped: r.Skipped}
 		if r.Err != nil {
 			msg := r.Err.Error()
 			v.Error = &msg
-		} else {
-			v.Shows = len(r.Shows)
-			for _, s := range r.Shows {
-				doc.Shows = append(doc.Shows, convert(s))
-			}
 		}
+		// A failed venue has no shows, except an incomplete listing, whose
+		// shows are kept (ok:false and the error say it stopped early).
+		latest := ""
+		for _, s := range r.Shows {
+			out := convert(s)
+			latest = max(latest, out.Date)
+			doc.Shows = append(doc.Shows, out)
+		}
+		v.LatestDate = ptr(latest)
 		doc.Venues = append(doc.Venues, v)
 	}
 	sort.SliceStable(doc.Shows, func(i, j int) bool {
@@ -102,10 +111,11 @@ func convert(s core.Show) Show {
 	return out
 }
 
-// AllFailed reports whether every venue failed.
+// AllFailed reports whether every venue failed and none produced shows
+// (writing such a document would wipe the previous file).
 func (d Doc) AllFailed() bool {
 	for _, v := range d.Venues {
-		if v.OK {
+		if v.OK || v.Shows > 0 {
 			return false
 		}
 	}

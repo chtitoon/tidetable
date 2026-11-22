@@ -21,8 +21,6 @@ const (
 	tarrytownURL  = "https://tickets.tarrytownmusichall.org/"
 	tarrytownBase = "https://tickets.tarrytownmusichall.org"
 	tarrytownFeed = tarrytownBase + "/include/widgets/events/performancelist.asp?action=perf&listPageSize=100&listMaxSize=0&category=39&page=%d"
-	// tarrytownMaxPages bounds pagination (100 performances per page).
-	tarrytownMaxPages = 10
 )
 
 func init() {
@@ -35,7 +33,7 @@ func (s *Tarrytown) GetURL() string      { return tarrytownURL }
 
 func (s *Tarrytown) ScrapeShows() ([]core.Show, error) {
 	var all []core.Show
-	for page := 1; page <= tarrytownMaxPages; page++ {
+	for page := 1; page <= maxPages; page++ {
 		body, err := fetchURL(fmt.Sprintf(tarrytownFeed, page))
 		if err != nil {
 			return nil, fmt.Errorf("page %d: %w", page, err)
@@ -49,7 +47,7 @@ func (s *Tarrytown) ScrapeShows() ([]core.Show, error) {
 			return all, nil
 		}
 	}
-	return nil, fmt.Errorf("no end of list after %d pages", tarrytownMaxPages)
+	return all, errPageCap()
 }
 
 type showarePerformance struct {

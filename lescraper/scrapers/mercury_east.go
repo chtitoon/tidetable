@@ -23,9 +23,6 @@ var mercuryEastVenues = []*MercuryEast{
 	{Name: "Bowery Ballroom", URL: "https://mercuryeastpresents.com/boweryballroom/"},
 }
 
-// mercuryEastMaxPages bounds pagination in case the end-of-list check breaks.
-const mercuryEastMaxPages = 20
-
 func init() {
 	for _, v := range mercuryEastVenues {
 		core.RegisterVenue(v.Name, v)
@@ -36,10 +33,10 @@ func (s *MercuryEast) GetVenues() []string { return []string{s.Name} }
 func (s *MercuryEast) GetName() string     { return "Mercury East Presents: " + s.Name }
 func (s *MercuryEast) GetURL() string      { return s.URL }
 
-// ScrapeShows walks the list pages until one has no events.
+// ScrapeShows walks the list pages until one has no events, up to maxPages.
 func (s *MercuryEast) ScrapeShows() ([]core.Show, error) {
 	var all []core.Show
-	for page := 1; page <= mercuryEastMaxPages; page++ {
+	for page := 1; page <= maxPages; page++ {
 		url := s.URL
 		if page > 1 {
 			url = fmt.Sprintf("%spage/%d/", s.URL, page)
@@ -57,7 +54,7 @@ func (s *MercuryEast) ScrapeShows() ([]core.Show, error) {
 		}
 		all = append(all, shows...)
 	}
-	return nil, fmt.Errorf("still finding events after %d pages; pagination check may be broken", mercuryEastMaxPages)
+	return all, errPageCap()
 }
 
 var (

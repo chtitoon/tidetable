@@ -41,6 +41,7 @@ func (s *CapitolTheatre) GetURL() string      { return capitolURL }
 
 func (s *CapitolTheatre) ScrapeShows() ([]core.Show, error) {
 	var all []core.Show
+	var incomplete error
 	seen := map[string]bool{}
 	for _, room := range s.Rooms {
 		body, err := fetchURL(room.URL)
@@ -51,8 +52,9 @@ func (s *CapitolTheatre) ScrapeShows() ([]core.Show, error) {
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", room.Name, err)
 		}
-		if limit > 0 && len(events) >= limit {
-			fmt.Printf("    Warning: %s page returned %d events, its page size; later shows may be missing\n", room.Name, len(events))
+		if limit > 0 && len(events) >= limit && incomplete == nil {
+			incomplete = fmt.Errorf("%w: %s page returned %d events, its page size; later shows may be missing",
+				core.ErrIncomplete, room.Name, len(events))
 		}
 		for _, sh := range liveNationShows(events, "The Capitol Theatre", room) {
 			key := sh.URL + sh.Date.String() + sh.Time + sh.Title
@@ -62,7 +64,7 @@ func (s *CapitolTheatre) ScrapeShows() ([]core.Show, error) {
 			}
 		}
 	}
-	return all, nil
+	return all, incomplete
 }
 
 type lnEvent struct {

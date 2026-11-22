@@ -8,7 +8,7 @@ I initially thought about connecting shows of my favorite artists on Tidal with 
 
 **The playlist is retired.** TideTable now does two independent things, each a scheduled GitHub Actions job:
 
-1. **[Show listings](#show-listings-datashowsjson)**: scrapes my [venues](venues.yaml) and commits every show in the next ~4 months to [`data/shows.json`](data/shows.json). No credentials needed.
+1. **[Show listings](#show-listings-datashowsjson)**: scrapes my [venues](venues.yaml) and commits every upcoming show they list, however far out, to [`data/shows.json`](data/shows.json). No credentials needed.
 2. **[Artist export](#daily-artist-export-artistsjson)**: exports my Tidal library as ranked artist lists, stored privately.
 
 Matching one against the other happens elsewhere; neither job reads the other's data.
@@ -21,7 +21,7 @@ Every other day (and on demand from the Actions tab), `.github/workflows/daily-s
 {
   "generated_at": "2026-11-21T11:23:41Z",
   "venues": [
-    { "name": "Mercury Lounge", "url": "https://mercuryeastpresents.com/mercurylounge/", "ok": true, "shows": 92, "error": null }
+    { "name": "Mercury Lounge", "url": "https://mercuryeastpresents.com/mercurylounge/", "ok": true, "shows": 102, "skipped": 0, "latest_date": "2027-05-07", "error": null }
   ],
   "shows": [
     {
@@ -40,14 +40,16 @@ Every other day (and on demand from the Actions tab), `.github/workflows/daily-s
 }
 ```
 
+- **`shows`** holds every show the venue lists from today on, with no cut-off date: big shows are often announced a year out. Each venue's **`latest_date`** is its last show's date, i.e. how far its listing reaches (`null` with no shows). Scrapers follow pagination to the end of each listing, up to 30 pages per venue.
 - **`venue`** is always one of the `venues[].name` entries. **`room`** names the hall when that venue covers several (LPR's rooms, Garcia's, the big Bowery Presents rooms), and is `null` otherwise.
 - **`date` / `time`** are New York local time. `time` is the listed start; Mercury East only lists doors, so theirs is the doors time. It's `null` when the venue hasn't announced one.
 - **`title`** is the listing text as published. **`headliner` / `support`** come from the venue's own lineup data when it has one (Bowery Presents, Webster Hall, Capitol, Mercury East's "with …" line), and otherwise from splitting the title (`lescraper/core/normalizer.go`). The split is best-effort.
 - **`status`** is `on_sale`, `sold_out`, `coming_soon` or `unknown` (LPR and The Grand don't publish it). **`on_sale_at`** is the general on-sale time (UTC) where the venue publishes it.
 - Cancelled and postponed shows are left out, and so are obvious non-concerts: DJ and dance nights, comedy, talks, musicals, ballet, films, dinners, parking and passes. A venue's own genre or category tags are used where it has them; otherwise a conservative title filter applies (`lescraper/core/filter.go`). When unsure, the show stays.
+- Shows whose headliner is a placeholder are skipped and counted in the venue's **`skipped`**: fewer than 3 letters or digits once punctuation and spaces are stripped (Bowery Ballroom has listed shows named just `@`), or "TBA", "TBD", "To be announced", "Special guest(s)". Placeholder entries in `support` are dropped and the show kept.
 - Shows are sorted by date, then venue, then time, so diffs stay readable. The workflow commits only when something other than `generated_at` changed.
 
-**Failures.** One venue failing (site down, markup changed) doesn't stop the others: it gets `"ok": false` with the error, and the workflow run shows a warning. A venue that returns 0 shows also counts as failed (`"error": "0 shows"`), since real venues always list something. The job fails, and the previous file stays as it was, only if every venue fails.
+**Failures.** One venue failing (site down, markup changed) doesn't stop the others: it gets `"ok": false` with the error, and the workflow run shows a warning. A venue that returns 0 shows also counts as failed (`"error": "0 shows"`), since real venues always list something. So does a listing that couldn't be read to the end (page cap reached, a feed shorter than its stated total): its shows are kept, but the venue gets `"ok": false` and an error saying where it stopped. The job fails, and the previous file stays as it was, only if every venue fails.
 
 ### Venues
 
@@ -55,7 +57,7 @@ Every other day (and on demand from the Actions tab), `.github/workflows/daily-s
 |---|---|---|
 | Mercury Lounge | [mercuryeastpresents.com/mercurylounge](https://mercuryeastpresents.com/mercurylounge/) | Server-rendered list, `/page/N/` until an empty page |
 | Bowery Ballroom | [mercuryeastpresents.com/boweryballroom](https://mercuryeastpresents.com/boweryballroom/) | Same platform as Mercury Lounge |
-| Music Hall of Williamsburg | [bowerypresents.com/music-hall-of-williamsburg](https://www.bowerypresents.com/music-hall-of-williamsburg/) | The JSON feed the page loads (AEG `events/59`), filtered by venue ID |
+| Music Hall of Williamsburg | [bowerypresents.com/music-hall-of-williamsburg](https://www.bowerypresents.com/music-hall-of-williamsburg/) | The JSON feed the page loads (AEG `events/59`), filtered by venue ID. "Load More" only reveals more of that feed, so one fetch has every show |
 | Brooklyn Steel | [bowerypresents.com/brooklyn-steel](https://www.bowerypresents.com/brooklyn-steel/) | Same feed |
 | Webster Hall | [websterhall.com/shows](https://www.websterhall.com/shows/) | Its own JSON feed (AEG `events/85`) |
 | Bowery Presents NYC | [bowerypresents.com/new-york-metro/calendar](https://www.bowerypresents.com/new-york-metro/calendar/) | Same feed as MHOW, keeping only Beacon Theatre, Kings Theatre, Terminal 5, Forest Hills Stadium, Radio City Music Hall, Racket, Knockdown Center, Prospect Park Bandshell, Madison Square Garden (and its Infosys Theater) |
@@ -69,7 +71,7 @@ Everything is plain HTTP: either server-rendered HTML or the JSON a page loads. 
 ### Adding a venue
 
 1. Look at the listings page. If the raw HTML (`curl -s URL`) contains the events, parse that. If it renders client-side, find the JSON it loads in the browser's network tab or the page's scripts. Check the source isn't truncated: look for pagination, "load more" endpoints and page-size caps.
-2. Add a scraper in `lescraper/scrapers/<venue>.go` that implements `core.Scraper` (`GetVenues`, `GetName`, `GetURL`, `ScrapeShows`) and registers itself in `init()` with `core.RegisterVenue("<Name>", …)`. Fetch through `fetchURL` (or `fetchShared` for a feed other venues also read), so tests can serve fixtures. Return every upcoming show with `Venue`, `Date` (midnight New York time), and whatever of `Time`, `Room`, `Headliner`/`Support`, `Status`, `OnSaleAt` and `URL` the source has. The date window, dedupe and the shared non-concert filter are applied for you.
+2. Add a scraper in `lescraper/scrapers/<venue>.go` that implements `core.Scraper` (`GetVenues`, `GetName`, `GetURL`, `ScrapeShows`) and registers itself in `init()` with `core.RegisterVenue("<Name>", …)`. Fetch through `fetchURL` (or `fetchShared` for a feed other venues also read), so tests can serve fixtures. Return every upcoming show with `Venue`, `Date` (midnight New York time), and whatever of `Time`, `Room`, `Headliner`/`Support`, `Status`, `OnSaleAt` and `URL` the source has. Dropping past dates, dedupe, the shared non-concert filter and placeholder skipping are applied for you. Bound pagination with `maxPages`; on hitting it, return the shows so far with `errPageCap()` (or any error wrapping `core.ErrIncomplete`) rather than failing outright.
 3. Save the page or feed it requests as `lescraper/scrapers/testdata/<name>.gz` and add a test to `scrapers_test.go` with `useFixtures`. Tests never hit the network.
 4. Add the name to `venues.yaml`.
 
@@ -78,8 +80,8 @@ Platforms already handled, which a new venue might share: Mercury East's WordPre
 ### Running it locally
 
 ```bash
-go run .                         # writes data/shows.json, prints a count per venue
-go run . -out /tmp/shows.json -months 6
+go run .                         # writes data/shows.json, prints a count and latest date per venue
+go run . -out /tmp/shows.json
 go test ./lescraper/... ./showexport
 ```
 
