@@ -10,8 +10,11 @@ import (
 	"github.com/chtitoon/tidetable/tidal"
 )
 
+// fixtureNow is "today" for the fixtures: the 6-month window starts 2026-05-23.
+var fixtureNow = time.Date(2026, 11, 22, 0, 0, 0, 0, time.UTC)
+
 // loadFixture reads a recorded JSON:API page (trimmed real responses from
-// /v2/userCollection*/me/relationships/items) into a Collection.
+// /v2/userCollection*/me/relationships/items, with meta.addedAt) into a Collection.
 func loadFixture(t *testing.T, name string) tidal.Collection {
 	t.Helper()
 	raw, err := os.ReadFile(filepath.Join("testdata", name))
@@ -31,7 +34,7 @@ func loadFixture(t *testing.T, name string) tidal.Collection {
 
 func scoreFixtures(t *testing.T) ([]Artist, Stats) {
 	t.Helper()
-	return Score(loadFixture(t, "followed.json"), loadFixture(t, "albums.json"), loadFixture(t, "tracks.json"))
+	return Score(loadFixture(t, "followed.json"), loadFixture(t, "albums.json"), loadFixture(t, "tracks.json"), fixtureNow)
 }
 
 func byName(artists []Artist) map[string]Artist {
@@ -46,17 +49,17 @@ func TestScore(t *testing.T) {
 	artists, stats := scoreFixtures(t)
 
 	want := []struct {
-		name    string
-		score   int
-		signals Signals
+		name   string
+		score  int
+		recent int
 	}{
-		{"The National", 5, Signals{Followed: true, LikedAlbums: 1}},
-		{"Gorillaz", 4, Signals{Followed: true, LikedTracks: 1}},
-		{"Big Thief", 3, Signals{Followed: true}},
-		{"Neil Young", 2, Signals{LikedAlbums: 1}},
-		{"Aldous Harding", 1, Signals{LikedTracks: 1}},
-		{"Arctic Monkeys", 1, Signals{LikedTracks: 1}},
-		{"Sleaford Mods", 1, Signals{LikedTracks: 1}},
+		{"The National", 5, 0},   // follow 3 (2024) + album 2 (2023)
+		{"Neil Young", 4, 1},     // album liked 2026-11-07: 2 x2
+		{"Gorillaz", 4, 0},       // follow 3 (2021) + track 1 (2026-04-20, just outside 6 months)
+		{"Big Thief", 3, 0},      // follow 3 (2021)
+		{"Aldous Harding", 2, 1}, // track liked 2026-06-09: 1 x2
+		{"Arctic Monkeys", 1, 0}, // track 2026-03-24
+		{"Sleaford Mods", 1, 0},  // track 2026-03-08 (older than Arctic Monkeys' like)
 	}
 	if len(artists) != len(want) {
 		names := []string{}
@@ -65,11 +68,12 @@ func TestScore(t *testing.T) {
 		}
 		t.Fatalf("got %d artists %v, want %d", len(artists), names, len(want))
 	}
-	// Order matters: score desc, then name.
+	// Order matters: score desc, then most recent like, then name.
 	for i, w := range want {
 		a := artists[i]
-		if a.Name != w.name || a.Score != w.score || a.Signals != w.signals {
-			t.Errorf("#%d = %s score %d %+v, want %s score %d %+v", i, a.Name, a.Score, a.Signals, w.name, w.score, w.signals)
+		if a.Name != w.name || a.Score != w.score || a.Signals.RecentItems != w.recent {
+			t.Errorf("#%d = %s score %d recent %d, want %s score %d recent %d",
+				i, a.Name, a.Score, a.Signals.RecentItems, w.name, w.score, w.recent)
 		}
 	}
 
@@ -82,6 +86,19 @@ func TestScore(t *testing.T) {
 	// "Losing Haringey" credits an artist page Tidal has removed (404): skipped, not fatal.
 	if len(stats.Unresolved) != 1 || stats.Unresolved[0] != "86645327" {
 		t.Errorf("Unresolved = %v, want [86645327]", stats.Unresolved)
+	}
+}
+
+func TestRecencyDoublesPoints(t *testing.T) {
+	// The same library scored a year later: nothing is recent any more.
+	later := fixtureNow.AddDate(1, 0, 0)
+	artists, _ := Score(loadFixture(t, "followed.json"), loadFixture(t, "albums.json"), loadFixture(t, "tracks.json"), later)
+	got := byName(artists)
+	if a := got["Neil Young"]; a.Score != 2 || a.Signals.RecentItems != 0 {
+		t.Errorf("Neil Young a year later: score %d recent %d, want 2 and 0", a.Score, a.Signals.RecentItems)
+	}
+	if a := got["Aldous Harding"]; a.Score != 1 {
+		t.Errorf("Aldous Harding a year later: score %d, want 1", a.Score)
 	}
 }
 
@@ -128,7 +145,15 @@ func TestMainArtistID(t *testing.T) {
 	t.Fatal("fixture track not found")
 }
 
-func TestBuildSimilarAndCandidates(t *testing.T) {
+func names(refs []Ref) []string {
+	out := make([]string, len(refs))
+	for i, r := range refs {
+		out[i] = r.Name
+	}
+	return out
+}
+
+func TestBuild(t *testing.T) {
 	artists, _ := scoreFixtures(t)
 	ids := map[string]string{}
 	for _, a := range artists {
@@ -137,13 +162,17 @@ func TestBuildSimilarAndCandidates(t *testing.T) {
 
 	sva := tidal.Artist{ID: "s1", Name: "Sharon Van Etten"}
 	wilco := tidal.Artist{ID: "s2", Name: "Wilco"}
+	fleet := tidal.Artist{ID: "s3", Name: "Fleet Foxes"}
+	beirut := tidal.Artist{ID: "s4", Name: "Beirut"}
 	similar := map[string][]tidal.Artist{
-		ids["The National"]: {wilco, sva, {ID: ids["Big Thief"], Name: "Big Thief"}, sva /* duplicate */},
-		ids["Big Thief"]:    {sva, {ID: "s3", Name: "Various Artists"}},
+		// in-library, duplicate and compilation entries must be ignored
+		// "big thief" under another id is a duplicate Tidal profile: excluded by name.
+		ids["The National"]: {wilco, sva, {ID: ids["Big Thief"], Name: "Big Thief"}, sva, fleet, {ID: "dup", Name: "big thief "}},
+		ids["Big Thief"]:    {sva, {ID: "va", Name: "Various Artists"}, beirut},
 		ids["Neil Young"]:   {wilco, sva},
 	}
 	now := time.Date(2026, 11, 21, 12, 0, 0, 0, time.FixedZone("EST", -5*3600))
-	e := Build(artists, similar, DefaultThreshold, now)
+	e := Build(artists, similar, now)
 
 	if err := e.Validate(); err != nil {
 		t.Fatalf("Validate: %v", err)
@@ -152,53 +181,68 @@ func TestBuildSimilarAndCandidates(t *testing.T) {
 		t.Errorf("generated_at = %s, want UTC", e.GeneratedAt)
 	}
 
-	nat := byName(e.Artists)["The National"]
-	wantSim := []SimilarRef{
-		{ids["Big Thief"], "Big Thief", true},
-		{"s1", "Sharon Van Etten", false},
-		{"s2", "Wilco", false},
-	}
-	if len(nat.Similar) != len(wantSim) {
-		t.Fatalf("The National similar = %+v, want %+v", nat.Similar, wantSim)
-	}
-	for i := range wantSim {
-		if nat.Similar[i] != wantSim[i] {
-			t.Errorf("similar[%d] = %+v, want %+v", i, nat.Similar[i], wantSim[i])
-		}
-	}
-	if sim := byName(e.Artists)["Aldous Harding"].Similar; sim == nil || len(sim) != 0 {
-		t.Errorf("below-threshold artist similar = %#v, want empty non-nil list", sim)
+	wantMine := []string{"The National", "Neil Young", "Gorillaz", "Big Thief", "Aldous Harding", "Arctic Monkeys", "Sleaford Mods"}
+	if got := names(e.MyArtists); !equal(got, wantMine) {
+		t.Errorf("my_artists = %v, want %v", got, wantMine)
 	}
 
-	// Sharon Van Etten: 3 sources (5+3+2=10). Wilco: 2 sources (5+2=7).
-	want := []SimilarCandidate{
-		{"s1", "Sharon Van Etten", 3, 10, []string{"Big Thief", "Neil Young", "The National"}},
-		{"s2", "Wilco", 2, 7, []string{"Neil Young", "The National"}},
+	// Sharon Van Etten: 3 cross-refs. Wilco: 2 (National 5 + Neil Young 4).
+	// Fleet Foxes (National, 5) beats Beirut (Big Thief, 3) on source score.
+	wantSim := []string{"Sharon Van Etten", "Wilco", "Fleet Foxes", "Beirut"}
+	if got := names(e.SimilarArtists); !equal(got, wantSim) {
+		t.Errorf("similar_artists = %v, want %v", got, wantSim)
 	}
-	if len(e.SimilarCandidates) != len(want) {
-		t.Fatalf("candidates = %+v, want %+v", e.SimilarCandidates, want)
+}
+
+func equal(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
 	}
-	for i, w := range want {
-		g := e.SimilarCandidates[i]
-		if g.TidalID != w.TidalID || g.Weight != w.Weight || g.SourceScore != w.SourceScore || len(g.Sources) != len(w.Sources) {
-			t.Errorf("candidate[%d] = %+v, want %+v", i, g, w)
-			continue
-		}
-		for j := range w.Sources {
-			if g.Sources[j] != w.Sources[j] {
-				t.Errorf("candidate[%d].sources = %v, want %v", i, g.Sources, w.Sources)
-			}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
 		}
 	}
+	return true
+}
+
+func TestOutputHasNoScores(t *testing.T) {
+	artists, _ := scoreFixtures(t)
+	data, err := Marshal(Build(artists, nil, fixtureNow))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		t.Fatal(err)
+	}
+	if len(raw) != 3 || raw["generated_at"] == nil || raw["my_artists"] == nil || raw["similar_artists"] == nil {
+		t.Errorf("top-level keys = %v, want generated_at, my_artists, similar_artists", keys(raw))
+	}
+	var mine []map[string]any
+	_ = json.Unmarshal(raw["my_artists"], &mine)
+	if len(mine[0]) != 2 {
+		t.Errorf("my_artists entry has fields %v, want only tidal_id and name", mine[0])
+	}
+}
+
+func keys(m map[string]json.RawMessage) []string {
+	out := []string{}
+	for k := range m {
+		out = append(out, k)
+	}
+	return out
 }
 
 func TestBuildIsDeterministic(t *testing.T) {
 	artists, _ := scoreFixtures(t)
-	similar := map[string][]tidal.Artist{artists[0].TidalID: {{ID: "b", Name: "B"}, {ID: "a", Name: "A"}}}
-	now := time.Unix(0, 0)
-	first, _ := Marshal(Build(artists, similar, 2, now))
+	similar := map[string][]tidal.Artist{
+		artists[0].TidalID: {{ID: "b", Name: "B"}, {ID: "a", Name: "A"}},
+		artists[1].TidalID: {{ID: "c", Name: "C"}},
+	}
+	first, _ := Marshal(Build(artists, similar, fixtureNow))
 	for i := 0; i < 20; i++ {
-		again, _ := Marshal(Build(artists, similar, 2, now))
+		again, _ := Marshal(Build(artists, similar, fixtureNow))
 		if string(again) != string(first) {
 			t.Fatal("output differs between runs")
 		}
@@ -207,20 +251,20 @@ func TestBuildIsDeterministic(t *testing.T) {
 
 func TestValidateRejectsBadExports(t *testing.T) {
 	artists, _ := scoreFixtures(t)
-	good := Build(artists, nil, DefaultThreshold, time.Now())
+	good := Build(artists, nil, fixtureNow)
 
 	cases := map[string]func(e *Export){
-		"empty":          func(e *Export) { e.Artists = nil },
-		"wrong score":    func(e *Export) { e.Artists[0].Score++ },
-		"duplicate":      func(e *Export) { e.Artists[1] = e.Artists[0] },
-		"bad in_library": func(e *Export) { e.Artists[0].Similar = []SimilarRef{{"zzz", "Nobody", true}} },
-		"candidate in lib": func(e *Export) {
-			e.SimilarCandidates = []SimilarCandidate{{e.Artists[0].TidalID, e.Artists[0].Name, 1, 1, []string{"x"}}}
-		},
+		"empty":           func(e *Export) { e.MyArtists = nil },
+		"no name":         func(e *Export) { e.MyArtists[0].Name = "" },
+		"duplicate":       func(e *Export) { e.MyArtists[1] = e.MyArtists[0] },
+		"similar in lib":  func(e *Export) { e.SimilarArtists = []Ref{e.MyArtists[0]} },
+		"similar dup":     func(e *Export) { e.SimilarArtists = []Ref{{"x", "X"}, {"x", "X"}} },
+		"similar by name": func(e *Export) { e.SimilarArtists = []Ref{{"other-id", e.MyArtists[0].Name}} },
+		"bad timestamp":   func(e *Export) { e.GeneratedAt = "yesterday" },
 	}
 	for name, mutate := range cases {
 		e := good
-		e.Artists = append([]Artist(nil), good.Artists...)
+		e.MyArtists = append([]Ref(nil), good.MyArtists...)
 		mutate(&e)
 		if err := e.Validate(); err == nil {
 			t.Errorf("%s: Validate() = nil, want error", name)
@@ -232,7 +276,7 @@ func TestWriteAtomicAndShrinkGuard(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "data", "artists.json")
 	artists, _ := scoreFixtures(t)
-	e := Build(artists, nil, DefaultThreshold, time.Now())
+	e := Build(artists, nil, fixtureNow)
 
 	if err := CheckShrink(path, e); err != nil {
 		t.Fatalf("no previous file: %v", err)
@@ -249,8 +293,18 @@ func TestWriteAtomicAndShrinkGuard(t *testing.T) {
 	}
 
 	small := e
-	small.Artists = e.Artists[:2]
+	small.MyArtists = e.MyArtists[:2]
 	if err := CheckShrink(path, small); err == nil {
 		t.Error("CheckShrink allowed dropping from 7 to 2 artists")
+	}
+
+	// The previous file may still be in the old format (key "artists").
+	old := filepath.Join(dir, "old.json")
+	_ = os.WriteFile(old, []byte(`{"artists":[{},{},{},{},{},{},{}]}`), 0o644)
+	if err := CheckShrink(old, small); err == nil {
+		t.Error("CheckShrink ignored an old-format previous file")
+	}
+	if err := CheckShrink(old, e); err != nil {
+		t.Errorf("same count against old format: %v", err)
 	}
 }

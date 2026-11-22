@@ -2,47 +2,48 @@
  "data": [
   {
    "id": "507749030",
-   "type": "tracks"
+   "type": "tracks",
+   "meta": {
+    "addedAt": "2026-06-09T13:09:44.176Z"
+   }
   },
   {
    "id": "500753056",
-   "type": "tracks"
+   "type": "tracks",
+   "meta": {
+    "addedAt": "2026-04-20T18:57:41.105Z"
+   }
   },
   {
    "id": "500752106",
-   "type": "tracks"
+   "type": "tracks",
+   "meta": {
+    "addedAt": "2026-03-24T21:17:17.742Z"
+   }
   },
   {
    "id": "484797862",
-   "type": "tracks"
+   "type": "tracks",
+   "meta": {
+    "addedAt": "2026-03-08T18:03:05.311Z"
+   }
   },
-  {
-   "id": "999999999",
-   "type": "tracks"
-  },
-  {
-   "id": "37264878",
-   "type": "tracks"
-  }
- ],
- "included": [
   {
    "id": "37264878",
    "type": "tracks",
-   "attributes": {
-    "title": "Losing Haringey"
-   },
-   "relationships": {
-    "artists": {
-     "data": [
-      {
-       "id": "86645327",
-       "type": "artists"
-      }
-     ]
-    }
+   "meta": {
+    "addedAt": "2022-08-10T02:33:38.795Z"
    }
   },
+  {
+   "id": "999999999",
+   "type": "tracks",
+   "meta": {
+    "addedAt": "2024-01-01T00:00:00.000Z"
+   }
+  }
+ ],
+ "included": [
   {
    "id": "507749030",
    "type": "tracks",
@@ -185,6 +186,23 @@
    "type": "artists",
    "attributes": {
     "name": "Sleaford Mods"
+   }
+  },
+  {
+   "id": "37264878",
+   "type": "tracks",
+   "attributes": {
+    "title": "Losing Haringey"
+   },
+   "relationships": {
+    "artists": {
+     "data": [
+      {
+       "id": "86645327",
+       "type": "artists"
+      }
+     ]
+    }
    }
   }
  ],

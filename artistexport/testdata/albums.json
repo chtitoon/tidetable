@@ -2,15 +2,24 @@
  "data": [
   {
    "id": "544948527",
-   "type": "albums"
+   "type": "albums",
+   "meta": {
+    "addedAt": "2026-11-07T22:18:57.959Z"
+   }
   },
   {
    "id": "287629424",
-   "type": "albums"
+   "type": "albums",
+   "meta": {
+    "addedAt": "2023-06-01T12:31:49.991Z"
+   }
   },
   {
    "id": "2720532",
-   "type": "albums"
+   "type": "albums",
+   "meta": {
+    "addedAt": "2022-01-11T16:44:48.535Z"
+   }
   }
  ],
  "included": [
