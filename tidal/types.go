@@ -1,5 +1,7 @@
 package tidal
 
+import "time"
+
 // Artist represents a Tidal artist
 type Artist struct {
 	ID         string  `json:"id"`
@@ -43,10 +45,23 @@ type tokenResponse struct {
 
 // ===== JSON:API documents (artist export) =====
 
-// ResourceIdentifier is a JSON:API resource linkage ({id, type}).
+// ResourceIdentifier is a JSON:API resource linkage ({id, type}). In user
+// collections, meta.addedAt records when the item was liked or followed.
 type ResourceIdentifier struct {
 	ID   string `json:"id"`
 	Type string `json:"type"`
+	Meta *struct {
+		AddedAt string `json:"addedAt"`
+	} `json:"meta,omitempty"`
+}
+
+// AddedAt returns when a collection item was added, or false if unknown.
+func (r ResourceIdentifier) AddedAt() (time.Time, bool) {
+	if r.Meta == nil || r.Meta.AddedAt == "" {
+		return time.Time{}, false
+	}
+	t, err := time.Parse(time.RFC3339Nano, r.Meta.AddedAt)
+	return t, err == nil
 }
 
 // Resource is an included JSON:API resource. Only the fields the artist

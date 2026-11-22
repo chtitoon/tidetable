@@ -55,7 +55,8 @@ func run(out string, force bool) error {
 		cols[kind] = col
 	}
 
-	artists, stats := artistexport.Score(cols["artists"], cols["albums"], cols["tracks"])
+	now := time.Now()
+	artists, stats := artistexport.Score(cols["artists"], cols["albums"], cols["tracks"], now)
 	log.Printf("scored %d artists (%d items without artist, %d compilation/label credits skipped)",
 		len(artists), stats.NoArtist, stats.NonArtistMain)
 	if len(stats.Unresolved) > 0 {
@@ -63,7 +64,7 @@ func run(out string, force bool) error {
 			len(stats.Unresolved), stats.Unresolved)
 	}
 
-	threshold := artistexport.DefaultThreshold
+	threshold := artistexport.SimilarThreshold
 	similar := map[string][]tidal.Artist{}
 	n := 0
 	for _, a := range artists {
@@ -81,7 +82,7 @@ func run(out string, force bool) error {
 	}
 	log.Printf("similar artists fetched for %d artists", n)
 
-	export := artistexport.Build(artists, similar, threshold, time.Now())
+	export := artistexport.Build(artists, similar, now)
 	if err := export.Validate(); err != nil {
 		return err
 	}
@@ -97,6 +98,6 @@ func run(out string, force bool) error {
 	if err := artistexport.WriteAtomic(out, data); err != nil {
 		return err
 	}
-	log.Printf("wrote %s: %d artists, %d similar candidates", out, len(export.Artists), len(export.SimilarCandidates))
+	log.Printf("wrote %s: %d my_artists, %d similar_artists", out, len(export.MyArtists), len(export.SimilarArtists))
 	return nil
 }
