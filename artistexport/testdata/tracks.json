@@ -1,0 +1,194 @@
+{
+ "data": [
+  {
+   "id": "507749030",
+   "type": "tracks"
+  },
+  {
+   "id": "500753056",
+   "type": "tracks"
+  },
+  {
+   "id": "500752106",
+   "type": "tracks"
+  },
+  {
+   "id": "484797862",
+   "type": "tracks"
+  },
+  {
+   "id": "999999999",
+   "type": "tracks"
+  },
+  {
+   "id": "37264878",
+   "type": "tracks"
+  }
+ ],
+ "included": [
+  {
+   "id": "37264878",
+   "type": "tracks",
+   "attributes": {
+    "title": "Losing Haringey"
+   },
+   "relationships": {
+    "artists": {
+     "data": [
+      {
+       "id": "86645327",
+       "type": "artists"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "507749030",
+   "type": "tracks",
+   "attributes": {
+    "title": "Venus in the Zinnia"
+   },
+   "relationships": {
+    "artists": {
+     "data": [
+      {
+       "id": "6168312",
+       "type": "artists"
+      },
+      {
+       "id": "4530565",
+       "type": "artists"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "6168312",
+   "type": "artists",
+   "attributes": {
+    "name": "Aldous Harding"
+   }
+  },
+  {
+   "id": "4530565",
+   "type": "artists",
+   "attributes": {
+    "name": "H. Hawkline"
+   }
+  },
+  {
+   "id": "500753056",
+   "type": "tracks",
+   "attributes": {
+    "title": "The Plastic Guru (feat. Johnny Marr and Anoushka Shankar)"
+   },
+   "relationships": {
+    "artists": {
+     "data": [
+      {
+       "id": "8853",
+       "type": "artists"
+      },
+      {
+       "id": "4808934",
+       "type": "artists"
+      },
+      {
+       "id": "3505647",
+       "type": "artists"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "8853",
+   "type": "artists",
+   "attributes": {
+    "name": "Gorillaz"
+   }
+  },
+  {
+   "id": "4808934",
+   "type": "artists",
+   "attributes": {
+    "name": "Johnny Marr"
+   }
+  },
+  {
+   "id": "3505647",
+   "type": "artists",
+   "attributes": {
+    "name": "Anoushka Shankar"
+   }
+  },
+  {
+   "id": "500752106",
+   "type": "tracks",
+   "attributes": {
+    "title": "Opening Night"
+   },
+   "relationships": {
+    "artists": {
+     "data": [
+      {
+       "id": "3520710",
+       "type": "artists"
+      },
+      {
+       "id": "73294382",
+       "type": "artists"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "3520710",
+   "type": "artists",
+   "attributes": {
+    "name": "Arctic Monkeys"
+   }
+  },
+  {
+   "id": "73294382",
+   "type": "artists",
+   "attributes": {
+    "name": "War Child Records"
+   }
+  },
+  {
+   "id": "484797862",
+   "type": "tracks",
+   "attributes": {
+    "title": "Elitest G.O.A.T."
+   },
+   "relationships": {
+    "artists": {
+     "data": [
+      {
+       "id": "6024212",
+       "type": "artists"
+      },
+      {
+       "id": "6168312",
+       "type": "artists"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "6024212",
+   "type": "artists",
+   "attributes": {
+    "name": "Sleaford Mods"
+   }
+  }
+ ],
+ "links": {
+  "self": "/fixture"
+ }
+}
