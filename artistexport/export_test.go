@@ -139,8 +139,8 @@ func TestScore(t *testing.T) {
 	if a := got["Big Thief"]; !near(a.Score, PointsFollowed) {
 		t.Errorf("Big Thief (follow only) score = %v, want %v", a.Score, PointsFollowed)
 	}
-	// The National's album is from 2023: older than the floor, so it weighs AllTimeFloor.
-	if a := got["The National"]; !near(a.Score, PointsFollowed+WeightAlbums*math.Log1p(AllTimeFloor)) {
+	// The National's album is from 2023: all-time ignores age, so it counts in full.
+	if a := got["The National"]; !near(a.Score, PointsFollowed+WeightAlbums*math.Log1p(1)) {
 		t.Errorf("The National score = %v", a.Score)
 	}
 	if a := got["Neil Young"]; a.Signals.RecentItems != 1 || a.Recent != 0 {
@@ -175,21 +175,27 @@ func TestLikesAreDamped(t *testing.T) {
 	}
 }
 
-func TestAllTimeDecayIsSmooth(t *testing.T) {
-	prev := 1.0
-	for d := 0; d <= 5*365; d += 7 {
-		w := allTimeWeight(daysAgo(d), true, fixtureNow)
-		if w > prev || w < AllTimeFloor || prev-w > 0.01 {
-			t.Fatalf("weight at %d days = %v after %v: want a smooth, non-increasing decay down to %v",
-				d, w, prev, AllTimeFloor)
-		}
-		prev = w
+func TestAllTimeIgnoresAge(t *testing.T) {
+	old := credit{"1", "Loved In 2016"}
+	fresh := credit{"2", "Loved This Week"}
+	albums := synth(t, "albums",
+		item{id: "a1", added: daysAgo(10 * 365), artists: []credit{old}},
+		item{id: "a2", added: daysAgo(3), artists: []credit{fresh}})
+	tracks := synth(t, "tracks",
+		item{id: "t1", added: daysAgo(10 * 365), artists: []credit{old}},
+		item{id: "t2", added: daysAgo(3), artists: []credit{fresh}})
+
+	artists, _ := Score(synth(t, "artists"), albums, tracks, fixtureNow)
+	if len(artists) != 2 || !near(artists[0].Score, artists[1].Score) {
+		t.Fatalf("scores %v: the same likes should score the same whatever their age", artists)
 	}
-	if w := allTimeWeight(time.Time{}, false, fixtureNow); w != 1 {
-		t.Errorf("undated item weight = %v, want 1", w)
+	// Recency only breaks the tie.
+	if artists[0].Name != "Loved This Week" {
+		t.Errorf("order = %v, want the more recent like first on a tie", artistNames(artists))
 	}
-	if w := allTimeWeight(daysAgo(10*365), true, fixtureNow); w != AllTimeFloor {
-		t.Errorf("10-year-old item weight = %v, want floor %v", w, AllTimeFloor)
+	// And only the fresh one is "lately".
+	if artists[0].Recent == 0 || artists[1].Recent != 0 {
+		t.Errorf("recent scores %v / %v", artists[0].Recent, artists[1].Recent)
 	}
 }
 
@@ -251,7 +257,7 @@ func TestMergesDuplicateProfiles(t *testing.T) {
 	if m.TidalID != "200" || len(m.AltIDs) != 1 || m.AltIDs[0] != "100" || stats.Merged != 1 {
 		t.Errorf("merged = id %s alt %v (merged %d), want id 200 alt [100]", m.TidalID, m.AltIDs, stats.Merged)
 	}
-	if m.Signals.LikedTracks != 3 || !near(m.Score, PointsFollowed+WeightTracks*math.Log1p(3*allTimeWeight(daysAgo(10), true, fixtureNow))) {
+	if m.Signals.LikedTracks != 3 || !near(m.Score, PointsFollowed+WeightTracks*math.Log1p(3)) {
 		t.Errorf("merged score %v tracks %d: want one follow and three tracks", m.Score, m.Signals.LikedTracks)
 	}
 

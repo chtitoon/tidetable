@@ -20,10 +20,10 @@ import (
 //	score = follow + WeightAlbums·ln(1+Σ album weights) + WeightTracks·ln(1+Σ track weights)
 //
 // The log damps piles of likes: 30 hearted tracks don't outweigh a follow and
-// a few albums. Each item's weight depends on when it was added:
+// a few albums.
 //
-//   - All-time (my_artists): a slow decay with a floor, so old favourites stay
-//     but fade a little. A follow counts in full whatever its age.
+//   - All-time (my_artists): every item counts in full, whatever its age.
+//     Recency only breaks ties; recent_artists covers "lately".
 //   - Lately (recent_artists): only items from the last RecentWindow count,
 //     decaying with RecentHalfLife, follows included.
 //
@@ -34,15 +34,12 @@ const (
 	WeightAlbums   = 3.0
 	WeightTracks   = 1.5
 
-	AllTimeHalfLife = 2 * 365 * 24 * time.Hour
-	AllTimeFloor    = 0.5 // an old like still counts at least half
-
 	RecentWindow   = 90 * 24 * time.Hour
 	RecentHalfLife = 45 * 24 * time.Hour
 	RecentMinItems = 2 // follows/likes in the window to be listed in recent_artists
 
 	// SimilarThreshold: similar artists are fetched only for library artists
-	// with at least this all-time score (a follow, or a recently liked album and track).
+	// with at least this all-time score (a follow, or an album and a track).
 	SimilarThreshold = 3.0
 
 	// PopularityPenalty scales similar artists down by Tidal popularity (0..1)
@@ -150,14 +147,6 @@ func decay(age, halfLife time.Duration) float64 {
 	return math.Pow(0.5, float64(age)/float64(halfLife))
 }
 
-// allTimeWeight weighs an item for my_artists. Undated items count in full.
-func allTimeWeight(at time.Time, dated bool, now time.Time) float64 {
-	if !dated {
-		return 1
-	}
-	return max(AllTimeFloor, decay(now.Sub(at), AllTimeHalfLife))
-}
-
 // recentWeight weighs an item for recent_artists: 0 if undated or outside RecentWindow.
 func recentWeight(at time.Time, dated bool, now time.Time) float64 {
 	if !dated || now.Sub(at) > RecentWindow {
@@ -192,7 +181,7 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 	stats := Stats{Followed: len(followed.Items), Albums: len(albums.Items), Tracks: len(tracks.Items)}
 
 	// add credits an item to an artist; signal records it with its all-time
-	// and recent weights.
+	// weight (always 1) and recent weight.
 	add := func(artistID string, item tidal.ResourceIdentifier, signal func(t *tally, all, recent float64)) {
 		name := names[artistID]
 		if name == "" {
@@ -207,7 +196,7 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 		}
 		t.credits[artistID]++
 		at, dated := item.AddedAt()
-		all, recent := allTimeWeight(at, dated, now), recentWeight(at, dated, now)
+		all, recent := 1.0, recentWeight(at, dated, now)
 		if recent > 0 {
 			t.artist.Signals.RecentItems++
 		}

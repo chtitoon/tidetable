@@ -161,15 +161,15 @@ Once a day, `.github/workflows/daily-artists.yml` runs `go run ./cmd/export-arti
 score = follow + 3 × ln(1 + albums) + 1.5 × ln(1 + tracks)
 ```
 
-`albums` and `tracks` are sums of per-item weights that depend on when you liked them. The logarithm keeps a pile of hearted tracks from outweighing a follow and a couple of albums.
+`albums` and `tracks` count your likes, weighted by age in `recent_artists` only. The logarithm keeps a pile of hearted tracks from outweighing a follow and a couple of albums.
 
-**`my_artists`** is the all-time ranking of every artist with any score. A follow is worth 4, whatever its age. A like counts in full when new and fades with a 2-year half-life, never below half.
+**`my_artists`** is the all-time ranking of every artist with any score. A follow is worth 4, and every like counts in full, however old: recency only breaks ties. So the list changes only when your library does.
 
 **`recent_artists`** is what you're into lately: only follows and likes from the last 90 days count, fading with a 45-day half-life. An artist needs at least 2 of them to be listed, so a single heart doesn't top the list. It can be short or empty after a quiet stretch. Every recent artist is also in `my_artists`.
 
 Tidal's API has no listening history, so recent likes stand in for "listening to them a lot lately". In both lists, ties go to the artist you liked most recently.
 
-**`similar_artists`.** For artists with an all-time score of 3 or more (a follow, or a recently liked album and track), the export fetches Tidal's similar artists (first page, up to 20). Those not already in your library are ranked by the summed all-time score of your artists that list them, scaled down by Tidal popularity (a fully popular artist keeps a quarter), so lesser-known artists come first.
+**`similar_artists`.** For artists with an all-time score of 3 or more (a follow, or an album and a track), the export fetches Tidal's similar artists (first page, up to 20). Those not already in your library are ranked by the summed all-time score of your artists that list them, scaled down by Tidal popularity (a fully popular artist keeps a quarter), so lesser-known artists come first.
 
 ### Where the file lives
 
