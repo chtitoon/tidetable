@@ -480,7 +480,8 @@ func (c *Client) GetSimilarArtistsBatch(ctx context.Context, ids []string) (map[
 		ID         string `json:"id"`
 		Type       string `json:"type"`
 		Attributes struct {
-			Name string `json:"name"`
+			Name       string  `json:"name"`
+			Popularity float64 `json:"popularity"`
 		} `json:"attributes"`
 		Relationships struct {
 			SimilarArtists *struct {
@@ -498,11 +499,11 @@ func (c *Client) GetSimilarArtistsBatch(ctx context.Context, ids []string) (map[
 
 	// A similar artist that is also in this batch appears in data, not
 	// included (JSON:API never duplicates a resource), so name from both.
-	names := map[string]string{}
+	byID := map[string]Artist{}
 	for _, list := range [][]artistResource{doc.Data, doc.Included} {
 		for _, r := range list {
 			if r.Type == "artists" && r.Attributes.Name != "" {
-				names[r.ID] = r.Attributes.Name
+				byID[r.ID] = Artist{ID: r.ID, Name: r.Attributes.Name, Popularity: r.Attributes.Popularity}
 			}
 		}
 	}
@@ -519,10 +520,11 @@ artists:
 			if d.Type != "artists" {
 				continue
 			}
-			if names[d.ID] == "" {
+			a, ok := byID[d.ID]
+			if !ok {
 				continue artists // incomplete: let the caller fetch it singly
 			}
-			sim = append(sim, Artist{ID: d.ID, Name: names[d.ID]})
+			sim = append(sim, a)
 		}
 		out[r.ID] = sim
 	}
@@ -536,16 +538,16 @@ func (c *Client) GetSimilarArtists(ctx context.Context, artistID string) ([]Arti
 	if err != nil {
 		return nil, err
 	}
-	names := make(map[string]string, len(page.Included))
+	byID := make(map[string]Artist, len(page.Included))
 	for _, r := range page.Included {
-		if r.Type == "artists" {
-			names[r.ID] = r.Attributes.Name
+		if r.Type == "artists" && r.Attributes.Name != "" {
+			byID[r.ID] = Artist{ID: r.ID, Name: r.Attributes.Name, Popularity: r.Attributes.Popularity}
 		}
 	}
 	artists := make([]Artist, 0, len(page.Data))
 	for _, d := range page.Data {
-		if d.Type == "artists" && names[d.ID] != "" {
-			artists = append(artists, Artist{ID: d.ID, Name: names[d.ID]})
+		if a, ok := byID[d.ID]; ok && d.Type == "artists" {
+			artists = append(artists, a)
 		}
 	}
 	return artists, nil
