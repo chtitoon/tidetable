@@ -1,17 +1,50 @@
 # TideTable 🎸
 
-> Every upcoming show at the venues I go to, in one file.
+> Two always-fresh JSON files: every show at the venues I go to, and the artists I actually listen to.
 
-TideTable is a project I started over a gloomy weekend of October.
+TideTable is personal data plumbing for going to concerts. It doesn't recommend anything or have a UI. It keeps two clean, machine-readable files up to date on a schedule, for free, on GitHub Actions. Whatever reads them does the interesting part.
 
-I initially thought about connecting shows of my favorite artists on Tidal with a google calendar. But after struggling with BandsInTown and Songkick APIs, I pivoted to something simpler: a weekly "Rolling Through" playlist of artists I'd probably never heard of, playing my venues that week.
+| | What it is | Source | Credentials | Stored |
+|---|---|---|---|---|
+| **[`data/shows.json`](#show-listings-datashowsjson)** | Every upcoming show at my [venues](venues.yaml), however far out | Venue websites, scraped | None | Committed to this repo (public) |
+| **[`artists.json`](#artist-export-artistsjson)** | My Tidal library as ranked lists: all-time, lately, and similar artists I don't know yet | Tidal API | Tidal OAuth | A private repo of your choice, or nowhere |
 
-**The playlist is retired.** TideTable now does two independent things, each a scheduled GitHub Actions job:
+The two jobs never read each other's data. Matching happens downstream, for example:
 
-1. **[Show listings](#show-listings-datashowsjson)**: scrapes my [venues](venues.yaml) and commits every upcoming show they list, however far out, to [`data/shows.json`](data/shows.json). No credentials needed.
-2. **[Artist export](#daily-artist-export-artistsjson)**: exports my Tidal library as ranked artist lists, stored privately.
+- **"Who's worth seeing?"** Give an AI assistant (I use Claude) both files and ask what's coming up that I'd like, including artists I don't know yet but are similar to ones I do.
+- **A "top artists" block on a personal site**, read straight from `my_artists` or `recent_artists`.
+- A calendar feed, a weekly email, a playlist of who's in town: anything that can read JSON.
 
-Matching one against the other happens elsewhere; neither job reads the other's data.
+Splitting the data from what uses it is the point. Scrapers break and APIs change, so each job validates its output, keeps the last good file when it fails, and commits only real changes, so the git history doubles as a changelog of announcements and of your taste.
+
+### How it started
+
+I started TideTable over a gloomy October weekend, wanting the shows of my favorite Tidal artists in my calendar. After struggling with the Bandsintown and Songkick APIs, I settled on scraping venues myself and generating a weekly "Rolling Through" playlist of artists playing my venues that week. The playlist is retired: the data turned out to be the useful part, and anything that consumes it can be built elsewhere.
+
+## Make it yours
+
+TideTable is built around one person's venues and one streaming service, but nothing about the shape is specific to New York or Tidal. Fork it and keep the parts you want.
+
+**1. Fork and turn on Actions.** GitHub disables workflows in a fork: open the **Actions** tab and enable them. *Shows Export* then runs every other day and can be triggered by hand (**Run workflow**).
+
+**2. Point it at your venues.**
+
+- Edit [`venues.yaml`](venues.yaml). Each name must match a registered scraper.
+- Reuse a scraper if your venue shares a platform already handled: Mercury East's WordPress list, AEG/Bowery Presents feeds (other AEG-run venue sites may load the same kind of feed: add an entry with its URL and venue IDs in `bowery_presents.go`), Live Nation venue sites (`capitol_theatre.go`), Squarespace event pages (`grand_croton.go`) or ShoWare box offices (`tarrytown.go`).
+- Otherwise write a new scraper: see [Adding a venue](#adding-a-venue). Most are under 200 lines, with a recorded fixture so tests never hit the network. A coding assistant is good at this given the venue URL and an existing scraper as an example.
+- Delete the scrapers you don't need, or leave them: only the venues in `venues.yaml` are scraped.
+
+**3. Set your time zone.** Dates and times are local to the venues, hard-coded as `America/New_York` in [`main.go`](main.go) and [`lescraper/scrapers/fetch.go`](lescraper/scrapers/fetch.go). Change both if you're elsewhere. Also update the `userAgent` in `fetch.go` to point at your fork, so venues know who's calling.
+
+**4. Decide about your listening data.**
+
+- **Skip it.** The show listings work alone. Disable *Daily Artists Export* in the Actions tab (it fails without Tidal secrets) or delete `.github/workflows/daily-artists.yml`.
+- **Tidal.** Follow [Tidal setup](#tidal-setup), then point the export at a private repo ([Where the file lives](#where-the-file-lives)). By default it stores nothing, so a public fork never publishes your library by accident.
+- **Another service** (Spotify, Apple Music, Last.fm, …). The scoring in `artistexport` works on followed artists, liked albums and liked tracks with the date each was added, plus similar artists and a popularity score. It reads them as `tidal` package types today, so write a client for your service that fills those in (or generalize the types), keep the `artists.json` format, and everything downstream keeps working. Last.fm would also give you real listening history, which Tidal's API doesn't have.
+
+**5. Use the files.** `data/shows.json` is public at `https://raw.githubusercontent.com/<you>/tidetable/main/data/shows.json`. `artists.json` sits in your private repo; give your assistant or site read access to it. Both formats are documented below.
+
+What's deliberately left out: no database, server, headless browser or paid service. Everything is plain HTTP and JSON committed to git, so a fork costs nothing to run and is easy to debug from the commit history.
 
 ## Show listings (`data/shows.json`)
 
@@ -87,7 +120,7 @@ go test ./lescraper/... ./showexport
 
 `VENUES_FILE` points at a different venue list.
 
-## Tidal setup (for the artist export)
+## Tidal setup
 
 The artist export reads your Tidal library, so it needs Tidal API credentials. The show listings don't.
 
@@ -140,9 +173,9 @@ Back in your repository's **Settings** → **Secrets and variables** → **Actio
 - Name: `TIDAL_ACCESS_TOKEN` / Value: `your_access_token`
 - Name: `TIDAL_REFRESH_TOKEN` / Value: `your_refresh_token`
 
-## Daily Artist Export (`artists.json`)
+## Artist export (`artists.json`)
 
-A second, independent job exports your Tidal library as ranked lists of artists, for tools that match concert listings against what you actually listen to, or a site showing your top artists. It's independent of the show listings.
+A second, independent job exports your Tidal library as ranked lists of artists, for tools that match concert listings against what you actually listen to, or a site showing your top artists.
 
 > **Your library is personal data, and forks of this repo are public.** By default the export is stored nowhere: it runs, validates, and is discarded. Point it at a private repo to keep it (see [Where the file lives](#where-the-file-lives)).
 
@@ -204,7 +237,7 @@ op run --env-file=.env -- go run ./cmd/export-artists
 
 This writes `data/artists.json`, which is gitignored. Pass `-out` to write elsewhere, e.g. into a local clone of your data repo.
 
-**Re-authenticating.** The export refreshes the access token on its own, and Tidal's refresh token doesn't rotate, so the GitHub secrets don't need updating day to day. If a run fails with `token refresh failed`, the refresh token has expired or been revoked: run `go run cmd/auth/main.go` locally (step 3 of [Tidal setup](#tidal-setup-for-the-artist-export)), then update `TIDAL_ACCESS_TOKEN` and `TIDAL_REFRESH_TOKEN` in GitHub Secrets (and in 1Password), and re-run the workflow from the Actions tab.
+**Re-authenticating.** The export refreshes the access token on its own, and Tidal's refresh token doesn't rotate, so the GitHub secrets don't need updating day to day. If a run fails with `token refresh failed`, the refresh token has expired or been revoked: run `go run cmd/auth/main.go` locally (step 3 of [Tidal setup](#tidal-setup)), then update `TIDAL_ACCESS_TOKEN` and `TIDAL_REFRESH_TOKEN` in GitHub Secrets (and in 1Password), and re-run the workflow from the Actions tab.
 
 ## License
 
