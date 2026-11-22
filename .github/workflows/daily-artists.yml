@@ -1,5 +1,19 @@
 name: Daily Artists Export
 
+# Where artists.json is stored is set by the ARTISTS_DATA_REPO repository
+# variable (Settings → Secrets and variables → Actions → Variables):
+#
+#   unset        Export runs and is validated, but the file is stored nowhere.
+#                Safe default for forks: nothing about your library is published.
+#   owner/name   Commit to that (private) repo. Needs the ARTISTS_DATA_TOKEN
+#                secret: a fine-grained token with Contents read/write on that
+#                repo only. Optional ARTISTS_DATA_PATH variable sets the file
+#                path inside it (default: artists.json).
+#   self         Commit to data/artists.json in this repo. If this repo is
+#                public, so is your library.
+#
+# See "Daily Artist Export" in the README.
+
 on:
   schedule:
     # Every day at 06:17 UTC (off the top of the hour to avoid peak load)
@@ -7,7 +21,7 @@ on:
   workflow_dispatch: # Allow manual trigger
 
 permissions:
-  contents: write # commit data/artists.json
+  contents: write # only used in "self" mode, to commit data/artists.json
   actions: write  # keepalive: re-enable this workflow
 
 concurrency:
@@ -23,6 +37,53 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Resolve storage target
+        id: target
+        env:
+          DATA_REPO: ${{ vars.ARTISTS_DATA_REPO }}
+          DATA_PATH: ${{ vars.ARTISTS_DATA_PATH || 'artists.json' }}
+          HAS_TOKEN: ${{ secrets.ARTISTS_DATA_TOKEN != '' }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          case "$DATA_REPO" in
+            "")
+              echo "::warning title=artists.json not stored::ARTISTS_DATA_REPO is not set, so the export is validated and then discarded. Set it to a private repo (owner/name) to keep the file. See the README."
+              { echo "mode=none"; echo "dir=$RUNNER_TEMP"; echo "file=artists.json"; } >> "$GITHUB_OUTPUT"
+              ;;
+            self)
+              if [ "$(gh api "repos/$GITHUB_REPOSITORY" --jq .private)" != "true" ]; then
+                echo "::warning title=artists.json is public::ARTISTS_DATA_REPO=self commits your library to this public repo."
+              fi
+              { echo "mode=self"; echo "dir=."; echo "file=data/artists.json"; } >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              if ! [[ "$DATA_REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+                echo "::error::ARTISTS_DATA_REPO must be unset, 'self', or 'owner/name'; got '$DATA_REPO'."
+                exit 1
+              fi
+              if [ "$HAS_TOKEN" != "true" ]; then
+                echo "::error::ARTISTS_DATA_REPO is set but the ARTISTS_DATA_TOKEN secret is missing."
+                exit 1
+              fi
+              if [[ "$DATA_PATH" = /* || "$DATA_PATH" == *..* ]]; then
+                echo "::error::ARTISTS_DATA_PATH must be a relative path without '..'; got '$DATA_PATH'."
+                exit 1
+              fi
+              { echo "mode=repo"; echo "dir=data-repo"; echo "file=$DATA_PATH"; } >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      # Checked out before the export so the previous file is in place for the
+      # shrink check and the "only generated_at changed" comparison.
+      - name: Checkout data repo
+        if: steps.target.outputs.mode == 'repo'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.ARTISTS_DATA_REPO }}
+          token: ${{ secrets.ARTISTS_DATA_TOKEN }}
+          path: data-repo
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -37,25 +98,30 @@ jobs:
           TIDAL_CLIENT_SECRET: ${{ secrets.TIDAL_CLIENT_SECRET }}
           TIDAL_ACCESS_TOKEN: ${{ secrets.TIDAL_ACCESS_TOKEN }}
           TIDAL_REFRESH_TOKEN: ${{ secrets.TIDAL_REFRESH_TOKEN }}
-        run: go run ./cmd/export-artists -out data/artists.json
+          OUT: ${{ steps.target.outputs.dir }}/${{ steps.target.outputs.file }}
+        run: go run ./cmd/export-artists -out "$OUT"
 
       - name: Commit if anything besides generated_at changed
+        if: steps.target.outputs.mode != 'none'
+        working-directory: ${{ steps.target.outputs.dir }}
+        env:
+          FILE: ${{ steps.target.outputs.file }}
         run: |
           set -euo pipefail
-          f=data/artists.json
-          if git cat-file -e "HEAD:$f" 2>/dev/null && \
-             cmp -s <(git show "HEAD:$f" | jq -S 'del(.generated_at)') <(jq -S 'del(.generated_at)' "$f"); then
+          if git cat-file -e "HEAD:$FILE" 2>/dev/null && \
+             cmp -s <(git show "HEAD:$FILE" | jq -S 'del(.generated_at)') <(jq -S 'del(.generated_at)' "$FILE"); then
             echo "No changes besides generated_at; nothing to commit."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$f"
+          git add -f "$FILE" # -f: data/artists.json is gitignored to avoid accidental commits
           git commit -m "Update artists.json"
           git push
 
       # GitHub disables scheduled workflows in public repos after 60 days without
-      # repo activity. Commits only happen when the library changes, so instead
+      # repo activity. This repo doesn't get regular commits from the export
+      # (they go to the data repo, or only happen when the library changes), so
       # re-enable this workflow via the API on every run, which resets that timer.
       # Runs even if the export failed, so a stretch of failures can't disable it.
       - name: Keep workflow enabled

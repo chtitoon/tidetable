@@ -123,9 +123,11 @@ That's it. Every Friday at 9 AM UTC (5 AM EST), your playlist updates automatica
 
 No maintenance required. Just listen, and discover.
 
-## Daily Artist Export (`data/artists.json`)
+## Daily Artist Export (`artists.json`)
 
 A second, independent job exports your Tidal library as two ranked lists of artists, for tools that match concert listings against what you actually listen to. It doesn't touch the playlist feature.
+
+> **Your library is personal data, and forks of this repo are public.** By default the export is stored nowhere: it runs, validates, and is discarded. Point it at a private repo to keep it (see [Where the file lives](#where-the-file-lives)).
 
 ```json
 {
@@ -150,15 +152,36 @@ Tidal's API has no listening history, so recent likes stand in for "listening to
 
 **`similar_artists`.** For artists scoring 2 or more, the export fetches Tidal's similar artists (first page, up to 20). Those not already in your library are ranked by how many of your artists list them as similar, then by the total score of those artists.
 
-**Where the file lives.** `data/artists.json` in this repo, also readable at `https://raw.githubusercontent.com/<owner>/tidetable/main/data/artists.json`. The workflow commits it only when something other than `generated_at` changed. Sorting is deterministic, so diffs show real library changes. Because quiet stretches mean no commits, each run also re-enables its own workflow through the GitHub API, which stops GitHub disabling the schedule after 60 days of repo inactivity.
+### Where the file lives
 
-**Safety.** The file is built in memory, validated, then written atomically. If any API read fails after retries, or the artist count drops by more than half compared to the previous file, the run fails (GitHub emails you) and the previous file stays as it was. Override a genuine drop locally with `-force`.
+Set the **`ARTISTS_DATA_REPO`** repository variable (Settings → Secrets and variables → Actions → **Variables**):
+
+| `ARTISTS_DATA_REPO` | Behavior |
+|---|---|
+| *(unset, default)* | The export runs and is validated, then discarded. The run shows a warning. Nothing about your library leaves the runner. |
+| `owner/name` | The file is committed to that repo, which should be **private**. Recommended. |
+| `self` | The file is committed to `data/artists.json` in this repo, as before. If this repo is public, anyone can read your library. The run shows a warning. |
+
+To set up a private data repo:
+
+1. Create a private repo, e.g. `<you>/tidetable-data`, **with a README** so it has a default branch.
+2. Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with **Repository access: only that repo** and **Contents: Read and write**. Nothing else.
+3. In this repo, add the secret **`ARTISTS_DATA_TOKEN`** (the token) and the variable **`ARTISTS_DATA_REPO`** (`<you>/tidetable-data`).
+4. Optionally set the variable **`ARTISTS_DATA_PATH`** for the file path inside that repo (default `artists.json`).
+
+To read it with Claude, give Claude access to the private repo: in Claude Code, `gh` or a clone. On claude.ai, add the repo through the GitHub integration.
+
+The workflow commits only when something other than `generated_at` changed. Sorting is deterministic, so diffs show real library changes. Because quiet stretches mean no commits to this repo, each run also re-enables its own workflow through the GitHub API, which stops GitHub disabling the schedule after 60 days of repo inactivity. Workflow logs in a public repo are public, so the export logs only counts, never artist names or IDs.
+
+**Safety.** The file is built in memory, validated, then written atomically. If any API read fails after retries, or the artist count drops by more than half compared to the previous file, the run fails (GitHub emails you) and the previous file in the data repo stays as it was. Override a genuine drop locally with `-force`.
 
 **Run it locally** with your secrets in 1Password (`.env` holds `op://` references for the four `TIDAL_*` variables):
 
 ```bash
 op run --env-file=.env -- go run ./cmd/export-artists
 ```
+
+This writes `data/artists.json`, which is gitignored. Pass `-out` to write elsewhere, e.g. into a local clone of your data repo.
 
 **Re-authenticating.** The export refreshes the access token on its own, and Tidal's refresh token doesn't rotate, so the GitHub secrets don't need updating day to day. If a run fails with `token refresh failed`, the refresh token has expired or been revoked: run `go run cmd/auth/main.go` locally (step 4 above), then update `TIDAL_ACCESS_TOKEN` and `TIDAL_REFRESH_TOKEN` in GitHub Secrets (and in 1Password), and re-run the workflow from the Actions tab.
 

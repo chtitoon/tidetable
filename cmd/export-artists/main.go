@@ -1,4 +1,6 @@
-// Command export-artists writes the scored Tidal library to data/artists.json.
+// Command export-artists writes the scored Tidal library to a JSON file
+// (default data/artists.json, which is gitignored; in CI the destination is
+// set by the ARTISTS_DATA_REPO variable, see .github/workflows/daily-artists.yml).
 //
 // Usage: go run ./cmd/export-artists [-out data/artists.json] [-force]
 //
@@ -60,8 +62,9 @@ func run(out string, force bool) error {
 	log.Printf("scored %d artists (%d items without artist, %d compilation/label credits skipped)",
 		len(artists), stats.NoArtist, stats.NonArtistMain)
 	if len(stats.Unresolved) > 0 {
-		log.Printf("warning: skipped %d credits to artists Tidal no longer resolves: %v",
-			len(stats.Unresolved), stats.Unresolved)
+		// Count only: workflow logs of a public repo are public, and IDs are library data.
+		log.Printf("warning: skipped %d credits to artists Tidal no longer resolves",
+			len(stats.Unresolved))
 	}
 
 	threshold := artistexport.SimilarThreshold
