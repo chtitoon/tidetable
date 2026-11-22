@@ -33,6 +33,11 @@ func (s *Elsewhere) GetName() string {
 	return "Elsewhere"
 }
 
+// GetURL returns the listings page
+func (s *Elsewhere) GetURL() string {
+	return elsewhereURL
+}
+
 // ScrapeShows implements the Scraper interface for Elsewhere
 func (s *Elsewhere) ScrapeShows() ([]core.Show, error) {
 	// Fetch the page

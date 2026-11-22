@@ -5,13 +5,13 @@ import (
 	"os"
 )
 
+// Config holds the Tidal credentials used by the daily artist export.
+// (The show export needs none; it only reads VENUES_FILE, see main.go.)
 type Config struct {
 	TidalClientID     string
 	TidalClientSecret string
 	TidalAccessToken  string
 	TidalRefreshToken string
-	VenuesFile        string
-	PlaylistName      string
 }
 
 func Load() (*Config, error) {
@@ -20,16 +20,6 @@ func Load() (*Config, error) {
 		TidalClientSecret: os.Getenv("TIDAL_CLIENT_SECRET"),
 		TidalAccessToken:  os.Getenv("TIDAL_ACCESS_TOKEN"),
 		TidalRefreshToken: os.Getenv("TIDAL_REFRESH_TOKEN"),
-		VenuesFile:        os.Getenv("VENUES_FILE"),
-		PlaylistName:      os.Getenv("PLAYLIST_NAME"),
-	}
-
-	// Set defaults
-	if cfg.VenuesFile == "" {
-		cfg.VenuesFile = "venues.yaml"
-	}
-	if cfg.PlaylistName == "" {
-		cfg.PlaylistName = "Rolling Through"
 	}
 
 	// Validate required fields

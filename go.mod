@@ -2,7 +2,10 @@ module github.com/chtitoon/tidetable
 
 go 1.25.2
 
-require gopkg.in/yaml.v3 v3.0.1
+require (
+	golang.org/x/net v0.58.0
+	gopkg.in/yaml.v3 v3.0.1
+)
 
 require (
 	github.com/kr/pretty v0.3.1 // indirect

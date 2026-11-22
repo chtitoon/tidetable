@@ -50,28 +50,3 @@ func GetSupportedVenues() []string {
 	sort.Strings(venues)
 	return venues
 }
-
-// GroupVenuesByScraper groups venue names by their scrapers to avoid duplicate scraping
-// Returns a map of scraper -> list of venue names
-func GroupVenuesByScraper(venueNames []string) (map[Scraper][]string, error) {
-	registryMu.RLock()
-	defer registryMu.RUnlock()
-
-	result := make(map[Scraper][]string)
-	var missingVenues []string
-
-	for _, venueName := range venueNames {
-		scraper, ok := venueRegistry[venueName]
-		if !ok {
-			missingVenues = append(missingVenues, venueName)
-			continue
-		}
-		result[scraper] = append(result[scraper], venueName)
-	}
-
-	if len(missingVenues) > 0 {
-		return nil, fmt.Errorf("unsupported venues: %v", missingVenues)
-	}
-
-	return result, nil
-}

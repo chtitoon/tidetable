@@ -1,35 +1,95 @@
 # TideTable 🎸
 
-> Discover new artists playing near you week in and week out.
+> Every upcoming show at the venues I go to, in one file.
 
 TideTable is a project I started over a gloomy weekend of October.
 
-I initially thought about connecting shows of my favorite artists on Tidal with a google calendar. But after struggling with BandsInTown and Songkick APIs, I pivoted to something simpler: create a weekly playlist from artists I've probably never heard of. That way, eventually—maybe, really maybe, if I'm in the mood and have an empty agenda—I'll go to one of them. That's it. That's the whole idea.
+I initially thought about connecting shows of my favorite artists on Tidal with a google calendar. But after struggling with BandsInTown and Songkick APIs, I pivoted to something simpler: a weekly "Rolling Through" playlist of artists I'd probably never heard of, playing my venues that week.
 
-<img width="290" alt="image" src="https://github.com/user-attachments/assets/ae5f22b5-023d-4ef4-8d7b-ef3790143525" />
+**The playlist is retired.** TideTable now does two independent things, each a scheduled GitHub Actions job:
 
+1. **[Show listings](#show-listings-datashowsjson)**: scrapes my [venues](venues.yaml) and commits every show in the next ~4 months to [`data/shows.json`](data/shows.json). No credentials needed.
+2. **[Artist export](#daily-artist-export-artistsjson)**: exports my Tidal library as ranked artist lists, stored privately.
 
+Matching one against the other happens elsewhere; neither job reads the other's data.
 
-## How It Works
+## Show listings (`data/shows.json`)
 
-1. Every Friday, using github actions, it automatically checks your favorite [venues](venues.yaml) for upcoming shows (Monday-Sunday of the following week)
-2. Grabs every artist name from the lineups
-3. Searches Tidal, picks a top track from each artist, bundles them into a weekly "Rolling Through" playlist 
+Every other day (and on demand from the Actions tab), `.github/workflows/daily-shows.yml` runs `go run .`, which scrapes every venue in [`venues.yaml`](venues.yaml) and writes `data/shows.json`:
 
-## Setup
+```json
+{
+  "generated_at": "2026-11-21T11:23:41Z",
+  "venues": [
+    { "name": "Mercury Lounge", "url": "https://mercuryeastpresents.com/mercurylounge/", "ok": true, "shows": 92, "error": null }
+  ],
+  "shows": [
+    {
+      "date": "2026-12-06",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Friendship",
+      "support": ["Charlotte Cornfield"],
+      "title": "Friendship & Charlotte Cornfield",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/fcc26nyc/"
+    }
+  ]
+}
+```
 
-This is a GitHub Actions-first setup. Everything runs automatically once configured.
+- **`venue`** is always one of the `venues[].name` entries. **`room`** names the hall when that venue covers several (LPR's rooms, Garcia's, the big Bowery Presents rooms), and is `null` otherwise.
+- **`date` / `time`** are New York local time. `time` is the listed start; Mercury East only lists doors, so theirs is the doors time. It's `null` when the venue hasn't announced one.
+- **`title`** is the listing text as published. **`headliner` / `support`** come from the venue's own lineup data when it has one (Bowery Presents, Webster Hall, Capitol, Mercury East's "with …" line), and otherwise from splitting the title (`lescraper/core/normalizer.go`). The split is best-effort.
+- **`status`** is `on_sale`, `sold_out`, `coming_soon` or `unknown` (LPR and The Grand don't publish it). **`on_sale_at`** is the general on-sale time (UTC) where the venue publishes it.
+- Cancelled and postponed shows are left out, and so are obvious non-concerts: DJ and dance nights, comedy, talks, musicals, ballet, films, dinners, parking and passes. A venue's own genre or category tags are used where it has them; otherwise a conservative title filter applies (`lescraper/core/filter.go`). When unsure, the show stays.
+- Shows are sorted by date, then venue, then time, so diffs stay readable. The workflow commits only when something other than `generated_at` changed.
 
-**Prerequisites:**
-- A Tidal account (HiFi or HiFi Plus)
-- A GitHub account
-- Go 1.21+ installed (only needed for one-time token generation)
+**Failures.** One venue failing (site down, markup changed) doesn't stop the others: it gets `"ok": false` with the error, and the workflow run shows a warning. A venue that returns 0 shows also counts as failed (`"error": "0 shows"`), since real venues always list something. The job fails, and the previous file stays as it was, only if every venue fails.
 
-### 1. Fork This Repository
+### Venues
 
-Click the "Fork" button at the top of this page to create your own copy.
+| `venues.yaml` name | Listings | How it's read |
+|---|---|---|
+| Mercury Lounge | [mercuryeastpresents.com/mercurylounge](https://mercuryeastpresents.com/mercurylounge/) | Server-rendered list, `/page/N/` until an empty page |
+| Bowery Ballroom | [mercuryeastpresents.com/boweryballroom](https://mercuryeastpresents.com/boweryballroom/) | Same platform as Mercury Lounge |
+| Music Hall of Williamsburg | [bowerypresents.com/music-hall-of-williamsburg](https://www.bowerypresents.com/music-hall-of-williamsburg/) | The JSON feed the page loads (AEG `events/59`), filtered by venue ID |
+| Brooklyn Steel | [bowerypresents.com/brooklyn-steel](https://www.bowerypresents.com/brooklyn-steel/) | Same feed |
+| Webster Hall | [websterhall.com/shows](https://www.websterhall.com/shows/) | Its own JSON feed (AEG `events/85`) |
+| Bowery Presents NYC | [bowerypresents.com/new-york-metro/calendar](https://www.bowerypresents.com/new-york-metro/calendar/) | Same feed as MHOW, keeping only Beacon Theatre, Kings Theatre, Terminal 5, Forest Hills Stadium, Radio City Music Hall, Racket, Knockdown Center, Prospect Park Bandshell, Madison Square Garden (and its Infosys Theater) |
+| LPR | [lpr.com](https://lpr.com/) | The infinite-scroll endpoint behind the homepage (`admin-ajax.php`), NYC rooms only; genres from the WordPress REST API to drop DJ/comedy nights |
+| The Capitol Theatre | [thecapitoltheatre.com/shows](https://www.thecapitoltheatre.com/shows) | Live Nation site: event data embedded in each room page (The Capitol Theatre, Garcia's) |
+| The Grand | [thegrandcroton.com](https://thegrandcroton.com/) | Squarespace events page `/happening`, as JSON (`?format=json`) |
+| Tarrytown Music Hall | [tickets.tarrytownmusichall.org](https://tickets.tarrytownmusichall.org/) | ShoWare box office JSON (`performancelist.asp`), Music category |
 
-### 2. Get Tidal Developer Credentials
+Everything is plain HTTP: either server-rendered HTML or the JSON a page loads. No headless browser. Each scraper's file in `lescraper/scrapers/` explains what it reads and why.
+
+### Adding a venue
+
+1. Look at the listings page. If the raw HTML (`curl -s URL`) contains the events, parse that. If it renders client-side, find the JSON it loads in the browser's network tab or the page's scripts. Check the source isn't truncated: look for pagination, "load more" endpoints and page-size caps.
+2. Add a scraper in `lescraper/scrapers/<venue>.go` that implements `core.Scraper` (`GetVenues`, `GetName`, `GetURL`, `ScrapeShows`) and registers itself in `init()` with `core.RegisterVenue("<Name>", …)`. Fetch through `fetchURL` (or `fetchShared` for a feed other venues also read), so tests can serve fixtures. Return every upcoming show with `Venue`, `Date` (midnight New York time), and whatever of `Time`, `Room`, `Headliner`/`Support`, `Status`, `OnSaleAt` and `URL` the source has. The date window, dedupe and the shared non-concert filter are applied for you.
+3. Save the page or feed it requests as `lescraper/scrapers/testdata/<name>.gz` and add a test to `scrapers_test.go` with `useFixtures`. Tests never hit the network.
+4. Add the name to `venues.yaml`.
+
+Platforms already handled, which a new venue might share: Mercury East's WordPress list (`MercuryEast`), AEG/Bowery Presents feeds (`BoweryPresents`: add an entry with the feed URL and venue IDs), and Live Nation venue sites (`CapitolTheatre`, rooms list). Elsewhere has a scraper (`elsewhere.go`) but isn't in `venues.yaml`.
+
+### Running it locally
+
+```bash
+go run .                         # writes data/shows.json, prints a count per venue
+go run . -out /tmp/shows.json -months 6
+go test ./lescraper/... ./showexport
+```
+
+`VENUES_FILE` points at a different venue list.
+
+## Tidal setup (for the artist export)
+
+The artist export reads your Tidal library, so it needs Tidal API credentials. The show listings don't.
+
+### 1. Get Tidal Developer Credentials
 
 Register as a Tidal developer to get your API credentials:
 
@@ -38,20 +98,20 @@ Register as a Tidal developer to get your API credentials:
 3. Set the **Redirect URI** to: `http://localhost:8080/callback`
 4. Copy your **Client ID** and **Client Secret**
 
-### 3. Add Client Credentials to GitHub Secrets
+### 2. Add Client Credentials to GitHub Secrets
 
-In your forked repository:
+In your repository (or fork):
 
 1. Go to **Settings** → **Secrets and variables** → **Actions**
 2. Click **New repository secret** and add:
    - Name: `TIDAL_CLIENT_ID` / Value: `your_client_id`
    - Name: `TIDAL_CLIENT_SECRET` / Value: `your_client_secret`
 
-### 4. Generate Tidal Access Tokens (One-Time Setup)
+### 3. Generate Tidal Access Tokens (One-Time Setup)
 
 **This step must be done locally** because OAuth requires browser login.
 
-Clone your forked repository:
+Clone the repository:
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/tidetable.git
@@ -71,61 +131,16 @@ Your browser will open for Tidal login. After authorizing:
 
 **You won't need to run this again.** Tokens refresh automatically.
 
-### 5. Add Access Tokens to GitHub Secrets
+### 4. Add Access Tokens to GitHub Secrets
 
 Back in your repository's **Settings** → **Secrets and variables** → **Actions**, add two more secrets:
 
 - Name: `TIDAL_ACCESS_TOKEN` / Value: `your_access_token`
 - Name: `TIDAL_REFRESH_TOKEN` / Value: `your_refresh_token`
 
-### 6. Configure Your Venues
-
-Edit `venues.yaml` to add your go-to spots:
-
-```yaml
-venues:
-  - name: "Mercury Lounge / Bowery Ballroom"
-    url: "https://mercuryeastpresents.com/calendar-mr/"
-    location: "New York, NY"
-    scraper_type: "mercury_east"
-
-  - name: "Your Favorite Venue"
-    url: "https://venuename.com/shows"
-    location: "Brooklyn, NY"
-    scraper_type: "generic"
-```
-
-**Supported Scraper Types:**
-- `mercury_east`: Works for Mercury East Presents venues (Mercury Lounge, Bowery Ballroom, etc.)
-
-Want your local venue supported? PRs welcome or open an issue.
-
-Commit and push your `venues.yaml` changes to your fork:
-
-```bash
-git add venues.yaml
-git commit -m "Configure my favorite venues"
-git push
-```
-
-### 7. Test the Workflow
-
-In your GitHub repository:
-
-1. Go to the **Actions** tab
-2. Select **Weekly Playlist Update**
-3. Click **Run workflow** → **Run workflow**
-
-Watch it run! In about a minute, check your Tidal account for the new playlist.
-
-### 8. Done!
-That's it. Every Friday at 9 AM UTC (5 AM EST), your playlist updates automatically with fresh artists from the upcoming week's shows.
-
-No maintenance required. Just listen, and discover.
-
 ## Daily Artist Export (`artists.json`)
 
-A second, independent job exports your Tidal library as two ranked lists of artists, for tools that match concert listings against what you actually listen to. It doesn't touch the playlist feature.
+A second, independent job exports your Tidal library as two ranked lists of artists, for tools that match concert listings against what you actually listen to. It's independent of the show listings.
 
 > **Your library is personal data, and forks of this repo are public.** By default the export is stored nowhere: it runs, validates, and is discarded. Point it at a private repo to keep it (see [Where the file lives](#where-the-file-lives)).
 
@@ -183,7 +198,7 @@ op run --env-file=.env -- go run ./cmd/export-artists
 
 This writes `data/artists.json`, which is gitignored. Pass `-out` to write elsewhere, e.g. into a local clone of your data repo.
 
-**Re-authenticating.** The export refreshes the access token on its own, and Tidal's refresh token doesn't rotate, so the GitHub secrets don't need updating day to day. If a run fails with `token refresh failed`, the refresh token has expired or been revoked: run `go run cmd/auth/main.go` locally (step 4 above), then update `TIDAL_ACCESS_TOKEN` and `TIDAL_REFRESH_TOKEN` in GitHub Secrets (and in 1Password), and re-run the workflow from the Actions tab.
+**Re-authenticating.** The export refreshes the access token on its own, and Tidal's refresh token doesn't rotate, so the GitHub secrets don't need updating day to day. If a run fails with `token refresh failed`, the refresh token has expired or been revoked: run `go run cmd/auth/main.go` locally (step 3 of [Tidal setup](#tidal-setup-for-the-artist-export)), then update `TIDAL_ACCESS_TOKEN` and `TIDAL_REFRESH_TOKEN` in GitHub Secrets (and in 1Password), and re-run the workflow from the Actions tab.
 
 ## License
 

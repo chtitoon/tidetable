@@ -2,164 +2,192 @@ package scrapers
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/chtitoon/tidetable/lescraper/core"
+	"golang.org/x/net/html"
 )
 
-// MercuryEast scraper handles all Mercury East Presents venues
-// Each venue has its own calendar URL with the same structure
-type MercuryEast struct{}
-
-// Venue info for Mercury East venues
-type mercuryEastVenue struct {
+// MercuryEast scrapes a Mercury East Presents venue (Mercury Lounge, Bowery
+// Ballroom). Their list views are server-rendered WordPress pages, 20 events
+// per page at <url>/page/N/; a page past the end renders with no events.
+type MercuryEast struct {
 	Name string
 	URL  string
 }
 
-// Mercury East Presents venues with their calendar URLs
-var mercuryEastVenues = []mercuryEastVenue{
-	{Name: "Mercury Lounge", URL: "https://mercuryeastpresents.com/calendar-mr/"},
+var mercuryEastVenues = []*MercuryEast{
+	{Name: "Mercury Lounge", URL: "https://mercuryeastpresents.com/mercurylounge/"},
 	{Name: "Bowery Ballroom", URL: "https://mercuryeastpresents.com/boweryballroom/"},
-	// Add more Mercury East venues as discovered
 }
+
+// mercuryEastMaxPages bounds pagination in case the end-of-list check breaks.
+const mercuryEastMaxPages = 20
 
 func init() {
-	// Register all Mercury East venues with the registry
-	scraper := &MercuryEast{}
-	core.RegisterVenues(scraper.GetVenues(), scraper)
-}
-
-// GetVenues returns all venues managed by Mercury East Presents
-func (s *MercuryEast) GetVenues() []string {
-	venues := make([]string, len(mercuryEastVenues))
-	for i, v := range mercuryEastVenues {
-		venues[i] = v.Name
+	for _, v := range mercuryEastVenues {
+		core.RegisterVenue(v.Name, v)
 	}
-	return venues
 }
 
-// GetName returns the scraper name
-func (s *MercuryEast) GetName() string {
-	return "Mercury East"
-}
+func (s *MercuryEast) GetVenues() []string { return []string{s.Name} }
+func (s *MercuryEast) GetName() string     { return "Mercury East Presents: " + s.Name }
+func (s *MercuryEast) GetURL() string      { return s.URL }
 
-// ScrapeShows implements the Scraper interface for Mercury East venues
+// ScrapeShows walks the list pages until one has no events.
 func (s *MercuryEast) ScrapeShows() ([]core.Show, error) {
-	var allShows []core.Show
-
-	// Scrape each Mercury East venue
-	for _, venue := range mercuryEastVenues {
-		shows, err := s.scrapeVenue(venue)
-		if err != nil {
-			// Log error but continue with other venues
-			fmt.Printf("Warning: failed to scrape %s: %v\n", venue.Name, err)
-			continue
+	var all []core.Show
+	for page := 1; page <= mercuryEastMaxPages; page++ {
+		url := s.URL
+		if page > 1 {
+			url = fmt.Sprintf("%spage/%d/", s.URL, page)
 		}
-		allShows = append(allShows, shows...)
+		body, err := fetchURL(url)
+		if err != nil {
+			return nil, fmt.Errorf("page %d: %w", page, err)
+		}
+		shows, err := parseMercuryEastPage(body, s.Name, s.URL)
+		if err != nil {
+			return nil, fmt.Errorf("page %d: %w", page, err)
+		}
+		if len(shows) == 0 {
+			return all, nil
+		}
+		all = append(all, shows...)
 	}
-
-	return allShows, nil
+	return nil, fmt.Errorf("still finding events after %d pages; pagination check may be broken", mercuryEastMaxPages)
 }
 
-// scrapeVenue scrapes a single Mercury East venue
-func (s *MercuryEast) scrapeVenue(venue mercuryEastVenue) ([]core.Show, error) {
-	// Fetch the page
-	resp, err := http.Get(venue.URL)
+var (
+	// "*SOLD OUT* cortex", "*POSTPONED* Artist"
+	mercuryMarkerRe = regexp.MustCompile(`^\s*\*([^*]+)\*\s*`)
+	// "Doors: 6:00 pm"
+	clockRe = regexp.MustCompile(`(?i)(\d{1,2}):(\d{2})\s*([ap])\.?m\.?`)
+)
+
+// parseMercuryEastPage extracts the events on one list page. Sidebar
+// widgets reuse .tw-section without a date, so sections need .tw-event-date.
+func parseMercuryEastPage(body []byte, venue, venueURL string) ([]core.Show, error) {
+	doc, err := parseHTML(body)
 	if err != nil {
-		return nil, fmt.Errorf("fetching page: %w", err)
+		return nil, err
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("bad status code: %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading body: %w", err)
-	}
-
 	var shows []core.Show
-
-	// Parse event entries added via EventData.events.push()
-	// Format: EventData.events.push({"value" : "Artist Name 10/12", ...});
-	eventRe := regexp.MustCompile(`EventData\.events\.push\(\{[^}]*"value"\s*:\s*"([^"]+)"[^}]*"url"\s*:\s*"([^"]+)"`)
-	eventMatches := eventRe.FindAllSubmatch(body, -1)
-
-	currentYear := time.Now().Year()
-
-	for _, match := range eventMatches {
-		if len(match) < 3 {
+	for _, sec := range findAll(doc, byClass("tw-section")) {
+		dateText := textOf(sec, "tw-event-date")
+		if dateText == "" {
 			continue
 		}
-
-		value := string(match[1])
-		url := string(match[2])
-
-		// Skip sold out shows (marked with *)
-		if strings.Contains(value, "*SOLD OUT*") || strings.Contains(value, "*POSTPONED*") {
-			continue
-		}
-
-		// Parse "Artist Name 10/12" format
-		parts := strings.Split(value, " ")
-		if len(parts) < 2 {
-			continue
-		}
-
-		datePart := parts[len(parts)-1]
-		titleParts := parts[:len(parts)-1]
-		title := strings.TrimSpace(strings.Join(titleParts, " "))
-
-		// Parse date (format: 10/12 or 1/5)
-		date, err := parseMercuryEastDate(datePart, currentYear)
+		date, err := time.ParseInLocation("Mon Jan 2, 2006", dateText, newYork)
 		if err != nil {
-			fmt.Printf("    Warning: could not parse date '%s' for %s\n", datePart, title)
+			return nil, fmt.Errorf("parsing date %q: %w", dateText, err)
+		}
+
+		nameNode := find(sec, byClass("tw-name"))
+		title := text(nameNode)
+		status := core.StatusUnknown
+		for {
+			m := mercuryMarkerRe.FindStringSubmatch(title)
+			if m == nil {
+				break
+			}
+			switch marker := strings.ToUpper(strings.TrimSpace(m[1])); {
+			case strings.Contains(marker, "SOLD OUT"):
+				status = core.StatusSoldOut
+			case strings.Contains(marker, "POSTPONED"), strings.Contains(marker, "CANCEL"):
+				status = "" // drop
+			}
+			title = title[len(m[0]):]
+		}
+		if status == "" || title == "" {
 			continue
+		}
+		if status == core.StatusUnknown {
+			status = mercuryEastButtonStatus(sec)
+		}
+
+		url := ""
+		if a := find(nameNode, byTag("a")); a != nil {
+			url = attr(a, "href")
+		}
+		if url == "" {
+			if btn := find(sec, byClass("tw-buy-tix-btn")); btn != nil {
+				url = attr(btn, "href")
+			}
 		}
 
 		shows = append(shows, core.Show{
 			Title:    title,
-			Venue:    venue.Name,
+			Venue:    venue,
 			Date:     date,
-			Price:    "", // Price not available on calendar, would need to scrape individual event pages
+			Time:     parseClock(textOf(sec, "tw-event-time")),
+			Support:  mercuryEastSupport(find(sec, byClass("tw-attractions"))),
+			Status:   status,
 			URL:      url,
-			VenueURL: venue.URL,
+			VenueURL: venueURL,
 		})
 	}
-
 	return shows, nil
 }
 
-// parseMercuryEastDate parses dates in "10/12" format (month/day)
-func parseMercuryEastDate(dateStr string, year int) (time.Time, error) {
-	parts := strings.Split(dateStr, "/")
-	if len(parts) != 2 {
-		return time.Time{}, fmt.Errorf("invalid date format: %s", dateStr)
+// mercuryEastButtonStatus maps the ticket button's class. The button markup
+// also appears in an HTML comment ("Onsale Soon"); the parser skips comments.
+func mercuryEastButtonStatus(sec *html.Node) core.Status {
+	btn := find(sec, byClass("tw-buy-tix-btn"))
+	switch {
+	case btn == nil:
+		return core.StatusUnknown
+	case hasClass(btn, "tw_soldout"):
+		return core.StatusSoldOut
+	case hasClass(btn, "tw_onsale"):
+		return core.StatusOnSale
+	case hasClass(btn, "tw_onsalesoon"), hasClass(btn, "tw_signup"):
+		return core.StatusComingSoon
+	default: // tw_offsale ("Sales Ended") and anything new
+		return core.StatusUnknown
 	}
+}
 
-	// Try parsing as MM/DD
-	dateWithYear := fmt.Sprintf("%s/%d", dateStr, year)
-	t, err := time.Parse("1/2/2006", dateWithYear)
-	if err != nil {
-		return time.Time{}, err
+// mercuryEastSupport reads the "with X, Y" line. Each act is its own <span>.
+func mercuryEastSupport(n *html.Node) []string {
+	if n == nil {
+		return nil
 	}
-
-	// Convert to local timezone to properly compare with "today"
-	now := time.Now()
-	t = time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, now.Location())
-
-	// Compare dates without time component
-	// If the date (midnight) is before today (midnight), assume it's next year
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	if t.Before(today) {
-		t = t.AddDate(1, 0, 0)
+	var out []string
+	for _, sp := range findAll(n, byTag("span")) {
+		if t := text(sp); t != "" {
+			out = append(out, t)
+		}
 	}
+	if len(out) == 0 { // plain text fallback: "with X, Y"
+		t := strings.TrimSpace(strings.TrimPrefix(text(n), "with "))
+		for _, p := range strings.Split(t, ",") {
+			if p = strings.TrimSpace(p); p != "" {
+				out = append(out, p)
+			}
+		}
+	}
+	return out
+}
 
-	return t, nil
+// parseClock turns "Doors: 6:00 pm" or "7:00PM" into "18:00"; "" if none.
+func parseClock(s string) string {
+	m := clockRe.FindStringSubmatch(s)
+	if m == nil {
+		return ""
+	}
+	h := 0
+	fmt.Sscanf(m[1], "%d", &h)
+	if h < 1 || h > 12 {
+		return ""
+	}
+	if strings.EqualFold(m[3], "p") && h != 12 {
+		h += 12
+	}
+	if strings.EqualFold(m[3], "a") && h == 12 {
+		h = 0
+	}
+	return fmt.Sprintf("%02d:%s", h, m[2])
 }
