@@ -145,7 +145,10 @@ func fetchSimilar(ctx context.Context, svc *tidal.Service, ids []string) (map[st
 		var apiErr *tidal.APIError
 		switch {
 		case errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusBadRequest:
-			log.Printf("warning: batch similar-artists request rejected, fetching %d artists singly: %v", len(batch), err)
+			// Status only: the error body may echo the requested ids, and
+			// workflow logs of a public repo are public.
+			log.Printf("warning: batch similar-artists request rejected (status %d), fetching %d artists singly",
+				apiErr.StatusCode, len(batch))
 			got = nil
 		case err != nil:
 			return nil, err
