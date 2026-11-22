@@ -40,7 +40,11 @@ var nonArtists = map[string]bool{
 
 // IsNonArtist reports whether a credit name is a compilation or label placeholder.
 func IsNonArtist(name string) bool {
-	return nonArtists[strings.ToLower(strings.TrimSpace(name))]
+	return nonArtists[normName(name)]
+}
+
+func normName(name string) string {
+	return strings.ToLower(strings.TrimSpace(name))
 }
 
 // ===== Output shape =====
@@ -194,12 +198,25 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 // artists list them as similar (cross-references), then by the summed score of
 // those library artists, then name. similar is keyed by library artist id;
 // artists must come from Score.
+//
+// A similar artist counts as "in the library" if its id OR its name matches a
+// library artist: Tidal has duplicate profiles for some artists (e.g. two
+// "Sufjan Stevens" ids), and the check-in matches concerts by name anyway.
 func Build(artists []Artist, similar map[string][]tidal.Artist, now time.Time) Export {
 	inLibrary := make(map[string]bool, len(artists))
+	libraryNames := make(map[string]bool, len(artists))
 	mine := make([]Ref, len(artists))
 	for i, a := range artists {
 		inLibrary[a.TidalID] = true
+		libraryNames[normName(a.Name)] = true
 		mine[i] = Ref{TidalID: a.TidalID, Name: a.Name}
+	}
+	for _, list := range similar {
+		for _, s := range list {
+			if libraryNames[normName(s.Name)] {
+				inLibrary[s.ID] = true
+			}
+		}
 	}
 
 	type cand struct {
@@ -273,13 +290,14 @@ func (e Export) Validate() error {
 			return fmt.Errorf("duplicate artist %s (%s) in my_artists", a.TidalID, a.Name)
 		}
 		mine[a.TidalID] = true
+		mine["name:"+normName(a.Name)] = true
 	}
 	seen := map[string]bool{}
 	for i, s := range e.SimilarArtists {
 		if s.TidalID == "" || s.Name == "" {
 			return fmt.Errorf("similar_artists #%d has an empty id or name", i)
 		}
-		if mine[s.TidalID] {
+		if mine[s.TidalID] || mine["name:"+normName(s.Name)] {
 			return fmt.Errorf("similar artist %s is already in my_artists", s.Name)
 		}
 		if seen[s.TidalID] {

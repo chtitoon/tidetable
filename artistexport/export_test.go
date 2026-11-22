@@ -166,7 +166,8 @@ func TestBuild(t *testing.T) {
 	beirut := tidal.Artist{ID: "s4", Name: "Beirut"}
 	similar := map[string][]tidal.Artist{
 		// in-library, duplicate and compilation entries must be ignored
-		ids["The National"]: {wilco, sva, {ID: ids["Big Thief"], Name: "Big Thief"}, sva, fleet},
+		// "big thief" under another id is a duplicate Tidal profile: excluded by name.
+		ids["The National"]: {wilco, sva, {ID: ids["Big Thief"], Name: "Big Thief"}, sva, fleet, {ID: "dup", Name: "big thief "}},
 		ids["Big Thief"]:    {sva, {ID: "va", Name: "Various Artists"}, beirut},
 		ids["Neil Young"]:   {wilco, sva},
 	}
@@ -253,12 +254,13 @@ func TestValidateRejectsBadExports(t *testing.T) {
 	good := Build(artists, nil, fixtureNow)
 
 	cases := map[string]func(e *Export){
-		"empty":          func(e *Export) { e.MyArtists = nil },
-		"no name":        func(e *Export) { e.MyArtists[0].Name = "" },
-		"duplicate":      func(e *Export) { e.MyArtists[1] = e.MyArtists[0] },
-		"similar in lib": func(e *Export) { e.SimilarArtists = []Ref{e.MyArtists[0]} },
-		"similar dup":    func(e *Export) { e.SimilarArtists = []Ref{{"x", "X"}, {"x", "X"}} },
-		"bad timestamp":  func(e *Export) { e.GeneratedAt = "yesterday" },
+		"empty":           func(e *Export) { e.MyArtists = nil },
+		"no name":         func(e *Export) { e.MyArtists[0].Name = "" },
+		"duplicate":       func(e *Export) { e.MyArtists[1] = e.MyArtists[0] },
+		"similar in lib":  func(e *Export) { e.SimilarArtists = []Ref{e.MyArtists[0]} },
+		"similar dup":     func(e *Export) { e.SimilarArtists = []Ref{{"x", "X"}, {"x", "X"}} },
+		"similar by name": func(e *Export) { e.SimilarArtists = []Ref{{"other-id", e.MyArtists[0].Name}} },
+		"bad timestamp":   func(e *Export) { e.GeneratedAt = "yesterday" },
 	}
 	for name, mutate := range cases {
 		e := good
