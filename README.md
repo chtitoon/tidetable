@@ -6,7 +6,7 @@ TideTable is a project I started over a gloomy weekend of October.
 
 I initially thought about connecting shows of my favorite artists on Tidal with a google calendar. But after struggling with BandsInTown and Songkick APIs, I pivoted to something simpler: a weekly "Rolling Through" playlist of artists I'd probably never heard of, playing my venues that week.
 
-**The playlist is retired.** TideTable now does two independent things, each a daily GitHub Actions job:
+**The playlist is retired.** TideTable now does two independent things, each a scheduled GitHub Actions job:
 
 1. **[Show listings](#show-listings-datashowsjson)**: scrapes my [venues](venues.yaml) and commits every show in the next ~4 months to [`data/shows.json`](data/shows.json). No credentials needed.
 2. **[Artist export](#daily-artist-export-artistsjson)**: exports my Tidal library as ranked artist lists, stored privately.
@@ -15,7 +15,7 @@ Matching one against the other happens elsewhere; neither job reads the other's 
 
 ## Show listings (`data/shows.json`)
 
-Once a day, `.github/workflows/daily-shows.yml` runs `go run .`, which scrapes every venue in [`venues.yaml`](venues.yaml) and writes `data/shows.json`:
+Every other day (and on demand from the Actions tab), `.github/workflows/daily-shows.yml` runs `go run .`, which scrapes every venue in [`venues.yaml`](venues.yaml) and writes `data/shows.json`:
 
 ```json
 {
@@ -45,7 +45,7 @@ Once a day, `.github/workflows/daily-shows.yml` runs `go run .`, which scrapes e
 - **`title`** is the listing text as published. **`headliner` / `support`** come from the venue's own lineup data when it has one (Bowery Presents, Webster Hall, Capitol, Mercury East's "with …" line), and otherwise from splitting the title (`lescraper/core/normalizer.go`). The split is best-effort.
 - **`status`** is `on_sale`, `sold_out`, `coming_soon` or `unknown` (LPR and The Grand don't publish it). **`on_sale_at`** is the general on-sale time (UTC) where the venue publishes it.
 - Cancelled and postponed shows are left out, and so are obvious non-concerts: DJ and dance nights, comedy, talks, musicals, ballet, films, dinners, parking and passes. A venue's own genre or category tags are used where it has them; otherwise a conservative title filter applies (`lescraper/core/filter.go`). When unsure, the show stays.
-- Shows are sorted by date, then venue, then time, so daily diffs stay readable. The workflow commits only when something other than `generated_at` changed.
+- Shows are sorted by date, then venue, then time, so diffs stay readable. The workflow commits only when something other than `generated_at` changed.
 
 **Failures.** One venue failing (site down, markup changed) doesn't stop the others: it gets `"ok": false` with the error, and the workflow run shows a warning. A venue that returns 0 shows also counts as failed (`"error": "0 shows"`), since real venues always list something. The job fails, and the previous file stays as it was, only if every venue fails.
 

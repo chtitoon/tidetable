@@ -1,12 +1,13 @@
-name: Daily Shows Export
+name: Shows Export
 
 # Scrapes the venues in venues.yaml and commits data/shows.json (every show
 # in the next ~4 months). Needs no secrets. See "Show listings" in the README.
 
 on:
   schedule:
-    # Every day at 11:23 UTC (06:23 New York), off the top of the hour
-    - cron: '23 11 * * *'
+    # Every other day (odd days of the month) at 11:23 UTC (06:23 New York),
+    # off the top of the hour. Months with 31 days run on the 31st and the 1st.
+    - cron: '23 11 */2 * *'
   workflow_dispatch: # Allow manual trigger
 
 permissions:
