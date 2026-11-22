@@ -1,9 +1,6 @@
----
-name: add-venue
-description: Add a concert venue to TideTable's show listings (data/shows.json). Use when asked to add, support or scrape a new venue, given its name and/or listings URL, or to fix a venue whose scraper broke.
----
+# Adding a venue
 
-# Add a venue
+Step-by-step instructions for adding a venue to the show listings, or fixing a venue whose scraper broke. Written for coding agents (any of them: Codex, Cursor, Claude Code, …) and just as usable by people.
 
 Goal: a new venue shows up in `data/shows.json` with every upcoming show it lists, covered by a fixture-based test that never touches the network.
 

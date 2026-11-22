@@ -13,7 +13,7 @@ Neither job reads the other's output.
 
 ## Tasks
 
-- **Adding a venue or fixing a broken scraper:** follow [`.claude/skills/add-venue/SKILL.md`](.claude/skills/add-venue/SKILL.md) step by step. Claude Code loads it as the `add-venue` skill; other agents should read the file.
+- **Adding a venue or fixing a broken scraper:** read [`docs/adding-a-venue.md`](docs/adding-a-venue.md) and follow it step by step.
 
 ## Commands
 
