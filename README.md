@@ -123,6 +123,34 @@ That's it. Every Friday at 9 AM UTC (5 AM EST), your playlist updates automatica
 
 No maintenance required. Just listen, and discover.
 
+## Daily Artist Export (`data/artists.json`)
+
+A second, independent job exports your Tidal library as a scored list of artists, for tools that match concert listings against what you actually listen to. It doesn't touch the playlist feature.
+
+**What it does.** Once a day, `.github/workflows/daily-artists.yml` runs `go run ./cmd/export-artists`, which reads your followed artists, liked albums and liked tracks (following every page) and scores each artist:
+
+| Signal | Points |
+|---|---|
+| Followed | 3 |
+| Each liked album where they are the main artist | 2 |
+| Each liked track where they are the main artist | 1 |
+
+The main artist is the first credit Tidal lists; featured artists, compilations ("Various Artists") and label credits don't score. Every artist is kept with their score and signals; the file records `"threshold": 2` and filtering happens downstream.
+
+For artists at or above the threshold, it also fetches Tidal's similar artists (first page, up to 20), marked `in_library: true|false`. Similar artists who are **not** in your library are aggregated into `similar_candidates`, sorted by `weight` (how many of your artists list them as similar), then `source_score` (the sum of those artists' scores), with `sources` naming them.
+
+**Where the file lives.** `data/artists.json` in this repo, also readable at `https://raw.githubusercontent.com/<owner>/tidetable/main/data/artists.json`. The workflow commits it only when something other than `generated_at` changed. Sorting is deterministic, so diffs show real library changes. Because quiet stretches mean no commits, each run also re-enables its own workflow through the GitHub API, which stops GitHub disabling the schedule after 60 days of repo inactivity.
+
+**Safety.** The file is built in memory, validated, then written atomically. If any API read fails after retries, or the artist count drops by more than half compared to the previous file, the run fails (GitHub emails you) and the previous file stays as it was. Override a genuine drop locally with `-force`.
+
+**Run it locally** with your secrets in 1Password (`.env` holds `op://` references for the four `TIDAL_*` variables):
+
+```bash
+op run --env-file=.env -- go run ./cmd/export-artists
+```
+
+**Re-authenticating.** The export refreshes the access token on its own, and Tidal's refresh token doesn't rotate, so the GitHub secrets don't need updating day to day. If a run fails with `token refresh failed`, the refresh token has expired or been revoked: run `go run cmd/auth/main.go` locally (step 4 above), then update `TIDAL_ACCESS_TOKEN` and `TIDAL_REFRESH_TOKEN` in GitHub Secrets (and in 1Password), and re-run the workflow from the Actions tab.
+
 ## License
 
 MIT

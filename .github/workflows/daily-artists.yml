@@ -1,0 +1,65 @@
+name: Daily Artists Export
+
+on:
+  schedule:
+    # Every day at 06:17 UTC (off the top of the hour to avoid peak load)
+    - cron: '17 6 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write # commit data/artists.json
+  actions: write  # keepalive: re-enable this workflow
+
+concurrency:
+  group: daily-artists
+  cancel-in-progress: false
+
+jobs:
+  export-artists:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Unit tests
+        run: go test ./artistexport ./tidal
+
+      - name: Export Tidal library
+        env:
+          TIDAL_CLIENT_ID: ${{ secrets.TIDAL_CLIENT_ID }}
+          TIDAL_CLIENT_SECRET: ${{ secrets.TIDAL_CLIENT_SECRET }}
+          TIDAL_ACCESS_TOKEN: ${{ secrets.TIDAL_ACCESS_TOKEN }}
+          TIDAL_REFRESH_TOKEN: ${{ secrets.TIDAL_REFRESH_TOKEN }}
+        run: go run ./cmd/export-artists -out data/artists.json
+
+      - name: Commit if anything besides generated_at changed
+        run: |
+          set -euo pipefail
+          f=data/artists.json
+          if git cat-file -e "HEAD:$f" 2>/dev/null && \
+             cmp -s <(git show "HEAD:$f" | jq -S 'del(.generated_at)') <(jq -S 'del(.generated_at)' "$f"); then
+            echo "No changes besides generated_at; nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$f"
+          git commit -m "Update artists.json"
+          git push
+
+      # GitHub disables scheduled workflows in public repos after 60 days without
+      # repo activity. Commits only happen when the library changes, so instead
+      # re-enable this workflow via the API on every run, which resets that timer.
+      # Runs even if the export failed, so a stretch of failures can't disable it.
+      - name: Keep workflow enabled
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/daily-artists.yml/enable"

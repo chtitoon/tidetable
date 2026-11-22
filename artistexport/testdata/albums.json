@@ -1,0 +1,104 @@
+{
+ "data": [
+  {
+   "id": "544948527",
+   "type": "albums"
+  },
+  {
+   "id": "287629424",
+   "type": "albums"
+  },
+  {
+   "id": "2720532",
+   "type": "albums"
+  }
+ ],
+ "included": [
+  {
+   "id": "544948527",
+   "type": "albums",
+   "attributes": {
+    "title": "Second Song"
+   },
+   "relationships": {
+    "artists": {
+     "data": [
+      {
+       "id": "205",
+       "type": "artists"
+      },
+      {
+       "id": "73996875",
+       "type": "artists"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "205",
+   "type": "artists",
+   "attributes": {
+    "name": "Neil Young"
+   }
+  },
+  {
+   "id": "73996875",
+   "type": "artists",
+   "attributes": {
+    "name": "Neil Young & The Chrome Hearts"
+   }
+  },
+  {
+   "id": "287629424",
+   "type": "albums",
+   "attributes": {
+    "title": "First Two Pages of Frankenstein"
+   },
+   "relationships": {
+    "artists": {
+     "data": [
+      {
+       "id": "3566009",
+       "type": "artists"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "3566009",
+   "type": "artists",
+   "attributes": {
+    "name": "The National"
+   }
+  },
+  {
+   "id": "2720532",
+   "type": "albums",
+   "attributes": {
+    "title": "The Indestructible Beat of Soweto - Volume One"
+   },
+   "relationships": {
+    "artists": {
+     "data": [
+      {
+       "id": "2935",
+       "type": "artists"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "2935",
+   "type": "artists",
+   "attributes": {
+    "name": "Various Artists"
+   }
+  }
+ ],
+ "links": {
+  "self": "/fixture"
+ }
+}
