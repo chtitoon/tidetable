@@ -1,0 +1,53 @@
+{
+ "data": [
+  {
+   "id": "61081567",
+   "type": "artists"
+  },
+  {
+   "id": "3566009",
+   "type": "artists"
+  },
+  {
+   "id": "8853",
+   "type": "artists"
+  },
+  {
+   "id": "7851094",
+   "type": "artists"
+  }
+ ],
+ "included": [
+  {
+   "id": "61081567",
+   "type": "artists",
+   "attributes": {
+    "name": "Indie/Rock Playlist"
+   }
+  },
+  {
+   "id": "3566009",
+   "type": "artists",
+   "attributes": {
+    "name": "The National"
+   }
+  },
+  {
+   "id": "8853",
+   "type": "artists",
+   "attributes": {
+    "name": "Gorillaz"
+   }
+  },
+  {
+   "id": "7851094",
+   "type": "artists",
+   "attributes": {
+    "name": "Big Thief"
+   }
+  }
+ ],
+ "links": {
+  "self": "/fixture"
+ }
+}

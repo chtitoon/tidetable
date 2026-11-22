@@ -2,6 +2,7 @@ package tidal
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -344,4 +345,115 @@ func IsUnauthorized(err error) bool {
 // IsTooManyRequests checks if error is 429
 func IsTooManyRequests(err error) bool {
 	return isStatusCode(err, http.StatusTooManyRequests)
+}
+
+// ===== Artist Export: retry helper and collection reads =====
+
+// Retry policy for the export calls. Package variables so tests can shrink them.
+var (
+	retryMaxAttempts = 6
+	retryBaseDelay   = 2 * time.Second
+	retryMaxDelay    = 60 * time.Second
+	// politeDelay is the pause after every successful export call.
+	politeDelay = 300 * time.Millisecond
+	sleep       = func(ctx context.Context, d time.Duration) error {
+		t := time.NewTimer(d)
+		defer t.Stop()
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-t.C:
+			return nil
+		}
+	}
+)
+
+// withRetry runs fn with the shared retry policy for export calls:
+//   - 401: refresh the access token once, then retry
+//   - 429 and 5xx: exponential backoff (honouring Retry-After), up to retryMaxAttempts
+//   - anything else (including other 4xx): returned immediately
+func withRetry[T any](ctx context.Context, s *Service, fn func() (T, error)) (T, error) {
+	refreshed := false
+	delay := retryBaseDelay
+	for attempt := 1; ; attempt++ {
+		result, err := fn()
+		if err == nil {
+			return result, sleep(ctx, politeDelay)
+		}
+
+		var apiErr *APIError
+		if !errors.As(err, &apiErr) {
+			return result, err
+		}
+
+		switch {
+		case apiErr.StatusCode == http.StatusUnauthorized && !refreshed:
+			refreshed = true
+			if rerr := s.auth.RefreshAccessToken(); rerr != nil {
+				return result, fmt.Errorf("token expired and refresh failed: %w", rerr)
+			}
+			attempt-- // a refresh doesn't use up a backoff attempt
+			continue
+
+		case apiErr.StatusCode == http.StatusTooManyRequests || apiErr.StatusCode >= 500:
+			if attempt >= retryMaxAttempts {
+				return result, fmt.Errorf("giving up after %d attempts: %w", attempt, err)
+			}
+			wait := delay
+			if apiErr.RetryAfter > wait {
+				wait = apiErr.RetryAfter
+			}
+			if wait > retryMaxDelay {
+				wait = retryMaxDelay
+			}
+			if serr := sleep(ctx, wait); serr != nil {
+				return result, serr
+			}
+			delay *= 2
+
+		default:
+			return result, err
+		}
+	}
+}
+
+// FetchCollection reads every page of one of the user's collections by
+// following links.next to the end. kind is "artists", "albums" or "tracks".
+// Albums and tracks include their artists so the main artist can be attributed.
+func (s *Service) FetchCollection(ctx context.Context, kind string) (Collection, error) {
+	include := "items.artists"
+	if kind == "artists" {
+		include = "items"
+	}
+
+	col := Collection{Included: map[string]Resource{}}
+	seen := map[string]bool{}
+	for path := CollectionItemsPath(kind, include); path != ""; {
+		if seen[path] {
+			return col, fmt.Errorf("pagination loop in %s collection at %s", kind, path)
+		}
+		seen[path] = true
+
+		page, err := withRetry(ctx, s, func() (*Page, error) { return s.client.GetPage(ctx, path) })
+		if err != nil {
+			return col, fmt.Errorf("reading %s collection: %w", kind, err)
+		}
+		col.Items = append(col.Items, page.Data...)
+		for _, r := range page.Included {
+			col.Included[r.Type+":"+r.ID] = r
+		}
+		path = page.Links.Next
+	}
+	return col, nil
+}
+
+// SimilarArtists returns the first page of similar artists for an artist.
+// A 404 (artist unavailable in the catalogue) yields an empty list, not an error.
+func (s *Service) SimilarArtists(ctx context.Context, artistID string) ([]Artist, error) {
+	artists, err := withRetry(ctx, s, func() ([]Artist, error) { return s.client.GetSimilarArtists(ctx, artistID) })
+	var apiErr *APIError
+	if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound {
+		return nil, nil
+	}
+	return artists, err
 }

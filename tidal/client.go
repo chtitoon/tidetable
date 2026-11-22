@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -399,4 +400,83 @@ func (c *Client) DeletePlaylistItems(ctx context.Context, playlistID string, ite
 	}
 
 	return nil
+}
+
+// ===== User Collection & Similar Artists API (artist export) =====
+
+// APIError is returned by the export endpoints for non-200 responses, so the
+// retry helper can branch on the status code instead of matching strings.
+type APIError struct {
+	StatusCode int
+	RetryAfter time.Duration // parsed Retry-After header, 0 if absent
+	Body       string
+}
+
+func (e *APIError) Error() string {
+	return fmt.Sprintf("tidal API returned status %d: %s", e.StatusCode, e.Body)
+}
+
+// CollectionItemsPath is the first-page path (relative to /v2) for one of the
+// authenticated user's collections. kind is "artists", "albums" or "tracks";
+// include is a JSON:API include path such as "items" or "items.artists".
+func CollectionItemsPath(kind, include string) string {
+	name := strings.ToUpper(kind[:1]) + kind[1:]
+	return fmt.Sprintf("/userCollection%s/me/relationships/items?include=%s", name, url.QueryEscape(include))
+}
+
+// GetPage fetches one page of a to-many relationship. path is relative to /v2:
+// either a first-page path or the links.next value of a previous page.
+func (c *Client) GetPage(ctx context.Context, path string) (*Page, error) {
+	resp, err := c.makeRequest(ctx, "GET", "/v2"+path, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading response: %w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		apiErr := &APIError{StatusCode: resp.StatusCode, Body: truncate(string(body), 500)}
+		if secs, err := strconv.Atoi(resp.Header.Get("Retry-After")); err == nil && secs > 0 {
+			apiErr.RetryAfter = time.Duration(secs) * time.Second
+		}
+		return nil, apiErr
+	}
+
+	var page Page
+	if err := json.Unmarshal(body, &page); err != nil {
+		return nil, fmt.Errorf("decoding page: %w", err)
+	}
+	return &page, nil
+}
+
+// GetSimilarArtists returns the first page (up to 20) of an artist's similarArtists.
+func (c *Client) GetSimilarArtists(ctx context.Context, artistID string) ([]Artist, error) {
+	path := fmt.Sprintf("/artists/%s/relationships/similarArtists?countryCode=US&include=similarArtists", url.PathEscape(artistID))
+	page, err := c.GetPage(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	names := make(map[string]string, len(page.Included))
+	for _, r := range page.Included {
+		if r.Type == "artists" {
+			names[r.ID] = r.Attributes.Name
+		}
+	}
+	artists := make([]Artist, 0, len(page.Data))
+	for _, d := range page.Data {
+		if d.Type == "artists" && names[d.ID] != "" {
+			artists = append(artists, Artist{ID: d.ID, Name: names[d.ID]})
+		}
+	}
+	return artists, nil
+}
+
+func truncate(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	return s[:n] + "…"
 }
