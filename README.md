@@ -29,7 +29,7 @@ TideTable is built around one person's venues and one streaming service, but not
 
 - Edit [`venues.yaml`](venues.yaml). Each name must match a registered scraper.
 - Reuse a scraper if your venue shares a platform already handled: Mercury East's WordPress list, AEG/Bowery Presents feeds (other AEG-run venue sites may load the same kind of feed: add an entry with its URL and venue IDs in `bowery_presents.go`), Live Nation venue sites (`capitol_theatre.go`), Squarespace event pages (`grand_croton.go`) or ShoWare box offices (`tarrytown.go`).
-- Otherwise write a new scraper: see [Adding a venue](#adding-a-venue). Most are under 200 lines, with a recorded fixture so tests never hit the network. A coding assistant is good at this given the venue URL and an existing scraper as an example.
+- Otherwise write a new scraper: see [Adding a venue](#adding-a-venue). Most are under 200 lines, with a recorded fixture so tests never hit the network. A coding agent can do it from the venue's name and URL: the repo ships instructions for one ([`AGENTS.md`](AGENTS.md) and the `add-venue` skill).
 - Delete the scrapers you don't need, or leave them: only the venues in `venues.yaml` are scraped.
 
 **3. Set your time zone.** Dates and times are local to the venues, hard-coded as `America/New_York` in [`main.go`](main.go) and [`lescraper/scrapers/fetch.go`](lescraper/scrapers/fetch.go). Change both if you're elsewhere. Also update the `userAgent` in `fetch.go` to point at your fork, so venues know who's calling.
@@ -100,6 +100,8 @@ Each entry is the name used in `venues.yaml`, its listings page, and how it's re
 Everything is plain HTTP: either server-rendered HTML or the JSON a page loads. No headless browser. Each scraper's file in `lescraper/scrapers/` explains what it reads and why.
 
 ### Adding a venue
+
+The full procedure, written so a coding agent can follow it from just a venue name and URL, is in [`.claude/skills/add-venue/SKILL.md`](.claude/skills/add-venue/SKILL.md). In Claude Code, ask "add <venue>, listings at <url>" and the `add-venue` skill loads on its own. Other agents (Codex, Cursor, …) are pointed to it by [`AGENTS.md`](AGENTS.md). In short:
 
 1. Look at the listings page. If the raw HTML (`curl -s URL`) contains the events, parse that. If it renders client-side, find the JSON it loads in the browser's network tab or the page's scripts. Check the source isn't truncated: look for pagination, "load more" endpoints and page-size caps.
 2. Add a scraper in `lescraper/scrapers/<venue>.go` that implements `core.Scraper` (`GetVenues`, `GetName`, `GetURL`, `ScrapeShows`) and registers itself in `init()` with `core.RegisterVenue("<Name>", …)`. Fetch through `fetchURL` (or `fetchShared` for a feed other venues also read), so tests can serve fixtures. Return every upcoming show with `Venue`, `Date` (midnight New York time), and whatever of `Time`, `Room`, `Headliner`/`Support`, `Status`, `OnSaleAt` and `URL` the source has. Dropping past dates, dedupe, the shared non-concert filter and placeholder skipping are applied for you. Bound pagination with `maxPages`; on hitting it, return the shows so far with `errPageCap()` (or any error wrapping `core.ErrIncomplete`) rather than failing outright.
