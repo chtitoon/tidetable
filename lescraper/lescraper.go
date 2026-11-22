@@ -24,20 +24,22 @@ type NormalizedShow = core.NormalizedShow
 type VenueResult struct {
 	Name    string
 	URL     string
-	Shows   []Show // in the date window, sorted by date and time
+	Shows   []Show // dated today or later, sorted by date and time
 	Dropped int    // listings dropped as non-concerts
-	Err     error  // non-nil if the venue failed, or listed 0 shows
+	Skipped int    // listings skipped for a placeholder headliner ("@", "TBA")
+	// Err is non-nil if the venue failed or listed 0 shows. If it wraps
+	// core.ErrIncomplete, Shows still holds what was scraped before stopping.
+	Err error
 }
 
-// ErrNoShows marks a venue that scraped fine but listed nothing in the
-// window. Real venues always list something, so it's treated as a failure.
+// ErrNoShows marks a venue that scraped fine but listed no upcoming shows. Real venues always list something, so it's treated as a failure.
 var ErrNoShows = errors.New("0 shows")
 
-// ScrapeVenues scrapes each venue (concurrently) and keeps shows dated from
-// startDate through endDate (calendar dates, inclusive). One venue failing
+// ScrapeVenues scrapes each venue (concurrently) and keeps every show dated
+// today or later (calendar dates), however far out. One venue failing
 // doesn't affect the others; it gets a result with Err set. The only error
 // returned is for venue names with no registered scraper.
-func ScrapeVenues(venueNames []string, startDate, endDate time.Time) ([]VenueResult, error) {
+func ScrapeVenues(venueNames []string, today time.Time) ([]VenueResult, error) {
 	if len(venueNames) == 0 {
 		return nil, fmt.Errorf("no venues specified")
 	}
@@ -61,14 +63,14 @@ func ScrapeVenues(venueNames []string, startDate, endDate time.Time) ([]VenueRes
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			results[i] = scrapeOne(name, scrapers[i], startDate, endDate)
+			results[i] = scrapeOne(name, scrapers[i], today)
 		}()
 	}
 	wg.Wait()
 	return results, nil
 }
 
-func scrapeOne(name string, s core.Scraper, startDate, endDate time.Time) (res VenueResult) {
+func scrapeOne(name string, s core.Scraper, today time.Time) (res VenueResult) {
 	res = VenueResult{Name: name, URL: s.GetURL()}
 	defer func() {
 		if r := recover(); r != nil { // a scraper bug mustn't take down the run
@@ -77,33 +79,38 @@ func scrapeOne(name string, s core.Scraper, startDate, endDate time.Time) (res V
 	}()
 
 	shows, err := s.ScrapeShows()
-	if err != nil {
+	if err != nil && !errors.Is(err, core.ErrIncomplete) {
 		res.Err = err
 		return res
 	}
-	res.Shows, res.Dropped = filterShows(name, shows, startDate, endDate)
-	if len(res.Shows) == 0 {
+	res.Shows, res.Dropped, res.Skipped = filterShows(name, shows, today)
+	switch {
+	case err != nil: // incomplete: keep what was scraped, report the venue failed
+		res.Err = err
+	case len(res.Shows) == 0:
 		res.Err = ErrNoShows
 	}
 	return res
 }
 
-// filterShows keeps shows in the window, drops obvious non-concerts and
-// duplicates, and sorts by date and time.
-func filterShows(venue string, shows []Show, startDate, endDate time.Time) ([]Show, int) {
-	start := civil(startDate)
-	end := civil(endDate)
+// filterShows keeps shows dated today or later, drops obvious non-concerts,
+// shows with a placeholder headliner and duplicates, and sorts by date and
+// time. It returns the counts of non-concerts dropped and placeholders skipped.
+func filterShows(venue string, shows []Show, today time.Time) (out []Show, dropped, skipped int) {
+	start := civil(today)
 	seen := map[string]bool{}
-	var out []Show
-	dropped := 0
 	for _, show := range shows {
 		show.Venue = venue
 		d := civil(show.Date)
-		if d < start || d > end {
+		if d < start {
 			continue
 		}
 		if core.IsNonConcert(show.Title) {
 			dropped++
+			continue
+		}
+		if headliner, _ := core.Lineup(show); core.IsPlaceholderName(headliner) {
+			skipped++
 			continue
 		}
 		key := d + "|" + show.Time + "|" + show.Room + "|" + show.Title + "|" + show.URL
@@ -119,7 +126,7 @@ func filterShows(venue string, shows []Show, startDate, endDate time.Time) ([]Sh
 		}
 		return out[i].Time < out[j].Time
 	})
-	return out, dropped
+	return out, dropped, skipped
 }
 
 // civil formats t's own calendar date as YYYY-MM-DD, for comparisons that

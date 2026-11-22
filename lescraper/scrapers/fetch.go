@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/chtitoon/tidetable/lescraper/core"
 )
 
 const userAgent = "tidetable/1.0 (+https://github.com/chtitoon/tidetable)"
@@ -28,6 +30,16 @@ var (
 )
 
 var httpClient = &http.Client{Timeout: 45 * time.Second}
+
+// maxPages bounds how many pages a paginated scraper follows, so a broken
+// end-of-list check or a "next" link that loops can't run forever. Hitting it
+// keeps the shows found so far and reports the venue as incomplete.
+const maxPages = 30
+
+// errPageCap is returned (with the shows so far) when maxPages is reached.
+func errPageCap() error {
+	return fmt.Errorf("%w: still finding events after %d pages; stopped (pagination may be broken)", core.ErrIncomplete, maxPages)
+}
 
 // httpFetch GETs url, retrying network errors and 5xx/429 responses.
 func httpFetch(url string) ([]byte, error) {

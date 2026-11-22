@@ -92,3 +92,35 @@ func TestIsNonConcert(t *testing.T) {
 		}
 	}
 }
+
+func TestIsPlaceholderName(t *testing.T) {
+	for _, name := range []string{
+		"@", " @ ", "?", "X", "--", "DJ", "TBA", "tba", "TBD", "T.B.A.", "To be announced", "To Be Determined",
+		"Special Guest", "Special Guests", "special guest(s)", "Very Special Guests!", "Special Guests TBA",
+	} {
+		if !IsPlaceholderName(name) {
+			t.Errorf("IsPlaceholderName(%q) = false, want true", name)
+		}
+	}
+	// Short real names with 3+ letters or digits, and names that merely
+	// contain a placeholder word, are real acts.
+	for _, name := range []string{
+		"MGMT", "IDLES", "Wet", "Low", "S.C.U.M", "311", "Björk", "The Special Guests Band", "TBA Rhythm Section",
+	} {
+		if IsPlaceholderName(name) {
+			t.Errorf("IsPlaceholderName(%q) = true, want false", name)
+		}
+	}
+}
+
+func TestLineupDropsPlaceholderSupport(t *testing.T) {
+	h, s := Lineup(Show{Title: "IDLES", Support: []string{"TBA", "@", "Special Guest(s)", "Squid", "To Be Announced"}})
+	if h != "IDLES" || !reflect.DeepEqual(s, []string{"Squid"}) {
+		t.Errorf("got %q, %q; want IDLES, [Squid]", h, s)
+	}
+	// Placeholders inside a split title go too.
+	h, s = Lineup(Show{Title: "Whitney w/ TBA"})
+	if h != "Whitney" || len(s) != 0 {
+		t.Errorf("got %q, %q; want Whitney, []", h, s)
+	}
+}

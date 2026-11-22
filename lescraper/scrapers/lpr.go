@@ -21,10 +21,9 @@ import (
 type LPR struct{}
 
 const (
-	lprURL      = "https://lpr.com/"
-	lprAjax     = "https://lpr.com/wp-admin/admin-ajax.php?action=do_ajax&fn=get_homepageEvents&json%%5Bdate%%5D=%s&paged=%d"
-	lprRest     = "https://lpr.com/wp-json/wp/v2/lpr_events?per_page=100&_fields=id,class_list&include="
-	lprMaxPages = 40
+	lprURL  = "https://lpr.com/"
+	lprAjax = "https://lpr.com/wp-admin/admin-ajax.php?action=do_ajax&fn=get_homepageEvents&json%%5Bdate%%5D=%s&paged=%d"
+	lprRest = "https://lpr.com/wp-json/wp/v2/lpr_events?per_page=100&_fields=id,class_list&include="
 )
 
 // lprNYCRooms are the NYC rooms LPR lists (matched case-insensitively).
@@ -58,9 +57,11 @@ func (s *LPR) ScrapeShows() ([]core.Show, error) {
 	from := now().In(newYork).Format("20060102")
 	var all []lprEvent
 	seen := map[string]bool{}
+	var capErr error
 	for page := 1; ; page++ {
-		if page > lprMaxPages {
-			return nil, fmt.Errorf("still finding events after %d pages; end-of-list check may be broken", lprMaxPages)
+		if page > maxPages {
+			capErr = errPageCap()
+			break
 		}
 		body, err := fetchURL(fmt.Sprintf(lprAjax, from, page))
 		if err != nil {
@@ -86,7 +87,7 @@ func (s *LPR) ScrapeShows() ([]core.Show, error) {
 		// Genres only filter out parties; keep everything rather than fail.
 		fmt.Printf("    Warning: LPR genres unavailable, not filtering DJ/comedy nights: %v\n", err)
 	}
-	return filterLPR(all, genres), nil
+	return filterLPR(all, genres), capErr
 }
 
 type lprEvent struct {

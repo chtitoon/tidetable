@@ -3,6 +3,7 @@ package showexport
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -89,7 +90,7 @@ func TestJSONShape(t *testing.T) {
 	if err := json.Unmarshal(b, &generic); err != nil {
 		t.Fatal(err)
 	}
-	for _, k := range []string{"name", "url", "ok", "shows", "error"} {
+	for _, k := range []string{"name", "url", "ok", "shows", "skipped", "latest_date", "error"} {
 		if _, ok := generic.Venues[0][k]; !ok {
 			t.Errorf("venue missing %q", k)
 		}
@@ -106,6 +107,50 @@ func TestJSONShape(t *testing.T) {
 	}
 	if _, ok := s["support"].([]any); !ok {
 		t.Errorf("support = %#v, want []", s["support"])
+	}
+}
+
+func TestLatestDateAndSkipped(t *testing.T) {
+	doc := Build(sampleResults(), time.Now())
+	if lpr := doc.Venues[0]; lpr.LatestDate == nil || *lpr.LatestDate != "2026-12-06" {
+		t.Errorf("LPR latest_date = %v, want 2026-12-06", lpr.LatestDate)
+	}
+	if failed := doc.Venues[1]; failed.LatestDate != nil {
+		t.Errorf("failed venue latest_date = %q, want null", *failed.LatestDate)
+	}
+
+	doc = Build([]lescraper.VenueResult{{Name: "Bowery Ballroom", Skipped: 2, Shows: []core.Show{
+		{Title: "MGMT", Venue: "Bowery Ballroom", Date: date(12, 1)},
+	}}}, time.Now())
+	if v := doc.Venues[0]; v.Skipped != 2 || v.Shows != 1 {
+		t.Errorf("venue %+v, want 1 show, 2 skipped", v)
+	}
+}
+
+func TestFarOutShowsStay(t *testing.T) {
+	// A show 10 months out is written like any other.
+	tenMonths := date(11, 21).AddDate(0, 10, 0)
+	doc := Build([]lescraper.VenueResult{{Name: "Bowery Presents NYC", Shows: []core.Show{
+		{Title: "Big Thief", Venue: "Bowery Presents NYC", Room: "Forest Hills Stadium", Date: tenMonths},
+		{Title: "Soon", Venue: "Bowery Presents NYC", Date: date(11, 22)},
+	}}}, time.Now())
+	if len(doc.Shows) != 2 || doc.Shows[1].Date != "2027-09-21" || *doc.Venues[0].LatestDate != "2027-09-21" {
+		t.Errorf("shows %+v, latest %v", doc.Shows, *doc.Venues[0].LatestDate)
+	}
+}
+
+func TestIncompleteVenueKeepsShows(t *testing.T) {
+	// A venue that stopped at its page cap: shows written, venue flagged.
+	capErr := fmt.Errorf("%w: still finding events after 30 pages", core.ErrIncomplete)
+	doc := Build([]lescraper.VenueResult{{Name: "Mercury Lounge", Err: capErr, Shows: []core.Show{
+		{Title: "aeter", Venue: "Mercury Lounge", Date: date(11, 21)},
+	}}}, time.Now())
+	v := doc.Venues[0]
+	if v.OK || v.Shows != 1 || v.Error == nil || !strings.Contains(*v.Error, "30 pages") || len(doc.Shows) != 1 {
+		t.Errorf("venue %+v, %d shows", v, len(doc.Shows))
+	}
+	if doc.AllFailed() {
+		t.Error("AllFailed with shows to write; the file would be kept stale")
 	}
 }
 

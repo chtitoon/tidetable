@@ -41,6 +41,8 @@ func SplitLineup(title string) (string, []string) {
 // Lineup returns the show's headliner and support acts. An explicit
 // Headliner from the source wins; otherwise the title is split with
 // SplitLineup. Explicit Support entries are merged in, without duplicates.
+// Placeholder support entries ("TBA", "Special Guests", "@") are dropped;
+// a placeholder headliner is returned as is (callers skip the show).
 func Lineup(s Show) (string, []string) {
 	headliner := strings.TrimSpace(s.Headliner)
 	var support []string
@@ -52,7 +54,7 @@ func Lineup(s Show) (string, []string) {
 	for _, a := range append(support, s.Support...) {
 		a = cleanArtist(a)
 		k := strings.ToLower(a)
-		if a == "" || seen[k] || isIgnoredPhrase(a) {
+		if a == "" || seen[k] || isIgnoredPhrase(a) || IsPlaceholderName(a) {
 			continue
 		}
 		seen[k] = true

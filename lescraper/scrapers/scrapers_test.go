@@ -160,6 +160,83 @@ func TestMercuryLounge(t *testing.T) {
 	}
 }
 
+func TestMercuryEastFollowsEveryPage(t *testing.T) {
+	// Three pages of events (20, 20, 2), then an empty page: every show on
+	// every page is returned, in order.
+	pages := []string{"mercury_lounge_page1.html", "mercury_lounge_page2.html", "mercury_lounge_page6.html"}
+	routes := map[string]string{
+		"https://mercuryeastpresents.com/mercurylounge/":        pages[0],
+		"https://mercuryeastpresents.com/mercurylounge/page/2/": pages[1],
+		"https://mercuryeastpresents.com/mercurylounge/page/3/": pages[2],
+		"https://mercuryeastpresents.com/mercurylounge/page/4/": "mercury_lounge_page7.html",
+	}
+	log := useFixtures(t, routes)
+	var want []string
+	for _, p := range pages {
+		shows, err := parseMercuryEastPage(readFixture(t, p), "Mercury Lounge", "u")
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, s := range shows {
+			want = append(want, s.Date.Format("2006-01-02")+" "+s.Title)
+		}
+	}
+	var got []string
+	for _, s := range scrape(t, "Mercury Lounge") {
+		got = append(got, s.Date.Format("2006-01-02")+" "+s.Title)
+	}
+	if len(want) != 42 || !reflect.DeepEqual(got, want) {
+		t.Errorf("got %d shows, want all %d from the 3 pages", len(got), len(want))
+	}
+	if len(*log) != 4 {
+		t.Errorf("fetched %v, want 3 pages plus the empty one", *log)
+	}
+}
+
+func TestMercuryEastPageCap(t *testing.T) {
+	// A site that serves events on every /page/N/ (a "next" that loops back)
+	// stops at maxPages, keeps what it found and reports the venue incomplete.
+	log := useFixtures(t, map[string]string{
+		"https://mercuryeastpresents.com/boweryballroom/":       "bowery_ballroom_page1.html",
+		"https://mercuryeastpresents.com/boweryballroom/page/*": "bowery_ballroom_page1.html",
+	})
+	s, _ := core.GetScraperForVenue("Bowery Ballroom")
+	shows, err := s.ScrapeShows()
+	if !errors.Is(err, core.ErrIncomplete) || !strings.Contains(err.Error(), "30 pages") {
+		t.Errorf("err = %v, want ErrIncomplete after 30 pages", err)
+	}
+	if len(*log) != maxPages || maxPages != 30 {
+		t.Errorf("fetched %d pages, want %d (cap 30)", len(*log), maxPages)
+	}
+	if len(shows) != 20*maxPages {
+		t.Errorf("got %d shows, want the %d found before the cap", len(shows), 20*maxPages)
+	}
+}
+
+func TestBoweryPresentsShortFeed(t *testing.T) {
+	// "Load More" only pages through the downloaded feed, so a feed holding
+	// fewer events than meta.total means shows are missing.
+	feed := []byte(`{"meta":{"total":3},"events":[{"eventId":"1","active":true,
+		"title":{"eventTitleText":"Beirut","headliners":"<a>Beirut</a>"},
+		"eventDateTime":"2027-04-02T20:00:00","venue":{"venueId":"126144"}}]}`)
+	shows, err := parseBoweryPresentsFeed(feed, &BoweryPresents{Name: "Brooklyn Steel", Rooms: map[string]string{"126144": ""}})
+	if !errors.Is(err, core.ErrIncomplete) || !strings.Contains(err.Error(), "1 of 3") {
+		t.Errorf("err = %v, want ErrIncomplete (1 of 3)", err)
+	}
+	if len(shows) != 1 || shows[0].Headliner != "Beirut" {
+		t.Errorf("shows %+v, want the one Beirut show kept", shows)
+	}
+}
+
+func TestBoweryPresentsFarOut(t *testing.T) {
+	// Big shows announced far ahead are in the feed and come through.
+	useFixtures(t, aegRoutes())
+	findShow(t, scrape(t, "Bowery Presents NYC"), day(2027, 6, 19), "Big Thief")
+	steel := scrape(t, "Brooklyn Steel")
+	findShow(t, steel, day(2027, 4, 2), "Beirut")
+	findShow(t, steel, day(2027, 4, 3), "Beirut")
+}
+
 func TestBoweryBallroomPage(t *testing.T) {
 	shows, err := parseMercuryEastPage(readFixture(t, "bowery_ballroom_page1.html"), "Bowery Ballroom", "u")
 	if err != nil {

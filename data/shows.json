@@ -1,18 +1,22 @@
 {
-  "generated_at": "2026-11-22T04:13:23Z",
+  "generated_at": "2026-11-22T04:26:31Z",
   "venues": [
     {
       "name": "Mercury Lounge",
       "url": "https://mercuryeastpresents.com/mercurylounge/",
       "ok": true,
-      "shows": 92,
+      "shows": 102,
+      "skipped": 0,
+      "latest_date": "2027-05-07",
       "error": null
     },
     {
       "name": "Bowery Ballroom",
       "url": "https://mercuryeastpresents.com/boweryballroom/",
       "ok": true,
-      "shows": 63,
+      "shows": 73,
+      "skipped": 2,
+      "latest_date": "2027-05-25",
       "error": null
     },
     {
@@ -20,41 +24,53 @@
       "url": "https://www.bowerypresents.com/music-hall-of-williamsburg/",
       "ok": true,
       "shows": 10,
+      "skipped": 0,
+      "latest_date": "2026-12-06",
       "error": null
     },
     {
       "name": "Brooklyn Steel",
       "url": "https://www.bowerypresents.com/brooklyn-steel/",
       "ok": true,
-      "shows": 34,
+      "shows": 51,
+      "skipped": 0,
+      "latest_date": "2027-06-18",
       "error": null
     },
     {
       "name": "Webster Hall",
       "url": "https://www.websterhall.com/shows/",
       "ok": true,
-      "shows": 35,
+      "shows": 52,
+      "skipped": 0,
+      "latest_date": "2027-05-13",
       "error": null
     },
     {
       "name": "Bowery Presents NYC",
       "url": "https://www.bowerypresents.com/new-york-metro/calendar/",
       "ok": true,
-      "shows": 55,
+      "shows": 85,
+      "skipped": 0,
+      "latest_date": "2027-08-18",
       "error": null
     },
     {
       "name": "LPR",
       "url": "https://lpr.com/",
       "ok": true,
-      "shows": 51,
+      "shows": 73,
+      "skipped": 0,
+      "latest_date": "2027-10-02",
       "error": null
     },
     {
       "name": "The Capitol Theatre",
       "url": "https://www.thecapitoltheatre.com/shows",
       "ok": true,
-      "shows": 34,
+      "shows": 38,
+      "skipped": 0,
+      "latest_date": "2027-05-26",
       "error": null
     },
     {
@@ -62,13 +78,17 @@
       "url": "https://thegrandcroton.com/",
       "ok": true,
       "shows": 26,
+      "skipped": 0,
+      "latest_date": "2027-02-11",
       "error": null
     },
     {
       "name": "Tarrytown Music Hall",
       "url": "https://tickets.tarrytownmusichall.org/",
       "ok": true,
-      "shows": 20,
+      "shows": 22,
+      "skipped": 0,
+      "latest_date": "2027-04-22",
       "error": null
     }
   ],
@@ -3965,18 +3985,6 @@
       "url": "https://www.axs.com/events/1617587/rayland-baxter-the-true-violet-tour-tickets"
     },
     {
-      "date": "2027-01-27",
-      "time": "19:00",
-      "venue": "Bowery Ballroom",
-      "room": null,
-      "headliner": "@",
-      "support": [],
-      "title": "@",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/58760/"
-    },
-    {
       "date": "2027-01-28",
       "time": "20:00",
       "venue": "Bowery Ballroom",
@@ -4248,21 +4256,6 @@
       "status": "on_sale",
       "on_sale_at": "2026-04-17T14:00:00Z",
       "url": "https://www.axs.com/events/1407908/french-79-tickets"
-    },
-    {
-      "date": "2027-02-06",
-      "time": "20:00",
-      "venue": "Bowery Ballroom",
-      "room": null,
-      "headliner": "@",
-      "support": [
-        "June McDoom",
-        "Alice Does Computer Music"
-      ],
-      "title": "@",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/59196/"
     },
     {
       "date": "2027-02-06",
@@ -5517,6 +5510,1431 @@
       "status": "unknown",
       "on_sale_at": "2026-10-30T14:00:00Z",
       "url": "https://www.ticketmaster.com/collective-soul-port-chester-new-york-03-21-2027/event/1D0064B4B2316F1E"
+    },
+    {
+      "date": "2027-03-22",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Beacon Theatre",
+      "headliner": "Ronnie Wood",
+      "support": [],
+      "title": "Ronnie Wood And His AMMO Band",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-18T15:00:00Z",
+      "url": "https://www.axs.com/events/1690348/ronnie-wood-and-his-ammo-band-tickets"
+    },
+    {
+      "date": "2027-03-22",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Blondshell",
+      "support": [
+        "NoSo"
+      ],
+      "title": "Blondshell",
+      "status": "on_sale",
+      "on_sale_at": "2026-05-22T14:00:00Z",
+      "url": "https://www.axs.com/events/1448392/blondshell-tickets"
+    },
+    {
+      "date": "2027-03-23",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Beacon Theatre",
+      "headliner": "Ronnie Wood",
+      "support": [],
+      "title": "Ronnie Wood And His AMMO Band",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-18T15:00:00Z",
+      "url": "https://www.axs.com/events/1705080/ronnie-wood-and-his-ammo-band-tickets"
+    },
+    {
+      "date": "2027-03-23",
+      "time": "18:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "Alex Sampson",
+      "support": [],
+      "title": "Alex Sampson",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/alex-sampson/"
+    },
+    {
+      "date": "2027-03-23",
+      "time": "20:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Caroline Rose",
+      "support": [],
+      "title": "Caroline Rose",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-23T14:00:00Z",
+      "url": "https://www.axs.com/events/1666093/caroline-rose-tickets"
+    },
+    {
+      "date": "2027-03-24",
+      "time": "19:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Danielle Ponder",
+      "support": [],
+      "title": "Danielle Ponder – Everything Has Changed: The Tour",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/danielle-ponder-everything-has-changed-the-tour/"
+    },
+    {
+      "date": "2027-03-24",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Racket",
+      "headliner": "Brooke Alexx",
+      "support": [],
+      "title": "Brooke Alexx",
+      "status": "on_sale",
+      "on_sale_at": "2026-09-10T15:00:00Z",
+      "url": "https://www.axs.com/events/1590991/brooke-alexx-tickets"
+    },
+    {
+      "date": "2027-03-24",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Wasia Project",
+      "support": [],
+      "title": "Wasia Project",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-02T14:00:00Z",
+      "url": "https://www.axs.com/events/1617570/wasia-project-tickets"
+    },
+    {
+      "date": "2027-03-24",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "This Is The Kit",
+      "support": [],
+      "title": "This Is The Kit",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/titk27nyc/"
+    },
+    {
+      "date": "2027-03-25",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "SML",
+      "support": [],
+      "title": "SML",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/sml27nyc/"
+    },
+    {
+      "date": "2027-03-25",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "The Town Hall",
+      "headliner": "The Felice Brothers",
+      "support": [],
+      "title": "The Felice Brothers",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/tfb27nyc/"
+    },
+    {
+      "date": "2027-03-25",
+      "time": "18:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "Benjamin Steer",
+      "support": [],
+      "title": "Benjamin Steer: Everything is Right Where It Needs To Be Tour",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/benjamin-steer-everything-is-right-where-it-needs-to-be-tour/"
+    },
+    {
+      "date": "2027-03-25",
+      "time": "20:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Jersey",
+      "support": [],
+      "title": "Jersey",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-23T14:00:00Z",
+      "url": "https://www.axs.com/events/1666193/jersey-tickets"
+    },
+    {
+      "date": "2027-03-26",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Terminal 5",
+      "headliner": "brakence",
+      "support": [],
+      "title": "brakence",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-30T14:00:00Z",
+      "url": "https://www.axs.com/events/1670787/brakence-tickets"
+    },
+    {
+      "date": "2027-03-26",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Darlingside",
+      "support": [],
+      "title": "Darlingside",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/dside27nyc/"
+    },
+    {
+      "date": "2027-03-26",
+      "time": "20:00",
+      "venue": "Tarrytown Music Hall",
+      "room": null,
+      "headliner": "Zeppelin Reimagined presented by Magical Mystery Doors",
+      "support": [],
+      "title": "Zeppelin Reimagined presented by Magical Mystery Doors",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-06T17:00:00Z",
+      "url": "https://tickets.tarrytownmusichall.org/eventperformances.asp?evt=3296"
+    },
+    {
+      "date": "2027-03-26",
+      "time": "19:30",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "NTO",
+      "support": [],
+      "title": "NTO",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1705060/nto-tickets"
+    },
+    {
+      "date": "2027-03-27",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Lambrini Girls",
+      "support": [
+        "SPRINTS"
+      ],
+      "title": "Lambrini Girls",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-23T14:00:00Z",
+      "url": "https://www.axs.com/events/1656062/lambrini-girls-tickets"
+    },
+    {
+      "date": "2027-03-27",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Christian Kuria",
+      "support": [],
+      "title": "Christian Kuria",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/ck27nyc/"
+    },
+    {
+      "date": "2027-03-27",
+      "time": "21:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "Ricky Chilton",
+      "support": [],
+      "title": "Ricky Chilton",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/ricky-chilton/"
+    },
+    {
+      "date": "2027-03-30",
+      "time": "19:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Arthur Hill",
+      "support": [],
+      "title": "Arthur Hill",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/arthur-hill/"
+    },
+    {
+      "date": "2027-03-30",
+      "time": "20:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Kid Francescoli",
+      "support": [],
+      "title": "Kid Francescoli",
+      "status": "on_sale",
+      "on_sale_at": "2026-09-11T14:00:00Z",
+      "url": "https://www.axs.com/events/1592083/kid-francescoli-tickets"
+    },
+    {
+      "date": "2027-03-31",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Calema",
+      "support": [],
+      "title": "Calema",
+      "status": "on_sale",
+      "on_sale_at": "2026-09-18T14:00:00Z",
+      "url": "https://www.axs.com/events/1606970/calema-tickets"
+    },
+    {
+      "date": "2027-03-31",
+      "time": "19:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "Sleaford Mods",
+      "support": [],
+      "title": "Sleaford Mods",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/sleaford-mods/"
+    },
+    {
+      "date": "2027-04-02",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Beirut",
+      "support": [],
+      "title": "Beirut",
+      "status": "on_sale",
+      "on_sale_at": "2026-09-11T14:00:00Z",
+      "url": "https://www.axs.com/events/1598820/beirut-tickets"
+    },
+    {
+      "date": "2027-04-02",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Helena Deland",
+      "support": [],
+      "title": "Helena Deland",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/hd27nyc/"
+    },
+    {
+      "date": "2027-04-03",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Beirut",
+      "support": [],
+      "title": "Beirut",
+      "status": "on_sale",
+      "on_sale_at": "2026-09-11T14:00:00Z",
+      "url": "https://www.axs.com/events/1600686/beirut-tickets"
+    },
+    {
+      "date": "2027-04-03",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Teenage Fanclub",
+      "support": [],
+      "title": "Teenage Fanclub",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/tf27nyc/"
+    },
+    {
+      "date": "2027-04-04",
+      "time": "19:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Terminal 5",
+      "headliner": "The Plot In You",
+      "support": [],
+      "title": "The Plot In You",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-30T14:00:00Z",
+      "url": "https://www.axs.com/events/1671938/the-plot-in-you-tickets"
+    },
+    {
+      "date": "2027-04-04",
+      "time": "19:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Clutch",
+      "support": [
+        "Corrosion of Conformity",
+        "Agnostic Front",
+        "Chuck Ragan"
+      ],
+      "title": "Clutch",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1693152/clutch-tickets"
+    },
+    {
+      "date": "2027-04-05",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Milo J",
+      "support": [],
+      "title": "Milo J",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T17:00:00Z",
+      "url": "https://www.axs.com/events/1705085/milo-j-tickets"
+    },
+    {
+      "date": "2027-04-06",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Milo J",
+      "support": [],
+      "title": "Milo J",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T17:00:00Z",
+      "url": "https://www.axs.com/events/1705107/milo-j-tickets"
+    },
+    {
+      "date": "2027-04-07",
+      "time": "19:30",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Elder",
+      "support": [
+        "Blackwater Holylight"
+      ],
+      "title": "Elder",
+      "status": "on_sale",
+      "on_sale_at": "2026-05-15T14:00:00Z",
+      "url": "https://www.axs.com/events/1444136/elder-tickets"
+    },
+    {
+      "date": "2027-04-08",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Alex Cameron",
+      "support": [],
+      "title": "Alex Cameron",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/ac27nyc/"
+    },
+    {
+      "date": "2027-04-08",
+      "time": "20:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "John Splithoff",
+      "support": [],
+      "title": "John Splithoff",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-16T14:00:00Z",
+      "url": "https://www.axs.com/events/1647282/john-splithoff-tickets"
+    },
+    {
+      "date": "2027-04-09",
+      "time": "20:00",
+      "venue": "The Capitol Theatre",
+      "room": "The Capitol Theatre",
+      "headliner": "Nathaniel Rateliff",
+      "support": [
+        "Hannah Cohen"
+      ],
+      "title": "Nathaniel Rateliff: Endless Horizon Tour",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.ticketmaster.com/nathaniel-rateliff-endless-horizon-tour-port-chester-new-york-04-09-2027/event/1D006569EDC2512B"
+    },
+    {
+      "date": "2027-04-10",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Beacon Theatre",
+      "headliner": "Nathaniel Rateliff",
+      "support": [
+        "Hannah Cohen"
+      ],
+      "title": "Nathaniel Rateliff",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1698269/nathaniel-rateliff-tickets"
+    },
+    {
+      "date": "2027-04-10",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Goldie Boutilier",
+      "support": [
+        "Cailin Russo"
+      ],
+      "title": "Goldie Boutilier",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1648194/goldie-boutilier-tickets"
+    },
+    {
+      "date": "2027-04-10",
+      "time": "18:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "Sarah Julia",
+      "support": [],
+      "title": "Sarah Julia: 2027 Tour",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/sarah-julia-2027-tour/"
+    },
+    {
+      "date": "2027-04-11",
+      "time": "20:00",
+      "venue": "The Capitol Theatre",
+      "room": "The Capitol Theatre",
+      "headliner": "The Concert: A Tribute To ABBA",
+      "support": [],
+      "title": "The Concert: A Tribute To ABBA",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T17:00:00Z",
+      "url": "https://www.ticketmaster.com/the-concert-a-tribute-to-abba-port-chester-new-york-04-11-2027/event/1D0065649FD521BB"
+    },
+    {
+      "date": "2027-04-12",
+      "time": "19:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Iceage",
+      "support": [],
+      "title": "Iceage",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/iceage/"
+    },
+    {
+      "date": "2027-04-12",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Radio City Music Hall",
+      "headliner": "Lola Young",
+      "support": [
+        "Sofia and The Antoinettes"
+      ],
+      "title": "Lola Young - Everything Begins",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-09T14:00:00Z",
+      "url": "https://www.axs.com/events/1643318/lola-young-everything-begins-tickets"
+    },
+    {
+      "date": "2027-04-12",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "First Unitarian Church",
+      "headliner": "Kali Malone presents Burning Song",
+      "support": [],
+      "title": "Kali Malone presents Burning Song",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/km0127nyc/"
+    },
+    {
+      "date": "2027-04-13",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Radio City Music Hall",
+      "headliner": "Death Cab for Cutie",
+      "support": [
+        "Swapmeet"
+      ],
+      "title": "Death Cab for Cutie - I Built You A Tower Tour",
+      "status": "on_sale",
+      "on_sale_at": "2026-09-25T14:00:00Z",
+      "url": "https://www.axs.com/events/1610252/death-cab-for-cutie-i-built-you-a-tower-tour-tickets"
+    },
+    {
+      "date": "2027-04-13",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "First Unitarian Church",
+      "headliner": "Kali Malone presents Burning Song",
+      "support": [],
+      "title": "Kali Malone presents Burning Song",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/km0227nyc/"
+    },
+    {
+      "date": "2027-04-13",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Singuila",
+      "support": [],
+      "title": "Singuila",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/singuila27nyc/"
+    },
+    {
+      "date": "2027-04-13",
+      "time": "18:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "VEAUX",
+      "support": [],
+      "title": "VEAUX: The Hyperdeath Tour",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/veaux-the-hyperdeath-tour/"
+    },
+    {
+      "date": "2027-04-14",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "George Clanton",
+      "support": [
+        "Ryan Hemsworth"
+      ],
+      "title": "George Clanton",
+      "status": "on_sale",
+      "on_sale_at": "2026-08-07T14:00:00Z",
+      "url": "https://www.axs.com/events/1541864/george-clanton-tickets"
+    },
+    {
+      "date": "2027-04-15",
+      "time": "20:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Butcher Brown",
+      "support": [],
+      "title": "Butcher Brown",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/butcher-brown/"
+    },
+    {
+      "date": "2027-04-16",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Racket",
+      "headliner": "Rasputina",
+      "support": [
+        "Buffalo Nichols"
+      ],
+      "title": "Rasputina",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1698271/rasputina-tickets"
+    },
+    {
+      "date": "2027-04-16",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "deca joins",
+      "support": [],
+      "title": "deca joins",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-28T14:00:00Z",
+      "url": "https://www.axs.com/events/1669971/deca-joins-tickets"
+    },
+    {
+      "date": "2027-04-16",
+      "time": "19:30",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Book of Love",
+      "support": [],
+      "title": "Book of Love",
+      "status": "on_sale",
+      "on_sale_at": "2026-08-07T14:00:00Z",
+      "url": "https://www.axs.com/events/1541696/book-of-love-tickets"
+    },
+    {
+      "date": "2027-04-17",
+      "time": "18:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "The F16s",
+      "support": [],
+      "title": "The F16s – All Dogs Go To Heaven North America ’27",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/the-f16s-all-dogs-go-to-heaven-north-america-27/"
+    },
+    {
+      "date": "2027-04-17",
+      "time": "19:30",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Ricky Montgomery",
+      "support": [],
+      "title": "Ricky Montgomery: The Monty Tour",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1687954/ricky-montgomery-the-monty-tour-tickets"
+    },
+    {
+      "date": "2027-04-20",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Tony Hadley",
+      "support": [],
+      "title": "Tony Hadley",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/th27nyc/"
+    },
+    {
+      "date": "2027-04-21",
+      "time": "19:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Gus Dapperton",
+      "support": [],
+      "title": "Gus Dapperton: 4 Dear Life Tour",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/gus-dapperton-4-dear-life-tour/"
+    },
+    {
+      "date": "2027-04-21",
+      "time": "20:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Racing Mount Pleasant",
+      "support": [
+        "Dutch Interior"
+      ],
+      "title": "Racing Mount Pleasant",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1704885/racing-mount-pleasant-tickets"
+    },
+    {
+      "date": "2027-04-22",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Cursive",
+      "support": [],
+      "title": "Cursive",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/cursive/"
+    },
+    {
+      "date": "2027-04-22",
+      "time": "20:00",
+      "venue": "Tarrytown Music Hall",
+      "room": null,
+      "headliner": "Straight No Chaser Spring Break Tour",
+      "support": [],
+      "title": "Straight No Chaser Spring Break Tour",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-17T15:00:00Z",
+      "url": "https://tickets.tarrytownmusichall.org/eventperformances.asp?evt=3300"
+    },
+    {
+      "date": "2027-04-22",
+      "time": "20:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "The Dead South",
+      "support": [
+        "Amigo the Devil"
+      ],
+      "title": "The Dead South",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T17:00:00Z",
+      "url": "https://www.axs.com/events/1694762/the-dead-south-tickets"
+    },
+    {
+      "date": "2027-04-23",
+      "time": "19:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "My New Band Believe",
+      "support": [
+        "Threshold"
+      ],
+      "title": "My New Band Believe",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/my-new-band-believe/"
+    },
+    {
+      "date": "2027-04-23",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Racket",
+      "headliner": "Dylan",
+      "support": [],
+      "title": "Dylan",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1698264/dylan-tickets"
+    },
+    {
+      "date": "2027-04-23",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Dogpark",
+      "support": [],
+      "title": "Dogpark",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-28T16:00:00Z",
+      "url": "https://www.axs.com/events/1675750/dogpark-tickets"
+    },
+    {
+      "date": "2027-04-24",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Palaye Royale",
+      "support": [],
+      "title": "Palaye Royale",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-09T14:00:00Z",
+      "url": "https://www.axs.com/events/1642352/palaye-royale-tickets"
+    },
+    {
+      "date": "2027-04-24",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Cleopatrick",
+      "support": [],
+      "title": "Cleopatrick",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/cp27nyc/"
+    },
+    {
+      "date": "2027-04-24",
+      "time": "21:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "Kaylee Rose",
+      "support": [],
+      "title": "Kaylee Rose",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/kaylee-rose/"
+    },
+    {
+      "date": "2027-04-25",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Dirty Projectors",
+      "support": [],
+      "title": "Dirty Projectors (solo)",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/dp27nyc/"
+    },
+    {
+      "date": "2027-04-26",
+      "time": "18:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "Yellow House",
+      "support": [
+        "Habe"
+      ],
+      "title": "Yellow House",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/yellow-house/"
+    },
+    {
+      "date": "2027-04-29",
+      "time": "20:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Friendly Fires",
+      "support": [],
+      "title": "Friendly Fires",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/friendly-fires/"
+    },
+    {
+      "date": "2027-04-30",
+      "time": "20:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Peel Dream Magazine",
+      "support": [
+        "Jawdropped"
+      ],
+      "title": "Peel Dream Magazine",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/peel-dream-magazine/"
+    },
+    {
+      "date": "2027-04-30",
+      "time": "20:00",
+      "venue": "The Capitol Theatre",
+      "room": "The Capitol Theatre",
+      "headliner": "Foreigner",
+      "support": [
+        "Whale"
+      ],
+      "title": "Foreigner: Celebrating Fifty Years",
+      "status": "on_sale",
+      "on_sale_at": "2026-09-03T14:00:00Z",
+      "url": "https://www.ticketmaster.com/foreigner-celebrating-fifty-years-port-chester-new-york-04-30-2027/event/1D006518F04A1D60"
+    },
+    {
+      "date": "2027-04-30",
+      "time": "19:30",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Leo Middea",
+      "support": [],
+      "title": "Leo Middea",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1694756/leo-middea-tickets"
+    },
+    {
+      "date": "2027-05-01",
+      "time": "19:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Madison Square Garden",
+      "headliner": "Leon Bridges",
+      "support": [
+        "El Michels Affair and Mari Froes"
+      ],
+      "title": "Leon Bridges",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-16T14:00:00Z",
+      "url": "https://www.axs.com/events/1645214/leon-bridges-tickets"
+    },
+    {
+      "date": "2027-05-01",
+      "time": "19:30",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Klangphonics",
+      "support": [],
+      "title": "Klangphonics",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1695054/klangphonics-tickets"
+    },
+    {
+      "date": "2027-05-02",
+      "time": "19:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Keo",
+      "support": [],
+      "title": "Keo",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/keo/"
+    },
+    {
+      "date": "2027-05-04",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "The Limiñanas",
+      "support": [],
+      "title": "The Limiñanas",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/liminanas26nyc/"
+    },
+    {
+      "date": "2027-05-04",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "Stern Auditorium / Perelman Stage at Carnegie Hall",
+      "headliner": "Stewart Copeland",
+      "support": [],
+      "title": "Stewart Copeland",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/pdo27nyc/"
+    },
+    {
+      "date": "2027-05-04",
+      "time": "20:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Madra Salach",
+      "support": [],
+      "title": "Madra Salach",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1702203/madra-salach-tickets"
+    },
+    {
+      "date": "2027-05-06",
+      "time": "20:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Trampled By Turtles",
+      "support": [],
+      "title": "Trampled By Turtles",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1693117/trampled-by-turtles-tickets"
+    },
+    {
+      "date": "2027-05-07",
+      "time": "18:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Paloma Morphy",
+      "support": [
+        "aLex vs aLex"
+      ],
+      "title": "Paloma Morphy – MOVED TO MERCURY LOUNGE",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/paloma-morphy/"
+    },
+    {
+      "date": "2027-05-07",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Kings Theatre",
+      "headliner": "Nick Cave",
+      "support": [],
+      "title": "Nick Cave",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1685005/nick-cave-tickets"
+    },
+    {
+      "date": "2027-05-07",
+      "time": "18:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "Paloma Morphy",
+      "support": [],
+      "title": "Paloma Morphy",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/paloma-morphy-2/"
+    },
+    {
+      "date": "2027-05-08",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Kings Theatre",
+      "headliner": "Nick Cave",
+      "support": [],
+      "title": "Nick Cave",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1685006/nick-cave-tickets"
+    },
+    {
+      "date": "2027-05-08",
+      "time": "19:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "MC4D",
+      "support": [],
+      "title": "MC4D",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1694424/mc4d-tickets"
+    },
+    {
+      "date": "2027-05-10",
+      "time": "19:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Delta Goodrem",
+      "support": [],
+      "title": "Delta Goodrem: PURE World Tour",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/delta-goodrem-pure-world-tour/"
+    },
+    {
+      "date": "2027-05-10",
+      "time": "20:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "The Radio Dept.",
+      "support": [],
+      "title": "The Radio Dept.",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1694886/the-radio-dept-tickets"
+    },
+    {
+      "date": "2027-05-13",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Racket",
+      "headliner": "Clap Your Hands Say Yeah",
+      "support": [],
+      "title": "Clap Your Hands Say Yeah",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-23T14:00:00Z",
+      "url": "https://www.axs.com/events/1668767/clap-your-hands-say-yeah-tickets"
+    },
+    {
+      "date": "2027-05-13",
+      "time": "20:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "Getdown Services",
+      "support": [
+        "Antony Szmierek"
+      ],
+      "title": "Getdown Services",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1695075/getdown-services-tickets"
+    },
+    {
+      "date": "2027-05-14",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Racket",
+      "headliner": "76th Street",
+      "support": [],
+      "title": "76th Street",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1700559/76th-street-tickets"
+    },
+    {
+      "date": "2027-05-15",
+      "time": "18:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Forest Hills Stadium",
+      "headliner": "BUNT.",
+      "support": [],
+      "title": "BUNT.",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-30T14:00:00Z",
+      "url": "https://www.axs.com/events/1672938/bunt-tickets"
+    },
+    {
+      "date": "2027-05-15",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Racket",
+      "headliner": "Ron Gallo",
+      "support": [],
+      "title": "Ron Gallo",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1705510/ron-gallo-tickets"
+    },
+    {
+      "date": "2027-05-15",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Radio City Music Hall",
+      "headliner": "Hermanos Gutiérrez",
+      "support": [],
+      "title": "Hermanos Gutiérrez",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1681428/hermanos-gutierrez-tickets"
+    },
+    {
+      "date": "2027-05-16",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Hot 8 Brass Band",
+      "support": [],
+      "title": "Hot 8 Brass Band",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/hot827nyc/"
+    },
+    {
+      "date": "2027-05-16",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "Knockdown Center",
+      "headliner": "MASS OF THE FERMENTING DREGS",
+      "support": [],
+      "title": "MASS OF THE FERMENTING DREGS",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/motfd27nyc/"
+    },
+    {
+      "date": "2027-05-18",
+      "time": "19:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Terminal 5",
+      "headliner": "Circa Survive",
+      "support": [],
+      "title": "Circa Survive",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T18:00:00Z",
+      "url": "https://www.axs.com/events/1700612/circa-survive-tickets"
+    },
+    {
+      "date": "2027-05-19",
+      "time": "19:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Terminal 5",
+      "headliner": "Circa Survive",
+      "support": [],
+      "title": "Circa Survive",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1688947/circa-survive-tickets"
+    },
+    {
+      "date": "2027-05-19",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Miko Marks:",
+      "support": [],
+      "title": "Miko Marks:",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/mm26nyc/"
+    },
+    {
+      "date": "2027-05-21",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Kings Theatre",
+      "headliner": "Damien Rice",
+      "support": [],
+      "title": "Damien Rice",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-23T14:00:00Z",
+      "url": "https://www.axs.com/events/1653832/damien-rice-tickets"
+    },
+    {
+      "date": "2027-05-22",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Kings Theatre",
+      "headliner": "Damien Rice",
+      "support": [],
+      "title": "Damien Rice",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-23T14:00:00Z",
+      "url": "https://www.axs.com/events/1653835/damien-rice-tickets"
+    },
+    {
+      "date": "2027-05-22",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Terminal 5",
+      "headliner": "Hum",
+      "support": [
+        "Pelican",
+        "The Life and Times"
+      ],
+      "title": "Hum",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-30T14:00:00Z",
+      "url": "https://www.axs.com/events/1670034/hum-tickets"
+    },
+    {
+      "date": "2027-05-22",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Ocean Alley",
+      "support": [
+        "Winston Surfshirt"
+      ],
+      "title": "Ocean Alley",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-30T14:00:00Z",
+      "url": "https://www.axs.com/events/1674997/ocean-alley-tickets"
+    },
+    {
+      "date": "2027-05-25",
+      "time": "19:00",
+      "venue": "Bowery Ballroom",
+      "room": null,
+      "headliner": "Sydney Ross Mitchell",
+      "support": [],
+      "title": "Sydney Ross Mitchell: The Veil is Thinner on Tour",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/sydney-ross-mitchell-the-veil-is-thinner-on-tour/"
+    },
+    {
+      "date": "2027-05-26",
+      "time": "20:00",
+      "venue": "The Capitol Theatre",
+      "room": "The Capitol Theatre",
+      "headliner": "Leonid \u0026 Friends",
+      "support": [],
+      "title": "Leonid \u0026 Friends",
+      "status": "on_sale",
+      "on_sale_at": "2026-08-14T14:00:00Z",
+      "url": "https://www.ticketmaster.com/leonid-friends-port-chester-new-york-05-26-2027/event/1D006506F6F4F51F"
+    },
+    {
+      "date": "2027-06-02",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "She Past Away",
+      "support": [],
+      "title": "She Past Away",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-16T14:00:00Z",
+      "url": "https://www.axs.com/events/1650483/she-past-away-tickets"
+    },
+    {
+      "date": "2027-06-18",
+      "time": "20:00",
+      "venue": "Brooklyn Steel",
+      "room": null,
+      "headliner": "Whitney",
+      "support": [
+        "w/ Tyler Ballgame"
+      ],
+      "title": "Whitney",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-13T15:00:00Z",
+      "url": "https://www.axs.com/events/1694427/whitney-tickets"
+    },
+    {
+      "date": "2027-06-19",
+      "time": "18:30",
+      "venue": "Bowery Presents NYC",
+      "room": "Forest Hills Stadium",
+      "headliner": "Big Thief",
+      "support": [],
+      "title": "Big Thief",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1695440/big-thief-tickets"
+    },
+    {
+      "date": "2027-06-21",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Madison Square Garden",
+      "headliner": "Slayyyter",
+      "support": [],
+      "title": "Slayyyter",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-16T14:00:00Z",
+      "url": "https://www.axs.com/events/1656025/slayyyter-tickets"
+    },
+    {
+      "date": "2027-06-24",
+      "time": "19:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Madison Square Garden",
+      "headliner": "Lizzy McAlpine",
+      "support": [
+        "Searows",
+        "Post Animal"
+      ],
+      "title": "Lizzy McAlpine",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-02T14:00:00Z",
+      "url": "https://www.axs.com/events/1627866/lizzy-mcalpine-tickets"
+    },
+    {
+      "date": "2027-07-27",
+      "time": "18:30",
+      "venue": "Bowery Presents NYC",
+      "room": "Prospect Park Bandshell",
+      "headliner": "The Teskey Brothers",
+      "support": [
+        "Durand Jones \u0026 The Indications",
+        "Steph Strings"
+      ],
+      "title": "The Teskey Brothers and Durand Jones \u0026 The Indications",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1704377/the-teskey-brothers-and-durand-jones-the-indications-tickets"
+    },
+    {
+      "date": "2027-07-30",
+      "time": "18:45",
+      "venue": "Bowery Presents NYC",
+      "room": "Forest Hills Stadium",
+      "headliner": "Jason Isbell and the 400 Unit",
+      "support": [
+        "Drive-By Truckers"
+      ],
+      "title": "Jason Isbell and the 400 Unit \u0026 Drive-By Truckers",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-20T15:00:00Z",
+      "url": "https://www.axs.com/events/1679106/jason-isbell-and-the-400-unit-drive-by-truckers-tickets"
+    },
+    {
+      "date": "2027-08-17",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Radio City Music Hall",
+      "headliner": "Sienna Spiro",
+      "support": [],
+      "title": "Sienna Spiro",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-23T14:00:00Z",
+      "url": "https://www.axs.com/events/1668758/sienna-spiro-tickets"
+    },
+    {
+      "date": "2027-08-18",
+      "time": "20:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Radio City Music Hall",
+      "headliner": "Sienna Spiro",
+      "support": [],
+      "title": "Sienna Spiro",
+      "status": "on_sale",
+      "on_sale_at": "2026-10-30T14:00:00Z",
+      "url": "https://www.axs.com/events/1670870/sienna-spiro-tickets"
+    },
+    {
+      "date": "2027-09-19",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "The Sultan Room",
+      "headliner": "Boogie Belgique",
+      "support": [],
+      "title": "Boogie Belgique",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/bb27bk/"
+    },
+    {
+      "date": "2027-10-02",
+      "time": "18:15",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "maudlin of the Well",
+      "support": [],
+      "title": "maudlin of the Well",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/maudlin27nyc/"
     }
   ]
 }

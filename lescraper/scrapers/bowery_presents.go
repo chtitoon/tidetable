@@ -13,9 +13,11 @@ import (
 
 // BoweryPresents scrapes venues on The Bowery Presents / AEG sites
 // (bowerypresents.com, websterhall.com). Those pages render their lists
-// client-side from a static JSON feed on AEG's blob storage; "Load More" only
-// reveals more of the already-downloaded feed, so one fetch has everything.
-// The feed URL is the data-file attribute of the page's "All Shows" list.
+// client-side from a static JSON feed on AEG's blob storage. "Load More" only
+// reveals the next 100 events of the already-downloaded feed (list_view mode
+// in the site's app.js), so one fetch has everything; a feed holding fewer
+// events than its meta.total is reported as incomplete. The feed URL is the
+// data-file attribute of the page's "All Shows" list.
 type BoweryPresents struct {
 	Name string
 	URL  string // listings page the feed backs
@@ -187,6 +189,9 @@ func parseBoweryPresentsFeed(body []byte, s *BoweryPresents) ([]core.Show, error
 		show.Support = append(show.Support, splitCommaList(html.UnescapeString(e.Title.Supporting))...)
 
 		shows = append(shows, show)
+	}
+	if len(feed.Events) < feed.Meta.Total {
+		return shows, fmt.Errorf("%w: feed lists %d of %d events", core.ErrIncomplete, len(feed.Events), feed.Meta.Total)
 	}
 	return shows, nil
 }

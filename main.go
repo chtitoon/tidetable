@@ -1,9 +1,9 @@
-// Command tidetable scrapes the venues in venues.yaml and writes every show
-// in the next ~4 months to data/shows.json. It needs no credentials.
+// Command tidetable scrapes the venues in venues.yaml and writes every
+// upcoming show they list, however far out, to data/shows.json. It needs no
+// credentials.
 //
 //	go run .                      # writes data/shows.json
 //	go run . -out /tmp/shows.json
-//	go run . -months 6
 //
 // A venue that fails is recorded with ok:false and its error; the run exits
 // non-zero only if every venue fails.
@@ -25,7 +25,6 @@ import (
 
 func main() {
 	out := flag.String("out", "data/shows.json", "output file")
-	months := flag.Int("months", 4, "how many months ahead to include")
 	flag.Parse()
 
 	venuesFile := os.Getenv("VENUES_FILE")
@@ -42,27 +41,36 @@ func main() {
 		log.Fatalf("Loading time zone: %v", err)
 	}
 	now := time.Now()
-	start := now.In(ny)
-	end := start.AddDate(0, *months, 0)
-	fmt.Printf("Scraping %d venue(s) for shows from %s to %s...\n",
-		len(venueNames), start.Format("Mon Jan 2, 2006"), end.Format("Mon Jan 2, 2006"))
+	today := now.In(ny)
+	fmt.Printf("Scraping %d venue(s) for every show from %s on...\n",
+		len(venueNames), today.Format("Mon Jan 2, 2006"))
 
-	results, err := lescraper.ScrapeVenues(venueNames, start, end)
+	results, err := lescraper.ScrapeVenues(venueNames, today)
 	if err != nil {
 		log.Fatalf("Failed to scrape venues: %v", err)
 	}
 
 	doc := showexport.Build(results, now)
-	for _, r := range results {
-		if r.Err != nil {
+	for i, r := range results {
+		if r.Err != nil && len(r.Shows) == 0 {
 			fmt.Printf("  ✗ %-28s %v\n", r.Name, r.Err)
 			continue
 		}
-		note := ""
+		var notes []string
 		if r.Dropped > 0 {
-			note = fmt.Sprintf(" (%d non-concerts dropped)", r.Dropped)
+			notes = append(notes, fmt.Sprintf("%d non-concerts dropped", r.Dropped))
 		}
-		fmt.Printf("  ✓ %-28s %4d shows%s\n", r.Name, len(r.Shows), note)
+		if r.Skipped > 0 {
+			notes = append(notes, fmt.Sprintf("%d placeholders skipped", r.Skipped))
+		}
+		mark, note := "✓", ""
+		if len(notes) > 0 {
+			note = " (" + strings.Join(notes, ", ") + ")"
+		}
+		if r.Err != nil { // incomplete listing: shows kept, venue flagged
+			mark, note = "✗", note+": "+r.Err.Error()
+		}
+		fmt.Printf("  %s %-28s %4d shows through %s%s\n", mark, r.Name, len(r.Shows), *doc.Venues[i].LatestDate, note)
 	}
 
 	if doc.AllFailed() {
