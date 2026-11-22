@@ -47,6 +47,29 @@ const (
 	PopularityPenalty = 0.75
 )
 
+// TimeRange is a half-open interval [From, To).
+type TimeRange struct{ From, To time.Time }
+
+func (r TimeRange) Contains(t time.Time) bool { return !t.Before(r.From) && t.Before(r.To) }
+
+// RecentIgnoredAlbumLikes are periods whose album likes count for my_artists
+// but not for recent_artists: bulk likes made to correct the all-time list,
+// not because of what was being listened to lately. Entries can be removed
+// once they fall outside RecentWindow.
+var RecentIgnoredAlbumLikes = []TimeRange{
+	// 2026-11-21 evening (EST): liked older albums to course-correct my_artists.
+	{time.Date(2026, 11, 22, 2, 15, 0, 0, time.UTC), time.Date(2026, 11, 22, 4, 30, 0, 0, time.UTC)},
+}
+
+func inAny(ranges []TimeRange, t time.Time) bool {
+	for _, r := range ranges {
+		if r.Contains(t) {
+			return true
+		}
+	}
+	return false
+}
+
 // nonArtists are credits that are not real performers (compilations, labels,
 // Tidal playlist accounts). They never score, so a compilation credits nobody.
 // Matched case-insensitively.
@@ -181,8 +204,9 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 	stats := Stats{Followed: len(followed.Items), Albums: len(albums.Items), Tracks: len(tracks.Items)}
 
 	// add credits an item to an artist; signal records it with its all-time
-	// weight (always 1) and recent weight.
-	add := func(artistID string, item tidal.ResourceIdentifier, signal func(t *tally, all, recent float64)) {
+	// weight (always 1) and recent weight. Items added during one of
+	// ignoreRecent get no recent weight.
+	add := func(artistID string, item tidal.ResourceIdentifier, ignoreRecent []TimeRange, signal func(t *tally, all, recent float64)) {
 		name := names[artistID]
 		if name == "" {
 			stats.Unresolved = append(stats.Unresolved, artistID)
@@ -197,6 +221,9 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 		t.credits[artistID]++
 		at, dated := item.AddedAt()
 		all, recent := 1.0, recentWeight(at, dated, now)
+		if dated && inAny(ignoreRecent, at) {
+			recent = 0
+		}
 		if recent > 0 {
 			t.artist.Signals.RecentItems++
 		}
@@ -210,13 +237,13 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 		if it.Type != "artists" || IsNonArtist(names[it.ID]) {
 			continue
 		}
-		add(it.ID, it, func(t *tally, _, recent float64) {
+		add(it.ID, it, nil, func(t *tally, _, recent float64) {
 			t.artist.Signals.Followed = true // counts once, even if two profiles are followed
 			t.followRecent = max(t.followRecent, recent)
 		})
 	}
 
-	credit := func(col tidal.Collection, wantType string, signal func(t *tally, all, recent float64)) {
+	credit := func(col tidal.Collection, wantType string, ignoreRecent []TimeRange, signal func(t *tally, all, recent float64)) {
 		for _, it := range col.Items {
 			if it.Type != wantType {
 				continue
@@ -235,15 +262,15 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 				stats.NonArtistMain++
 				continue
 			}
-			add(main, it, signal)
+			add(main, it, ignoreRecent, signal)
 		}
 	}
-	credit(albums, "albums", func(t *tally, all, recent float64) {
+	credit(albums, "albums", RecentIgnoredAlbumLikes, func(t *tally, all, recent float64) {
 		t.artist.Signals.LikedAlbums++
 		t.albumsAll += all
 		t.albumsRecent += recent
 	})
-	credit(tracks, "tracks", func(t *tally, all, recent float64) {
+	credit(tracks, "tracks", nil, func(t *tally, all, recent float64) {
 		t.artist.Signals.LikedTracks++
 		t.tracksAll += all
 		t.tracksRecent += recent

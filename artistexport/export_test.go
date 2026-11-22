@@ -239,6 +239,32 @@ func TestRecentArtists(t *testing.T) {
 	}
 }
 
+func TestRecentIgnoredAlbumLikes(t *testing.T) {
+	saved := RecentIgnoredAlbumLikes
+	t.Cleanup(func() { RecentIgnoredAlbumLikes = saved })
+	RecentIgnoredAlbumLikes = []TimeRange{{daysAgo(3), daysAgo(2)}}
+
+	fixed := credit{"1", "Course Corrected"} // two albums liked during the ignored period
+	mixed := credit{"2", "Tracks Too"}       // an ignored album, but tracks in the same period
+
+	inPeriod := daysAgo(3).Add(time.Hour)
+	albums := synth(t, "albums",
+		item{id: "a1", added: inPeriod, artists: []credit{fixed}},
+		item{id: "a2", added: inPeriod, artists: []credit{fixed}},
+		item{id: "a3", added: inPeriod, artists: []credit{mixed}})
+	tracks := synth(t, "tracks", manyItems("t", 2, 3, mixed)...)
+
+	artists, _ := Score(tidal.Collection{}, albums, tracks, fixtureNow)
+	got := byName(artists)
+	if a := got["Course Corrected"]; a.Recent != 0 || a.Signals.RecentItems != 0 || !near(a.Score, WeightAlbums*math.Log1p(2)) {
+		t.Errorf("Course Corrected: recent %v (%d items), all-time %v; want no recent score, both albums all-time",
+			a.Recent, a.Signals.RecentItems, a.Score)
+	}
+	if a := got["Tracks Too"]; a.RecentParts.Albums != 0 || a.RecentParts.Tracks == 0 || a.AllTimeParts.Albums == 0 {
+		t.Errorf("Tracks Too: recent %+v, all-time %+v; want only the tracks counted lately", a.RecentParts, a.AllTimeParts)
+	}
+}
+
 func TestMergesDuplicateProfiles(t *testing.T) {
 	a := credit{"100", "Sufjan Stevens"}
 	b := credit{"200", "sufjan stevens "} // same artist, second Tidal profile
