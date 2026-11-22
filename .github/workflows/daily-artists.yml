@@ -12,7 +12,7 @@ name: Daily Artists Export
 #   self         Commit to data/artists.json in this repo. If this repo is
 #                public, so is your library.
 #
-# See "Daily Artist Export" in the README.
+# See "Artist export" in the README.
 
 on:
   schedule:
