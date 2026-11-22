@@ -239,23 +239,30 @@ func TestRecentArtists(t *testing.T) {
 	}
 }
 
-func TestRecentIgnoredAlbumLikes(t *testing.T) {
-	saved := RecentIgnoredAlbumLikes
-	t.Cleanup(func() { RecentIgnoredAlbumLikes = saved })
-	RecentIgnoredAlbumLikes = []TimeRange{{daysAgo(3), daysAgo(2)}}
+func TestRecentIgnoredPeriods(t *testing.T) {
+	saved := RecentIgnoredPeriods
+	t.Cleanup(func() { RecentIgnoredPeriods = saved })
+	RecentIgnoredPeriods = []TimeRange{{daysAgo(3), daysAgo(2)}}
 
 	fixed := credit{"1", "Course Corrected"} // two albums liked during the ignored period
 	mixed := credit{"2", "Tracks Too"}       // an ignored album, but tracks in the same period
+	follow := credit{"3", "Followed Then"}   // followed during the ignored period, one album last week
 
 	inPeriod := daysAgo(3).Add(time.Hour)
+	followed := synth(t, "artists", item{added: inPeriod, artists: []credit{follow}})
 	albums := synth(t, "albums",
+		item{id: "a4", added: daysAgo(7), artists: []credit{follow}},
 		item{id: "a1", added: inPeriod, artists: []credit{fixed}},
 		item{id: "a2", added: inPeriod, artists: []credit{fixed}},
 		item{id: "a3", added: inPeriod, artists: []credit{mixed}})
 	tracks := synth(t, "tracks", manyItems("t", 2, 3, mixed)...)
 
-	artists, _ := Score(tidal.Collection{}, albums, tracks, fixtureNow)
+	artists, _ := Score(followed, albums, tracks, fixtureNow)
 	got := byName(artists)
+	if a := got["Followed Then"]; a.Recent != 0 || a.Signals.RecentItems != 1 || a.AllTimeParts.Follow != PointsFollowed {
+		t.Errorf("Followed Then: recent %v (%d items), all-time follow %v; want the follow counted all-time only, leaving 1 recent item (below RecentMinItems)",
+			a.Recent, a.Signals.RecentItems, a.AllTimeParts.Follow)
+	}
 	if a := got["Course Corrected"]; a.Recent != 0 || a.Signals.RecentItems != 0 || !near(a.Score, WeightAlbums*math.Log1p(2)) {
 		t.Errorf("Course Corrected: recent %v (%d items), all-time %v; want no recent score, both albums all-time",
 			a.Recent, a.Signals.RecentItems, a.Score)

@@ -52,12 +52,14 @@ type TimeRange struct{ From, To time.Time }
 
 func (r TimeRange) Contains(t time.Time) bool { return !t.Before(r.From) && t.Before(r.To) }
 
-// RecentIgnoredAlbumLikes are periods whose album likes count for my_artists
-// but not for recent_artists: bulk likes made to correct the all-time list,
-// not because of what was being listened to lately. Entries can be removed
-// once they fall outside RecentWindow.
-var RecentIgnoredAlbumLikes = []TimeRange{
-	// 2026-11-21 evening (EST): liked older albums to course-correct my_artists.
+// RecentIgnoredPeriods are periods whose album likes and follows count for
+// my_artists but not for recent_artists: bulk likes/follows made to correct
+// the all-time list, not because of what was being listened to lately.
+// Hearted tracks are unaffected. Entries can be removed once they fall
+// outside RecentWindow.
+var RecentIgnoredPeriods = []TimeRange{
+	// 2026-11-21 evening (EST): liked older albums and followed artists to
+	// course-correct my_artists.
 	{time.Date(2026, 11, 22, 2, 15, 0, 0, time.UTC), time.Date(2026, 11, 22, 4, 30, 0, 0, time.UTC)},
 }
 
@@ -237,7 +239,7 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 		if it.Type != "artists" || IsNonArtist(names[it.ID]) {
 			continue
 		}
-		add(it.ID, it, nil, func(t *tally, _, recent float64) {
+		add(it.ID, it, RecentIgnoredPeriods, func(t *tally, _, recent float64) {
 			t.artist.Signals.Followed = true // counts once, even if two profiles are followed
 			t.followRecent = max(t.followRecent, recent)
 		})
@@ -265,7 +267,7 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 			add(main, it, ignoreRecent, signal)
 		}
 	}
-	credit(albums, "albums", RecentIgnoredAlbumLikes, func(t *tally, all, recent float64) {
+	credit(albums, "albums", RecentIgnoredPeriods, func(t *tally, all, recent float64) {
 		t.artist.Signals.LikedAlbums++
 		t.albumsAll += all
 		t.albumsRecent += recent
