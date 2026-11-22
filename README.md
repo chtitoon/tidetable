@@ -125,19 +125,30 @@ No maintenance required. Just listen, and discover.
 
 ## Daily Artist Export (`data/artists.json`)
 
-A second, independent job exports your Tidal library as a scored list of artists, for tools that match concert listings against what you actually listen to. It doesn't touch the playlist feature.
+A second, independent job exports your Tidal library as two ranked lists of artists, for tools that match concert listings against what you actually listen to. It doesn't touch the playlist feature.
 
-**What it does.** Once a day, `.github/workflows/daily-artists.yml` runs `go run ./cmd/export-artists`, which reads your followed artists, liked albums and liked tracks (following every page) and scores each artist:
+```json
+{
+  "generated_at": "2026-11-22T06:17:00Z",
+  "my_artists":      [{ "tidal_id": "3566009", "name": "The National" }, …],
+  "similar_artists": [{ "tidal_id": "…", "name": "Dry Cleaning" }, …]
+}
+```
+
+Both lists are sorted most relevant first. Scores only decide the order and aren't stored in the file.
+
+**`my_artists`.** Once a day, `.github/workflows/daily-artists.yml` runs `go run ./cmd/export-artists`, which reads your followed artists, liked albums and liked tracks (following every page) and scores each artist:
 
 | Signal | Points |
 |---|---|
 | Followed | 3 |
 | Each liked album where they are the main artist | 2 |
 | Each liked track where they are the main artist | 1 |
+| Anything above, liked or followed in the last 6 months | counts double |
 
-The main artist is the first credit Tidal lists; featured artists, compilations ("Various Artists") and label credits don't score. Every artist is kept with their score and signals; the file records `"threshold": 2` and filtering happens downstream.
+Tidal's API has no listening history, so recent likes stand in for "listening to them a lot lately". Ties go to the artist you liked most recently. The main artist is the first credit Tidal lists; featured artists, compilations ("Various Artists"), label credits and playlist accounts don't score. Every artist with any score is listed.
 
-For artists at or above the threshold, it also fetches Tidal's similar artists (first page, up to 20), marked `in_library: true|false`. Similar artists who are **not** in your library are aggregated into `similar_candidates`, sorted by `weight` (how many of your artists list them as similar), then `source_score` (the sum of those artists' scores), with `sources` naming them.
+**`similar_artists`.** For artists scoring 2 or more, the export fetches Tidal's similar artists (first page, up to 20). Those not already in your library are ranked by how many of your artists list them as similar, then by the total score of those artists.
 
 **Where the file lives.** `data/artists.json` in this repo, also readable at `https://raw.githubusercontent.com/<owner>/tidetable/main/data/artists.json`. The workflow commits it only when something other than `generated_at` changed. Sorting is deterministic, so diffs show real library changes. Because quiet stretches mean no commits, each run also re-enables its own workflow through the GitHub API, which stops GitHub disabling the schedule after 60 days of repo inactivity.
 

@@ -2,19 +2,31 @@
  "data": [
   {
    "id": "61081567",
-   "type": "artists"
+   "type": "artists",
+   "meta": {
+    "addedAt": "2025-09-21T02:18:25.455Z"
+   }
   },
   {
    "id": "3566009",
-   "type": "artists"
+   "type": "artists",
+   "meta": {
+    "addedAt": "2024-06-01T02:45:52.204Z"
+   }
   },
   {
    "id": "8853",
-   "type": "artists"
+   "type": "artists",
+   "meta": {
+    "addedAt": "2021-11-10T05:01:40.555Z"
+   }
   },
   {
    "id": "7851094",
-   "type": "artists"
+   "type": "artists",
+   "meta": {
+    "addedAt": "2021-11-10T04:39:51.816Z"
+   }
   }
  ],
  "included": [

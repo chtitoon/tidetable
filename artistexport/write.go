@@ -34,14 +34,16 @@ func CheckShrink(path string, e Export) error {
 		return fmt.Errorf("reading previous %s: %w", path, err)
 	}
 	var prev struct {
-		Artists []json.RawMessage `json:"artists"`
+		MyArtists []json.RawMessage `json:"my_artists"`
+		Artists   []json.RawMessage `json:"artists"` // pre-2026-11-22 format
 	}
 	if err := json.Unmarshal(old, &prev); err != nil {
 		return nil // unreadable previous file: nothing to compare against
 	}
-	if len(e.Artists)*2 < len(prev.Artists) {
+	prevCount := max(len(prev.MyArtists), len(prev.Artists))
+	if len(e.MyArtists)*2 < prevCount {
 		return fmt.Errorf("artist count dropped from %d to %d; refusing to overwrite (use -force if this is real)",
-			len(prev.Artists), len(e.Artists))
+			prevCount, len(e.MyArtists))
 	}
 	return nil
 }
