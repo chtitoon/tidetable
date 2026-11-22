@@ -72,8 +72,8 @@ Every other day (and on demand from the Actions tab), `.github/workflows/daily-s
 - **`shows`** holds every show the venue lists from today on, with no cut-off date: big shows are often announced a year out. Each venue's **`latest_date`** is its last show's date, i.e. how far its listing reaches (`null` with no shows). Scrapers follow pagination to the end of each listing, up to 30 pages per venue.
 - **`venue`** is always one of the `venues[].name` entries. **`room`** names the hall when that venue covers several (LPR's rooms, Garcia's, the big Bowery Presents rooms), and is `null` otherwise.
 - **`date` / `time`** are New York local time. `time` is the listed start; Mercury East only lists doors, so theirs is the doors time. It's `null` when the venue hasn't announced one.
-- **`title`** is the listing text as published. **`headliner` / `support`** come from the venue's own lineup data when it has one (Bowery Presents, Webster Hall, Capitol, Mercury East's "with …" line), and otherwise from splitting the title (`lescraper/core/normalizer.go`). The split is best-effort.
-- **`status`** is `on_sale`, `sold_out`, `coming_soon` or `unknown` (LPR and The Grand don't publish it). **`on_sale_at`** is the general on-sale time (UTC) where the venue publishes it.
+- **`title`** is the listing text as published. **`headliner` / `support`** come from the venue's own lineup data when it has one (Bowery Presents, Webster Hall, Capitol, Mercury East's and Bearsville's "with …" lines), and otherwise from splitting the title (`lescraper/core/normalizer.go`). The split is best-effort.
+- **`status`** is `on_sale`, `sold_out`, `coming_soon` or `unknown` (LPR, The Grand and Bearsville don't publish it). **`on_sale_at`** is the general on-sale time (UTC) where the venue publishes it.
 - Cancelled and postponed shows are left out, and so are obvious non-concerts: DJ and dance nights, comedy, talks, musicals, ballet, films, dinners, parking and passes. A venue's own genre or category tags are used where it has them; otherwise a conservative title filter applies (`lescraper/core/filter.go`). When unsure, the show stays.
 - Shows whose headliner is a placeholder are skipped and counted in the venue's **`skipped`**: fewer than 3 letters or digits once punctuation and spaces are stripped (Bowery Ballroom has listed shows named just `@`), or "TBA", "TBD", "To be announced", "Special guest(s)". Placeholder entries in `support` are dropped and the show kept.
 - Shows are sorted by date, then venue, then time, so diffs stay readable. The workflow commits only when something other than `generated_at` changed.
@@ -94,6 +94,7 @@ Each entry is the name used in `venues.yaml`, its listings page, and how it's re
 - **The Capitol Theatre** ([thecapitoltheatre.com/shows](https://www.thecapitoltheatre.com/shows)): Live Nation site, with event data embedded in each room page (The Capitol Theatre, Garcia's).
 - **The Grand** ([thegrandcroton.com](https://thegrandcroton.com/)): Squarespace events page `/happening`, as JSON (`?format=json`).
 - **Tarrytown Music Hall** ([tickets.tarrytownmusichall.org](https://tickets.tarrytownmusichall.org/)): ShoWare box office JSON (`performancelist.asp`), Music category.
+- **Bearsville Theater** ([bearsvilletheater.com](https://bearsvilletheater.com/)): The homepage's server-rendered "Upcoming Shows" list (WordPress). Cards show no year, so it's inferred from the list's order.
 
 Everything is plain HTTP: either server-rendered HTML or the JSON a page loads. No headless browser. Each scraper's file in `lescraper/scrapers/` explains what it reads and why.
 
