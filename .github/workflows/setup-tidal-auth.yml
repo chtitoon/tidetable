@@ -37,5 +37,5 @@ jobs:
           echo "   - TIDAL_ACCESS_TOKEN"
           echo "   - TIDAL_REFRESH_TOKEN"
           echo ""
-          echo "Once tokens are added as secrets, the Weekly Playlist workflow will work automatically."
+          echo "Once tokens are added as secrets, the Daily Artists Export workflow will work automatically."
           exit 1

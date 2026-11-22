@@ -3,8 +3,10 @@
 package lescraper
 
 import (
+	"errors"
 	"fmt"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/chtitoon/tidetable/lescraper/core"
@@ -18,70 +20,118 @@ type Show = core.Show
 // NormalizedShow is an alias for core.NormalizedShow for convenience
 type NormalizedShow = core.NormalizedShow
 
-// ScrapeVenues scrapes shows from the specified venues within the date range
-// Returns all shows sorted chronologically
-func ScrapeVenues(venueNames []string, startDate, endDate time.Time) ([]Show, error) {
+// VenueResult is the outcome of scraping one configured venue.
+type VenueResult struct {
+	Name    string
+	URL     string
+	Shows   []Show // in the date window, sorted by date and time
+	Dropped int    // listings dropped as non-concerts
+	Err     error  // non-nil if the venue failed, or listed 0 shows
+}
+
+// ErrNoShows marks a venue that scraped fine but listed nothing in the
+// window. Real venues always list something, so it's treated as a failure.
+var ErrNoShows = errors.New("0 shows")
+
+// ScrapeVenues scrapes each venue (concurrently) and keeps shows dated from
+// startDate through endDate (calendar dates, inclusive). One venue failing
+// doesn't affect the others; it gets a result with Err set. The only error
+// returned is for venue names with no registered scraper.
+func ScrapeVenues(venueNames []string, startDate, endDate time.Time) ([]VenueResult, error) {
 	if len(venueNames) == 0 {
 		return nil, fmt.Errorf("no venues specified")
 	}
-
-	// Group venues by their scrapers to avoid duplicate scraping
-	scraperGroups, err := core.GroupVenuesByScraper(venueNames)
-	if err != nil {
-		return nil, err
-	}
-
-	var allShows []Show
-
-	// Scrape each group
-	for scraper, requestedVenues := range scraperGroups {
-		fmt.Printf("Scraping %s (%d venue(s))...\n", scraper.GetName(), len(requestedVenues))
-
-		shows, err := scraper.ScrapeShows()
+	scrapers := make([]core.Scraper, len(venueNames))
+	var missing []string
+	for i, name := range venueNames {
+		s, err := core.GetScraperForVenue(name)
 		if err != nil {
-			return nil, fmt.Errorf("scraping failed: %w", err)
+			missing = append(missing, name)
+			continue
 		}
-
-		// Filter to only requested venues
-		requestedVenueSet := make(map[string]bool)
-		for _, v := range requestedVenues {
-			requestedVenueSet[v] = true
-		}
-
-		for _, show := range shows {
-			if requestedVenueSet[show.Venue] {
-				allShows = append(allShows, show)
-			}
-		}
+		scrapers[i] = s
+	}
+	if len(missing) > 0 {
+		return nil, fmt.Errorf("unsupported venues: %v (supported: %v)", missing, core.GetSupportedVenues())
 	}
 
-	// Filter by date range
-	var filteredShows []Show
-	for _, show := range allShows {
-		// Normalize dates to midnight for comparison
-		showDate := time.Date(show.Date.Year(), show.Date.Month(), show.Date.Day(), 0, 0, 0, 0, show.Date.Location())
-		start := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, startDate.Location())
-		end := time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 23, 59, 59, 999999999, endDate.Location())
-
-		if (showDate.Equal(start) || showDate.After(start)) && (showDate.Equal(end) || showDate.Before(end)) {
-			filteredShows = append(filteredShows, show)
-		}
+	results := make([]VenueResult, len(venueNames))
+	var wg sync.WaitGroup
+	for i, name := range venueNames {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			results[i] = scrapeOne(name, scrapers[i], startDate, endDate)
+		}()
 	}
-
-	// Sort by date
-	sort.Slice(filteredShows, func(i, j int) bool {
-		return filteredShows[i].Date.Before(filteredShows[j].Date)
-	})
-
-	return filteredShows, nil
+	wg.Wait()
+	return results, nil
 }
+
+func scrapeOne(name string, s core.Scraper, startDate, endDate time.Time) (res VenueResult) {
+	res = VenueResult{Name: name, URL: s.GetURL()}
+	defer func() {
+		if r := recover(); r != nil { // a scraper bug mustn't take down the run
+			res.Shows, res.Err = nil, fmt.Errorf("scraper panicked: %v", r)
+		}
+	}()
+
+	shows, err := s.ScrapeShows()
+	if err != nil {
+		res.Err = err
+		return res
+	}
+	res.Shows, res.Dropped = filterShows(name, shows, startDate, endDate)
+	if len(res.Shows) == 0 {
+		res.Err = ErrNoShows
+	}
+	return res
+}
+
+// filterShows keeps shows in the window, drops obvious non-concerts and
+// duplicates, and sorts by date and time.
+func filterShows(venue string, shows []Show, startDate, endDate time.Time) ([]Show, int) {
+	start := civil(startDate)
+	end := civil(endDate)
+	seen := map[string]bool{}
+	var out []Show
+	dropped := 0
+	for _, show := range shows {
+		show.Venue = venue
+		d := civil(show.Date)
+		if d < start || d > end {
+			continue
+		}
+		if core.IsNonConcert(show.Title) {
+			dropped++
+			continue
+		}
+		key := d + "|" + show.Time + "|" + show.Room + "|" + show.Title + "|" + show.URL
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		out = append(out, show)
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		if di, dj := civil(out[i].Date), civil(out[j].Date); di != dj {
+			return di < dj
+		}
+		return out[i].Time < out[j].Time
+	})
+	return out, dropped
+}
+
+// civil formats t's own calendar date as YYYY-MM-DD, for comparisons that
+// don't depend on time zones.
+func civil(t time.Time) string { return t.Format("2006-01-02") }
 
 // NormalizeShows processes raw shows and extracts individual artists
 func NormalizeShows(shows []Show) []NormalizedShow {
 	return core.NormalizeShows(shows)
 }
 
-// GetSupportedVenues returns a sorted list of all supported venue names
+// GetSupportedVenues returns a sorted list of all registered venue names
 func GetSupportedVenues() []string {
 	return core.GetSupportedVenues()
 }

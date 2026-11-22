@@ -1,17 +1,14 @@
+# Venues scraped into data/shows.json, in this order.
+# Each name must match a scraper registered in lescraper/scrapers
+# (see "Adding a venue" in the README).
 venues:
   - Mercury Lounge
   - Bowery Ballroom
-
-# Add your favorite venues here!
-#
-# Supported venues (use lescraper.GetSupportedVenues() to see all):
-#   - Webster Hall
-#   - Music Hall of Williamsburg
-#   - Brooklyn Steel
-#   - Terminal 5
-#   - Racket NYC
-#   - The Rooftop at Pier 17
-#   - Mercury Lounge
-#   - Bowery Ballroom
-#
-# Just add the venue name to the list above - lescraper handles the rest!
+  - Music Hall of Williamsburg
+  - Brooklyn Steel
+  - Webster Hall
+  - Bowery Presents NYC  # Beacon, Kings, Terminal 5, Forest Hills, Radio City, Racket, Knockdown, Prospect Park Bandshell, MSG
+  - LPR                  # NYC rooms only
+  - The Capitol Theatre  # and Garcia's
+  - The Grand            # Croton-on-Hudson
+  - Tarrytown Music Hall
