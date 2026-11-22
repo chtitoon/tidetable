@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -14,6 +16,13 @@ import (
 type Service struct {
 	client *Client
 	auth   *Authenticator
+
+	// Pacing for the export calls, shared by all goroutines: requests start at
+	// most once per requestInterval. Guarded by paceMu.
+	paceMu   sync.Mutex
+	nextSlot time.Time
+
+	throttled atomic.Int64 // 429 responses seen by export calls
 }
 
 // NewService creates a new Tidal service
@@ -354,9 +363,10 @@ var (
 	retryMaxAttempts = 6
 	retryBaseDelay   = 2 * time.Second
 	retryMaxDelay    = 60 * time.Second
-	// politeDelay is the pause after every successful export call.
-	politeDelay = 300 * time.Millisecond
-	sleep       = func(ctx context.Context, d time.Duration) error {
+	// requestInterval spaces out the start of export calls across all
+	// goroutines (200ms = at most 5 requests/second).
+	requestInterval = 200 * time.Millisecond
+	sleep           = func(ctx context.Context, d time.Duration) error {
 		t := time.NewTimer(d)
 		defer t.Stop()
 		select {
@@ -376,9 +386,17 @@ func withRetry[T any](ctx context.Context, s *Service, fn func() (T, error)) (T,
 	refreshed := false
 	delay := retryBaseDelay
 	for attempt := 1; ; attempt++ {
+		if err := s.pace(ctx); err != nil {
+			var zero T
+			return zero, err
+		}
+		var token string
+		if s.auth != nil {
+			token = s.auth.GetAccessToken()
+		}
 		result, err := fn()
 		if err == nil {
-			return result, sleep(ctx, politeDelay)
+			return result, nil
 		}
 
 		var apiErr *APIError
@@ -389,13 +407,16 @@ func withRetry[T any](ctx context.Context, s *Service, fn func() (T, error)) (T,
 		switch {
 		case apiErr.StatusCode == http.StatusUnauthorized && !refreshed:
 			refreshed = true
-			if rerr := s.auth.RefreshAccessToken(); rerr != nil {
+			if rerr := s.auth.RefreshIfStale(token); rerr != nil {
 				return result, fmt.Errorf("token expired and refresh failed: %w", rerr)
 			}
 			attempt-- // a refresh doesn't use up a backoff attempt
 			continue
 
 		case apiErr.StatusCode == http.StatusTooManyRequests || apiErr.StatusCode >= 500:
+			if apiErr.StatusCode == http.StatusTooManyRequests {
+				s.throttled.Add(1)
+			}
 			if attempt >= retryMaxAttempts {
 				return result, fmt.Errorf("giving up after %d attempts: %w", attempt, err)
 			}
@@ -416,6 +437,26 @@ func withRetry[T any](ctx context.Context, s *Service, fn func() (T, error)) (T,
 		}
 	}
 }
+
+// pace blocks until this caller's turn under requestInterval. Each caller
+// reserves the next free slot, so concurrent callers are spread out evenly.
+func (s *Service) pace(ctx context.Context) error {
+	s.paceMu.Lock()
+	now := time.Now()
+	if s.nextSlot.Before(now) {
+		s.nextSlot = now
+	}
+	wait := s.nextSlot.Sub(now)
+	s.nextSlot = s.nextSlot.Add(requestInterval)
+	s.paceMu.Unlock()
+	if wait <= 0 {
+		return ctx.Err()
+	}
+	return sleep(ctx, wait)
+}
+
+// Throttled reports how many 429 responses the export calls have hit so far.
+func (s *Service) Throttled() int64 { return s.throttled.Load() }
 
 // FetchCollection reads every page of one of the user's collections by
 // following links.next to the end. kind is "artists", "albums" or "tracks".
