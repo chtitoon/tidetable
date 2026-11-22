@@ -35,3 +35,6 @@ token.json
 Thumbs.db
 
 .claude/worktrees
+
+# Tidal library export: personal data, stored outside this repo (see README)
+data/artists.json
