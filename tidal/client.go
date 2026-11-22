@@ -427,29 +427,106 @@ func CollectionItemsPath(kind, include string) string {
 // GetPage fetches one page of a to-many relationship. path is relative to /v2:
 // either a first-page path or the links.next value of a previous page.
 func (c *Client) GetPage(ctx context.Context, path string) (*Page, error) {
+	var page Page
+	if err := c.getJSON(ctx, path, &page); err != nil {
+		return nil, err
+	}
+	return &page, nil
+}
+
+// getJSON GETs path (relative to /v2) and decodes the body into v. Non-200
+// responses become *APIError.
+func (c *Client) getJSON(ctx context.Context, path string, v any) error {
 	resp, err := c.makeRequest(ctx, "GET", "/v2"+path, nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("reading response: %w", err)
+		return fmt.Errorf("reading response: %w", err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		apiErr := &APIError{StatusCode: resp.StatusCode, Body: truncate(string(body), 500)}
 		if secs, err := strconv.Atoi(resp.Header.Get("Retry-After")); err == nil && secs > 0 {
 			apiErr.RetryAfter = time.Duration(secs) * time.Second
 		}
-		return nil, apiErr
+		return apiErr
+	}
+	if err := json.Unmarshal(body, v); err != nil {
+		return fmt.Errorf("decoding response: %w", err)
+	}
+	return nil
+}
+
+// MaxArtistBatch is the most ids GET /artists accepts in filter[id].
+const MaxArtistBatch = 20
+
+// GetSimilarArtistsBatch fetches up to MaxArtistBatch artists with their
+// similarArtists included, in one request. The result only has entries for
+// artists whose similar list came back complete (linkage present and every
+// linked artist named); callers should fetch the others one by one. Artists
+// Tidal no longer serves are simply absent from the response.
+func (c *Client) GetSimilarArtistsBatch(ctx context.Context, ids []string) (map[string][]Artist, error) {
+	q := url.Values{}
+	q.Set("countryCode", "US")
+	q.Set("include", "similarArtists")
+	for _, id := range ids {
+		q.Add("filter[id]", id)
 	}
 
-	var page Page
-	if err := json.Unmarshal(body, &page); err != nil {
-		return nil, fmt.Errorf("decoding page: %w", err)
+	type artistResource struct {
+		ID         string `json:"id"`
+		Type       string `json:"type"`
+		Attributes struct {
+			Name string `json:"name"`
+		} `json:"attributes"`
+		Relationships struct {
+			SimilarArtists *struct {
+				Data []ResourceIdentifier `json:"data"`
+			} `json:"similarArtists"`
+		} `json:"relationships"`
 	}
-	return &page, nil
+	var doc struct {
+		Data     []artistResource `json:"data"`
+		Included []artistResource `json:"included"`
+	}
+	if err := c.getJSON(ctx, "/artists?"+q.Encode(), &doc); err != nil {
+		return nil, err
+	}
+
+	// A similar artist that is also in this batch appears in data, not
+	// included (JSON:API never duplicates a resource), so name from both.
+	names := map[string]string{}
+	for _, list := range [][]artistResource{doc.Data, doc.Included} {
+		for _, r := range list {
+			if r.Type == "artists" && r.Attributes.Name != "" {
+				names[r.ID] = r.Attributes.Name
+			}
+		}
+	}
+
+	out := make(map[string][]Artist, len(doc.Data))
+artists:
+	for _, r := range doc.Data {
+		if r.Type != "artists" || r.Relationships.SimilarArtists == nil {
+			continue
+		}
+		linked := r.Relationships.SimilarArtists.Data
+		sim := make([]Artist, 0, len(linked))
+		for _, d := range linked {
+			if d.Type != "artists" {
+				continue
+			}
+			if names[d.ID] == "" {
+				continue artists // incomplete: let the caller fetch it singly
+			}
+			sim = append(sim, Artist{ID: d.ID, Name: names[d.ID]})
+		}
+		out[r.ID] = sim
+	}
+	return out, nil
 }
 
 // GetSimilarArtists returns the first page (up to 20) of an artist's similarArtists.

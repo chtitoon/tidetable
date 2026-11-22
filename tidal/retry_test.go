@@ -11,9 +11,10 @@ import (
 func stubSleep(t *testing.T) *[]time.Duration {
 	t.Helper()
 	var slept []time.Duration
-	orig := sleep
+	orig, origInterval := sleep, requestInterval
 	sleep = func(ctx context.Context, d time.Duration) error { slept = append(slept, d); return nil }
-	t.Cleanup(func() { sleep = orig })
+	requestInterval = 0 // pacing has its own test
+	t.Cleanup(func() { sleep, requestInterval = orig, origInterval })
 	return &slept
 }
 
@@ -35,8 +36,8 @@ func TestWithRetryBacksOffOn429And5xx(t *testing.T) {
 	if err != nil || got != 42 || calls != 4 {
 		t.Fatalf("got %d, %v after %d calls", got, err, calls)
 	}
-	// backoff 2s, then Retry-After 10s beats 4s, then 8s; then politeDelay on success.
-	want := []time.Duration{2 * time.Second, 10 * time.Second, 8 * time.Second, politeDelay}
+	// backoff 2s, then Retry-After 10s beats 4s, then 8s.
+	want := []time.Duration{2 * time.Second, 10 * time.Second, 8 * time.Second}
 	if len(*slept) != len(want) {
 		t.Fatalf("slept %v, want %v", *slept, want)
 	}
@@ -67,5 +68,40 @@ func TestWithRetryDoesNotRetryClientErrors(t *testing.T) {
 		if got == nil || calls != 1 {
 			t.Errorf("%v: calls=%d err=%v, want one call and the error", err, calls, got)
 		}
+	}
+}
+
+func TestPaceSpacesConcurrentCallers(t *testing.T) {
+	orig := requestInterval
+	requestInterval = 20 * time.Millisecond
+	t.Cleanup(func() { requestInterval = orig })
+
+	s := &Service{}
+	start := time.Now()
+	done := make(chan struct{})
+	for range 5 {
+		go func() { _ = s.pace(context.Background()); done <- struct{}{} }()
+	}
+	for range 5 {
+		<-done
+	}
+	// 5 callers: the first starts at once, the last after 4 intervals.
+	if got := time.Since(start); got < 4*requestInterval {
+		t.Fatalf("5 paced calls took %v, want >= %v", got, 4*requestInterval)
+	}
+}
+
+func TestWithRetryCountsThrottling(t *testing.T) {
+	stubSleep(t)
+	s := &Service{}
+	calls := 0
+	_, err := withRetry(context.Background(), s, func() (int, error) {
+		if calls++; calls <= 2 {
+			return 0, &APIError{StatusCode: http.StatusTooManyRequests}
+		}
+		return 1, nil
+	})
+	if err != nil || s.Throttled() != 2 {
+		t.Fatalf("err=%v throttled=%d, want nil and 2", err, s.Throttled())
 	}
 }

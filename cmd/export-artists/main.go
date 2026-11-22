@@ -11,10 +11,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 
 	"github.com/chtitoon/tidetable/artistexport"
@@ -47,14 +50,9 @@ func run(out string, force bool) error {
 	auth.SetTokens(cfg.TidalAccessToken, cfg.TidalRefreshToken)
 	svc := tidal.NewService(auth)
 
-	cols := map[string]tidal.Collection{}
-	for _, kind := range []string{"artists", "albums", "tracks"} {
-		col, err := svc.FetchCollection(ctx, kind)
-		if err != nil {
-			return err
-		}
-		log.Printf("collection %s: %d items", kind, len(col.Items))
-		cols[kind] = col
+	cols, err := fetchCollections(ctx, svc, "artists", "albums", "tracks")
+	if err != nil {
+		return err
 	}
 
 	now := time.Now()
@@ -67,23 +65,18 @@ func run(out string, force bool) error {
 			len(stats.Unresolved))
 	}
 
-	threshold := artistexport.SimilarThreshold
-	similar := map[string][]tidal.Artist{}
-	n := 0
+	var wanted []string
 	for _, a := range artists {
-		if a.Score < threshold {
-			continue
-		}
-		sim, err := svc.SimilarArtists(ctx, a.TidalID)
-		if err != nil {
-			return err
-		}
-		similar[a.TidalID] = sim
-		if n++; n%50 == 0 {
-			log.Printf("similar artists: %d done", n)
+		if a.Score >= artistexport.SimilarThreshold {
+			wanted = append(wanted, a.TidalID)
 		}
 	}
-	log.Printf("similar artists fetched for %d artists", n)
+	similar, err := fetchSimilar(ctx, svc, wanted)
+	if err != nil {
+		return err
+	}
+	log.Printf("similar artists fetched for %d artists (%d rate-limited responses retried)",
+		len(similar), svc.Throttled())
 
 	export := artistexport.Build(artists, similar, now)
 	if err := export.Validate(); err != nil {
@@ -103,4 +96,78 @@ func run(out string, force bool) error {
 	}
 	log.Printf("wrote %s: %d my_artists, %d similar_artists", out, len(export.MyArtists), len(export.SimilarArtists))
 	return nil
+}
+
+// fetchCollections reads the given collections concurrently. Each collection is
+// paginated, so its own pages are still read in order.
+func fetchCollections(ctx context.Context, svc *tidal.Service, kinds ...string) (map[string]tidal.Collection, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	var (
+		mu       sync.Mutex
+		wg       sync.WaitGroup
+		firstErr error
+		cols     = make(map[string]tidal.Collection, len(kinds))
+	)
+	for _, kind := range kinds {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			col, err := svc.FetchCollection(ctx, kind)
+			mu.Lock()
+			defer mu.Unlock()
+			if err != nil {
+				if firstErr == nil {
+					firstErr = err
+					cancel()
+				}
+				return
+			}
+			log.Printf("collection %s: %d items", kind, len(col.Items))
+			cols[kind] = col
+		}()
+	}
+	wg.Wait()
+	return cols, firstErr
+}
+
+// fetchSimilar fetches similar artists for each id, MaxArtistBatch ids per
+// request. Any artist the batch response doesn't fully cover (unavailable, or
+// an incomplete similar list) is fetched on its own. If Tidal rejects a batch
+// request outright (400), that batch falls back to single requests too.
+func fetchSimilar(ctx context.Context, svc *tidal.Service, ids []string) (map[string][]tidal.Artist, error) {
+	similar := make(map[string][]tidal.Artist, len(ids))
+	batches, singles := 0, 0
+	for start := 0; start < len(ids); start += tidal.MaxArtistBatch {
+		batch := ids[start:min(start+tidal.MaxArtistBatch, len(ids))]
+		got, err := svc.SimilarArtistsBatch(ctx, batch)
+		var apiErr *tidal.APIError
+		switch {
+		case errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusBadRequest:
+			// Status only: the error body may echo the requested ids, and
+			// workflow logs of a public repo are public.
+			log.Printf("warning: batch similar-artists request rejected (status %d), fetching %d artists singly",
+				apiErr.StatusCode, len(batch))
+			got = nil
+		case err != nil:
+			return nil, err
+		default:
+			batches++
+		}
+		for _, id := range batch {
+			if sim, ok := got[id]; ok {
+				similar[id] = sim
+				continue
+			}
+			sim, err := svc.SimilarArtists(ctx, id)
+			if err != nil {
+				return nil, err
+			}
+			similar[id] = sim
+			singles++
+		}
+	}
+	log.Printf("similar artists: %d batch requests, %d single-artist fallbacks", batches, singles)
+	return similar, nil
 }

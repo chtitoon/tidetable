@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,6 +27,10 @@ type Authenticator struct {
 	redirectURI  string
 	accessToken  string
 	refreshToken string
+
+	// mu guards the tokens, and serialises refreshes so concurrent callers
+	// never spend the same (possibly single-use) refresh token twice.
+	mu sync.Mutex
 }
 
 // NewAuthenticator creates a new authenticator for Tidal OAuth
@@ -110,6 +115,24 @@ func (a *Authenticator) ExchangeCodeForToken(authCode, codeVerifier string) erro
 // RefreshAccessToken uses the refresh token to obtain a new access token
 // Called automatically when API returns 401 Unauthorized
 func (a *Authenticator) RefreshAccessToken() error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.refreshLocked()
+}
+
+// RefreshIfStale refreshes the access token unless it has already changed from
+// stale, the token a failed request used: when several concurrent requests get
+// a 401 at once, only the first one refreshes.
+func (a *Authenticator) RefreshIfStale(stale string) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	if a.accessToken != stale {
+		return nil
+	}
+	return a.refreshLocked()
+}
+
+func (a *Authenticator) refreshLocked() error {
 	data := url.Values{}
 	data.Set("client_id", a.clientID)
 	data.Set("client_secret", a.clientSecret)
@@ -151,17 +174,23 @@ func (a *Authenticator) RefreshAccessToken() error {
 // SetTokens manually sets the access and refresh tokens
 // Used when loading existing tokens from storage
 func (a *Authenticator) SetTokens(accessToken, refreshToken string) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	a.accessToken = accessToken
 	a.refreshToken = refreshToken
 }
 
 // GetTokens returns the current access and refresh tokens
 func (a *Authenticator) GetTokens() (accessToken, refreshToken string) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	return a.accessToken, a.refreshToken
 }
 
 // GetAccessToken returns just the access token (for API requests)
 func (a *Authenticator) GetAccessToken() string {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	return a.accessToken
 }
 
