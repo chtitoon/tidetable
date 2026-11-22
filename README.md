@@ -4,10 +4,8 @@
 
 TideTable is personal data plumbing for going to concerts. It doesn't recommend anything or have a UI. It keeps two clean, machine-readable files up to date on a schedule, for free, on GitHub Actions. Whatever reads them does the interesting part.
 
-| | What it is | Source | Credentials | Stored |
-|---|---|---|---|---|
-| **[`data/shows.json`](#show-listings-datashowsjson)** | Every upcoming show at my [venues](venues.yaml), however far out | Venue websites, scraped | None | Committed to this repo (public) |
-| **[`artists.json`](#artist-export-artistsjson)** | My Tidal library as ranked lists: all-time, lately, and similar artists I don't know yet | Tidal API | Tidal OAuth | A private repo of your choice, or nowhere |
+- **[`data/shows.json`](#show-listings-datashowsjson)**: every upcoming show at my [venues](venues.yaml), however far out. Scraped from the venue websites, no credentials needed, committed to this repo (public).
+- **[`artists.json`](#artist-export-artistsjson)**: my Tidal library as ranked lists (all-time, lately, and similar artists I don't know yet). Read from the Tidal API with OAuth, stored in a private repo of your choice, or nowhere.
 
 The two jobs never read each other's data. Matching happens downstream, for example:
 
@@ -86,18 +84,18 @@ Every other day (and on demand from the Actions tab), `.github/workflows/daily-s
 
 ### Venues
 
-| `venues.yaml` name | Listings | How it's read |
-|---|---|---|
-| Mercury Lounge | [mercuryeastpresents.com/mercurylounge](https://mercuryeastpresents.com/mercurylounge/) | Server-rendered list, `/page/N/` until an empty page |
-| Bowery Ballroom | [mercuryeastpresents.com/boweryballroom](https://mercuryeastpresents.com/boweryballroom/) | Same platform as Mercury Lounge |
-| Music Hall of Williamsburg | [bowerypresents.com/music-hall-of-williamsburg](https://www.bowerypresents.com/music-hall-of-williamsburg/) | The JSON feed the page loads (AEG `events/59`), filtered by venue ID. "Load More" only reveals more of that feed, so one fetch has every show |
-| Brooklyn Steel | [bowerypresents.com/brooklyn-steel](https://www.bowerypresents.com/brooklyn-steel/) | Same feed |
-| Webster Hall | [websterhall.com/shows](https://www.websterhall.com/shows/) | Its own JSON feed (AEG `events/85`) |
-| Bowery Presents NYC | [bowerypresents.com/new-york-metro/calendar](https://www.bowerypresents.com/new-york-metro/calendar/) | Same feed as MHOW, keeping only Beacon Theatre, Kings Theatre, Terminal 5, Forest Hills Stadium, Radio City Music Hall, Racket, Knockdown Center, Prospect Park Bandshell, Madison Square Garden (and its Infosys Theater) |
-| LPR | [lpr.com](https://lpr.com/) | The infinite-scroll endpoint behind the homepage (`admin-ajax.php`), NYC rooms only; genres from the WordPress REST API to drop DJ/comedy nights |
-| The Capitol Theatre | [thecapitoltheatre.com/shows](https://www.thecapitoltheatre.com/shows) | Live Nation site: event data embedded in each room page (The Capitol Theatre, Garcia's) |
-| The Grand | [thegrandcroton.com](https://thegrandcroton.com/) | Squarespace events page `/happening`, as JSON (`?format=json`) |
-| Tarrytown Music Hall | [tickets.tarrytownmusichall.org](https://tickets.tarrytownmusichall.org/) | ShoWare box office JSON (`performancelist.asp`), Music category |
+Each entry is the name used in `venues.yaml`, its listings page, and how it's read.
+
+- **Mercury Lounge** ([mercuryeastpresents.com/mercurylounge](https://mercuryeastpresents.com/mercurylounge/)): Server-rendered list, `/page/N/` until an empty page.
+- **Bowery Ballroom** ([mercuryeastpresents.com/boweryballroom](https://mercuryeastpresents.com/boweryballroom/)): Same platform as Mercury Lounge.
+- **Music Hall of Williamsburg** ([bowerypresents.com/music-hall-of-williamsburg](https://www.bowerypresents.com/music-hall-of-williamsburg/)): The JSON feed the page loads (AEG `events/59`), filtered by venue ID. "Load More" only reveals more of that feed, so one fetch has every show.
+- **Brooklyn Steel** ([bowerypresents.com/brooklyn-steel](https://www.bowerypresents.com/brooklyn-steel/)): Same feed.
+- **Webster Hall** ([websterhall.com/shows](https://www.websterhall.com/shows/)): Its own JSON feed (AEG `events/85`).
+- **Bowery Presents NYC** ([bowerypresents.com/new-york-metro/calendar](https://www.bowerypresents.com/new-york-metro/calendar/)): Same feed as MHOW, keeping only Beacon Theatre, Kings Theatre, Terminal 5, Forest Hills Stadium, Radio City Music Hall, Racket, Knockdown Center, Prospect Park Bandshell, Madison Square Garden (and its Infosys Theater).
+- **LPR** ([lpr.com](https://lpr.com/)): The infinite-scroll endpoint behind the homepage (`admin-ajax.php`), NYC rooms only; genres from the WordPress REST API to drop DJ/comedy nights.
+- **The Capitol Theatre** ([thecapitoltheatre.com/shows](https://www.thecapitoltheatre.com/shows)): Live Nation site, with event data embedded in each room page (The Capitol Theatre, Garcia's).
+- **The Grand** ([thegrandcroton.com](https://thegrandcroton.com/)): Squarespace events page `/happening`, as JSON (`?format=json`).
+- **Tarrytown Music Hall** ([tickets.tarrytownmusichall.org](https://tickets.tarrytownmusichall.org/)): ShoWare box office JSON (`performancelist.asp`), Music category.
 
 Everything is plain HTTP: either server-rendered HTML or the JSON a page loads. No headless browser. Each scraper's file in `lescraper/scrapers/` explains what it reads and why.
 
@@ -210,11 +208,9 @@ Tidal's API has no listening history, so recent likes stand in for "listening to
 
 Set the **`ARTISTS_DATA_REPO`** repository variable (Settings → Secrets and variables → Actions → **Variables**):
 
-| `ARTISTS_DATA_REPO` | Behavior |
-|---|---|
-| *(unset, default)* | The export runs and is validated, then discarded. The run shows a warning. Nothing about your library leaves the runner. |
-| `owner/name` | The file is committed to that repo, which should be **private**. Recommended. |
-| `self` | The file is committed to `data/artists.json` in this repo, as before. If this repo is public, anyone can read your library. The run shows a warning. |
+- **Unset (default):** the export runs and is validated, then discarded. The run shows a warning. Nothing about your library leaves the runner.
+- **`owner/name`:** the file is committed to that repo, which should be **private**. Recommended.
+- **`self`:** the file is committed to `data/artists.json` in this repo, as before. If this repo is public, anyone can read your library. The run shows a warning.
 
 To set up a private data repo:
 
