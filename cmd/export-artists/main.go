@@ -11,12 +11,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/chtitoon/tidetable/artistexport"
@@ -97,10 +98,6 @@ func run(out string, force bool) error {
 	return nil
 }
 
-// similarWorkers is how many similar-artist requests are in flight at once.
-// The overall request rate is capped separately by the tidal package.
-const similarWorkers = 4
-
 // fetchCollections reads the given collections concurrently. Each collection is
 // paginated, so its own pages are still read in order.
 func fetchCollections(ctx context.Context, svc *tidal.Service, kinds ...string) (map[string]tidal.Collection, error) {
@@ -135,54 +132,39 @@ func fetchCollections(ctx context.Context, svc *tidal.Service, kinds ...string) 
 	return cols, firstErr
 }
 
-// fetchSimilar fetches similar artists for each id with a small worker pool.
-// The first failure cancels the remaining work and is returned.
+// fetchSimilar fetches similar artists for each id, MaxArtistBatch ids per
+// request. Any artist the batch response doesn't fully cover (unavailable, or
+// an incomplete similar list) is fetched on its own. If Tidal rejects a batch
+// request outright (400), that batch falls back to single requests too.
 func fetchSimilar(ctx context.Context, svc *tidal.Service, ids []string) (map[string][]tidal.Artist, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	var (
-		mu       sync.Mutex
-		wg       sync.WaitGroup
-		firstErr error
-		done     atomic.Int64
-		similar  = make(map[string][]tidal.Artist, len(ids))
-		jobs     = make(chan string)
-	)
-	for range similarWorkers {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for id := range jobs {
-				sim, err := svc.SimilarArtists(ctx, id)
-				mu.Lock()
-				if err != nil {
-					if firstErr == nil {
-						firstErr = err
-						cancel()
-					}
-				} else {
-					similar[id] = sim
-				}
-				mu.Unlock()
-				if n := done.Add(1); n%50 == 0 {
-					log.Printf("similar artists: %d/%d done", n, len(ids))
-				}
+	similar := make(map[string][]tidal.Artist, len(ids))
+	batches, singles := 0, 0
+	for start := 0; start < len(ids); start += tidal.MaxArtistBatch {
+		batch := ids[start:min(start+tidal.MaxArtistBatch, len(ids))]
+		got, err := svc.SimilarArtistsBatch(ctx, batch)
+		var apiErr *tidal.APIError
+		switch {
+		case errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusBadRequest:
+			log.Printf("warning: batch similar-artists request rejected, fetching %d artists singly: %v", len(batch), err)
+			got = nil
+		case err != nil:
+			return nil, err
+		default:
+			batches++
+		}
+		for _, id := range batch {
+			if sim, ok := got[id]; ok {
+				similar[id] = sim
+				continue
 			}
-		}()
-	}
-feed:
-	for _, id := range ids {
-		select {
-		case jobs <- id:
-		case <-ctx.Done():
-			break feed
+			sim, err := svc.SimilarArtists(ctx, id)
+			if err != nil {
+				return nil, err
+			}
+			similar[id] = sim
+			singles++
 		}
 	}
-	close(jobs)
-	wg.Wait()
-	if firstErr != nil {
-		return nil, firstErr
-	}
-	return similar, ctx.Err()
+	log.Printf("similar artists: %d batch requests, %d single-artist fallbacks", batches, singles)
+	return similar, nil
 }

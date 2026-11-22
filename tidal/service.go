@@ -364,8 +364,9 @@ var (
 	retryBaseDelay   = 2 * time.Second
 	retryMaxDelay    = 60 * time.Second
 	// requestInterval spaces out the start of export calls across all
-	// goroutines (200ms = at most 5 requests/second).
-	requestInterval = 200 * time.Millisecond
+	// goroutines. Tidal throttles at roughly 2 requests/second (measured: a
+	// 5 req/s pace drew 179 429s over ~400 calls), so stay just under that.
+	requestInterval = 500 * time.Millisecond
 	sleep           = func(ctx context.Context, d time.Duration) error {
 		t := time.NewTimer(d)
 		defer t.Stop()
@@ -486,6 +487,12 @@ func (s *Service) FetchCollection(ctx context.Context, kind string) (Collection,
 		path = page.Links.Next
 	}
 	return col, nil
+}
+
+// SimilarArtistsBatch returns similar artists for up to MaxArtistBatch ids in
+// one request; ids missing from the result need SimilarArtists instead.
+func (s *Service) SimilarArtistsBatch(ctx context.Context, ids []string) (map[string][]Artist, error) {
+	return withRetry(ctx, s, func() (map[string][]Artist, error) { return s.client.GetSimilarArtistsBatch(ctx, ids) })
 }
 
 // SimilarArtists returns the first page of similar artists for an artist.
