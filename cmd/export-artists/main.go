@@ -57,8 +57,8 @@ func run(out string, force bool) error {
 
 	now := time.Now()
 	artists, stats := artistexport.Score(cols["artists"], cols["albums"], cols["tracks"], now)
-	log.Printf("scored %d artists (%d items without artist, %d compilation/label credits skipped)",
-		len(artists), stats.NoArtist, stats.NonArtistMain)
+	log.Printf("scored %d artists (%d duplicate profiles merged, %d items without artist, %d compilation/label credits skipped)",
+		len(artists), stats.Merged, stats.NoArtist, stats.NonArtistMain)
 	if len(stats.Unresolved) > 0 {
 		// Count only: workflow logs of a public repo are public, and IDs are library data.
 		log.Printf("warning: skipped %d credits to artists Tidal no longer resolves",
@@ -94,7 +94,8 @@ func run(out string, force bool) error {
 	if err := artistexport.WriteAtomic(out, data); err != nil {
 		return err
 	}
-	log.Printf("wrote %s: %d my_artists, %d similar_artists", out, len(export.MyArtists), len(export.SimilarArtists))
+	log.Printf("wrote %s: %d my_artists, %d recent_artists, %d similar_artists",
+		out, len(export.MyArtists), len(export.RecentArtists), len(export.SimilarArtists))
 	return nil
 }
 

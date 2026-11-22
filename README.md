@@ -140,7 +140,7 @@ Back in your repository's **Settings** → **Secrets and variables** → **Actio
 
 ## Daily Artist Export (`artists.json`)
 
-A second, independent job exports your Tidal library as two ranked lists of artists, for tools that match concert listings against what you actually listen to. It's independent of the show listings.
+A second, independent job exports your Tidal library as ranked lists of artists, for tools that match concert listings against what you actually listen to, or a site showing your top artists. It's independent of the show listings.
 
 > **Your library is personal data, and forks of this repo are public.** By default the export is stored nowhere: it runs, validates, and is discarded. Point it at a private repo to keep it (see [Where the file lives](#where-the-file-lives)).
 
@@ -148,24 +148,28 @@ A second, independent job exports your Tidal library as two ranked lists of arti
 {
   "generated_at": "2026-11-22T06:17:00Z",
   "my_artists":      [{ "tidal_id": "3566009", "name": "The National" }, …],
+  "recent_artists":  [{ "tidal_id": "…", "name": "Big Thief" }, …],
   "similar_artists": [{ "tidal_id": "…", "name": "Dry Cleaning" }, …]
 }
 ```
 
-Both lists are sorted most relevant first. Scores only decide the order and aren't stored in the file.
+All lists are sorted most relevant first. Scores only decide the order and aren't stored in the file.
 
-**`my_artists`.** Once a day, `.github/workflows/daily-artists.yml` runs `go run ./cmd/export-artists`, which reads your followed artists, liked albums and liked tracks (following every page) and scores each artist:
+Once a day, `.github/workflows/daily-artists.yml` runs `go run ./cmd/export-artists`, which reads your followed artists, liked albums and liked tracks (following every page) and scores each artist. Only the main artist of an album or track scores: the first credit Tidal lists. Featured artists, compilations ("Various Artists"), label credits and playlist accounts don't. Tidal profiles with the same name (Tidal has duplicates) are merged into one artist.
 
-| Signal | Points |
-|---|---|
-| Followed | 3 |
-| Each liked album where they are the main artist | 2 |
-| Each liked track where they are the main artist | 1 |
-| Anything above, liked or followed in the last 6 months | counts double |
+```
+score = follow + 3 × ln(1 + albums) + 1.5 × ln(1 + tracks)
+```
 
-Tidal's API has no listening history, so recent likes stand in for "listening to them a lot lately". Ties go to the artist you liked most recently. The main artist is the first credit Tidal lists; featured artists, compilations ("Various Artists"), label credits and playlist accounts don't score. Every artist with any score is listed.
+`albums` and `tracks` are sums of per-item weights that depend on when you liked them. The logarithm keeps a pile of hearted tracks from outweighing a follow and a couple of albums.
 
-**`similar_artists`.** For artists scoring 2 or more, the export fetches Tidal's similar artists (first page, up to 20). Those not already in your library are ranked by how many of your artists list them as similar, then by the total score of those artists.
+**`my_artists`** is the all-time ranking of every artist with any score. A follow is worth 4, whatever its age. A like counts in full when new and fades with a 2-year half-life, never below half.
+
+**`recent_artists`** is what you're into lately: only follows and likes from the last 90 days count, fading with a 45-day half-life. An artist needs at least 2 of them to be listed, so a single heart doesn't top the list. It can be short or empty after a quiet stretch. Every recent artist is also in `my_artists`.
+
+Tidal's API has no listening history, so recent likes stand in for "listening to them a lot lately". In both lists, ties go to the artist you liked most recently.
+
+**`similar_artists`.** For artists with an all-time score of 3 or more (a follow, or a recently liked album and track), the export fetches Tidal's similar artists (first page, up to 20). Those not already in your library are ranked by the summed all-time score of your artists that list them, scaled down by Tidal popularity (a fully popular artist keeps a quarter), so lesser-known artists come first.
 
 ### Where the file lives
 

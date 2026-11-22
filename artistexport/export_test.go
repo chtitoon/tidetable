@@ -2,6 +2,7 @@ package artistexport
 
 import (
 	"encoding/json"
+	"math"
 	"os"
 	"path/filepath"
 	"testing"
@@ -10,7 +11,7 @@ import (
 	"github.com/chtitoon/tidetable/tidal"
 )
 
-// fixtureNow is "today" for the fixtures: the 6-month window starts 2026-05-23.
+// fixtureNow is "today" for the fixtures.
 var fixtureNow = time.Date(2026, 11, 22, 0, 0, 0, 0, time.UTC)
 
 // loadFixture reads a recorded JSON:API page (trimmed real responses from
@@ -21,6 +22,11 @@ func loadFixture(t *testing.T, name string) tidal.Collection {
 	if err != nil {
 		t.Fatal(err)
 	}
+	return pageToCollection(t, raw)
+}
+
+func pageToCollection(t *testing.T, raw []byte) tidal.Collection {
+	t.Helper()
 	var p tidal.Page
 	if err := json.Unmarshal(raw, &p); err != nil {
 		t.Fatal(err)
@@ -30,6 +36,67 @@ func loadFixture(t *testing.T, name string) tidal.Collection {
 		col.Included[r.Type+":"+r.ID] = r
 	}
 	return col
+}
+
+// ===== Synthetic libraries =====
+
+type credit struct{ id, name string }
+
+// item is one collection entry: a followed artist (artists[0]) or a liked
+// album/track crediting artists in order.
+type item struct {
+	id      string
+	added   time.Time
+	artists []credit
+}
+
+// synth builds a collection of type typ ("artists", "albums" or "tracks")
+// through the same JSON decoding as the real API.
+func synth(t *testing.T, typ string, items ...item) tidal.Collection {
+	t.Helper()
+	type rid struct {
+		ID   string         `json:"id"`
+		Type string         `json:"type"`
+		Meta map[string]any `json:"meta,omitempty"`
+	}
+	var data []rid
+	var included []map[string]any
+	artistRes := func(c credit) map[string]any {
+		return map[string]any{"id": c.id, "type": "artists", "attributes": map[string]any{"name": c.name}}
+	}
+	for _, it := range items {
+		meta := map[string]any{"addedAt": it.added.Format(time.RFC3339)}
+		if typ == "artists" {
+			data = append(data, rid{ID: it.artists[0].id, Type: "artists", Meta: meta})
+			included = append(included, artistRes(it.artists[0]))
+			continue
+		}
+		data = append(data, rid{ID: it.id, Type: typ, Meta: meta})
+		var links []rid
+		for _, c := range it.artists {
+			links = append(links, rid{ID: c.id, Type: "artists"})
+			included = append(included, artistRes(c))
+		}
+		included = append(included, map[string]any{
+			"id": it.id, "type": typ, "attributes": map[string]any{"title": it.id},
+			"relationships": map[string]any{"artists": map[string]any{"data": links}},
+		})
+	}
+	raw, err := json.Marshal(map[string]any{"data": data, "included": included})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return pageToCollection(t, raw)
+}
+
+func daysAgo(d int) time.Time { return fixtureNow.Add(-time.Duration(d) * 24 * time.Hour) }
+
+func manyItems(prefix string, n, ageDays int, a credit) []item {
+	out := make([]item, n)
+	for i := range out {
+		out[i] = item{id: prefix + string(rune('a'+i)), added: daysAgo(ageDays), artists: []credit{a}}
+	}
+	return out
 }
 
 func scoreFixtures(t *testing.T) ([]Artist, Stats) {
@@ -45,36 +112,40 @@ func byName(artists []Artist) map[string]Artist {
 	return m
 }
 
+func artistNames(artists []Artist) []string {
+	out := make([]string, len(artists))
+	for i, a := range artists {
+		out[i] = a.Name
+	}
+	return out
+}
+
+func near(a, b float64) bool { return math.Abs(a-b) < 1e-9 }
+
+// ===== Score =====
+
 func TestScore(t *testing.T) {
 	artists, stats := scoreFixtures(t)
 
-	want := []struct {
-		name   string
-		score  int
-		recent int
-	}{
-		{"The National", 5, 0},   // follow 3 (2024) + album 2 (2023)
-		{"Neil Young", 4, 1},     // album liked 2026-11-07: 2 x2
-		{"Gorillaz", 4, 0},       // follow 3 (2021) + track 1 (2026-04-20, just outside 6 months)
-		{"Big Thief", 3, 0},      // follow 3 (2021)
-		{"Aldous Harding", 2, 1}, // track liked 2026-06-09: 1 x2
-		{"Arctic Monkeys", 1, 0}, // track 2026-03-24
-		{"Sleaford Mods", 1, 0},  // track 2026-03-08 (older than Arctic Monkeys' like)
+	// The National: follow + album (2023). Gorillaz: follow (2021) + track.
+	// Big Thief: follow only. Neil Young: one album liked two weeks ago, the
+	// highest non-follower. Then single tracks, most recent like first.
+	want := []string{"The National", "Gorillaz", "Big Thief", "Neil Young", "Aldous Harding", "Arctic Monkeys", "Sleaford Mods"}
+	if got := artistNames(artists); !equal(got, want) {
+		t.Fatalf("all-time order = %v, want %v", got, want)
 	}
-	if len(artists) != len(want) {
-		names := []string{}
-		for _, a := range artists {
-			names = append(names, a.Name)
-		}
-		t.Fatalf("got %d artists %v, want %d", len(artists), names, len(want))
+
+	got := byName(artists)
+	if a := got["Big Thief"]; !near(a.Score, PointsFollowed) {
+		t.Errorf("Big Thief (follow only) score = %v, want %v", a.Score, PointsFollowed)
 	}
-	// Order matters: score desc, then most recent like, then name.
-	for i, w := range want {
-		a := artists[i]
-		if a.Name != w.name || a.Score != w.score || a.Signals.RecentItems != w.recent {
-			t.Errorf("#%d = %s score %d recent %d, want %s score %d recent %d",
-				i, a.Name, a.Score, a.Signals.RecentItems, w.name, w.score, w.recent)
-		}
+	// The National's album is from 2023: older than the floor, so it weighs AllTimeFloor.
+	if a := got["The National"]; !near(a.Score, PointsFollowed+WeightAlbums*math.Log1p(AllTimeFloor)) {
+		t.Errorf("The National score = %v", a.Score)
+	}
+	if a := got["Neil Young"]; a.Signals.RecentItems != 1 || a.Recent != 0 {
+		t.Errorf("Neil Young: recent items %d, recent score %v; want 1 and 0 (below RecentMinItems)",
+			a.Signals.RecentItems, a.Recent)
 	}
 
 	if stats.NoArtist != 1 {
@@ -89,16 +160,108 @@ func TestScore(t *testing.T) {
 	}
 }
 
-func TestRecencyDoublesPoints(t *testing.T) {
-	// The same library scored a year later: nothing is recent any more.
-	later := fixtureNow.AddDate(1, 0, 0)
-	artists, _ := Score(loadFixture(t, "followed.json"), loadFixture(t, "albums.json"), loadFixture(t, "tracks.json"), later)
-	got := byName(artists)
-	if a := got["Neil Young"]; a.Score != 2 || a.Signals.RecentItems != 0 {
-		t.Errorf("Neil Young a year later: score %d recent %d, want 2 and 0", a.Score, a.Signals.RecentItems)
+func TestLikesAreDamped(t *testing.T) {
+	spam := credit{"1", "Heart Spammed"}
+	fave := credit{"2", "Deliberate Favourite"}
+	tracks := synth(t, "tracks", manyItems("t", 26, 400, spam)...)
+	albums := synth(t, "albums",
+		item{id: "a1", added: daysAgo(400), artists: []credit{fave}},
+		item{id: "a2", added: daysAgo(400), artists: []credit{fave}})
+	followed := synth(t, "artists", item{added: daysAgo(400), artists: []credit{fave}})
+
+	artists, _ := Score(followed, albums, tracks, fixtureNow)
+	if got := artistNames(artists); !equal(got, []string{"Deliberate Favourite", "Heart Spammed"}) {
+		t.Errorf("order = %v: 26 hearted tracks should not beat a follow and two albums", got)
 	}
-	if a := got["Aldous Harding"]; a.Score != 1 {
-		t.Errorf("Aldous Harding a year later: score %d, want 1", a.Score)
+}
+
+func TestAllTimeDecayIsSmooth(t *testing.T) {
+	prev := 1.0
+	for d := 0; d <= 5*365; d += 7 {
+		w := allTimeWeight(daysAgo(d), true, fixtureNow)
+		if w > prev || w < AllTimeFloor || prev-w > 0.01 {
+			t.Fatalf("weight at %d days = %v after %v: want a smooth, non-increasing decay down to %v",
+				d, w, prev, AllTimeFloor)
+		}
+		prev = w
+	}
+	if w := allTimeWeight(time.Time{}, false, fixtureNow); w != 1 {
+		t.Errorf("undated item weight = %v, want 1", w)
+	}
+	if w := allTimeWeight(daysAgo(10*365), true, fixtureNow); w != AllTimeFloor {
+		t.Errorf("10-year-old item weight = %v, want floor %v", w, AllTimeFloor)
+	}
+}
+
+func TestRecentArtists(t *testing.T) {
+	steady := credit{"1", "Old Follow, New Albums"} // followed 2021, two albums this autumn
+	binge := credit{"2", "Track Binge"}             // three tracks a month ago
+	once := credit{"3", "Liked Once"}               // one track yesterday: not enough
+	faded := credit{"4", "Faded"}                   // many likes, all before the window
+
+	followed := synth(t, "artists", item{added: daysAgo(5 * 365), artists: []credit{steady}})
+	albums := synth(t, "albums",
+		item{id: "a1", added: daysAgo(20), artists: []credit{steady}},
+		item{id: "a2", added: daysAgo(60), artists: []credit{steady}})
+	tracks := synth(t, "tracks", append(append(
+		manyItems("b", 3, 30, binge),
+		item{id: "o", added: daysAgo(1), artists: []credit{once}}),
+		manyItems("f", 10, 120, faded)...)...)
+
+	artists, _ := Score(followed, albums, tracks, fixtureNow)
+	recent := RankRecent(artists)
+	if got := artistNames(recent); !equal(got, []string{"Old Follow, New Albums", "Track Binge"}) {
+		t.Errorf("recent_artists = %v", got)
+	}
+	got := byName(artists)
+	if a := got["Faded"]; a.Recent != 0 || a.Score <= got["Track Binge"].Score {
+		t.Errorf("Faded: recent %v, all-time %v; want 0 recent but a higher all-time score than Track Binge",
+			a.Recent, a.Score)
+	}
+	// The 2021 follow is outside the window: it doesn't count lately.
+	rw := func(d int) float64 { return recentWeight(daysAgo(d), true, fixtureNow) }
+	if a := got["Old Follow, New Albums"]; !near(a.Recent, WeightAlbums*math.Log1p(rw(20)+rw(60))) {
+		t.Errorf("recent score %v, want the two albums only (old follow excluded)", a.Recent)
+	}
+
+	e := Build(artists, nil, fixtureNow)
+	if err := e.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	if len(e.RecentArtists) != 2 {
+		t.Errorf("export recent_artists = %v", e.RecentArtists)
+	}
+}
+
+func TestMergesDuplicateProfiles(t *testing.T) {
+	a := credit{"100", "Sufjan Stevens"}
+	b := credit{"200", "sufjan stevens "} // same artist, second Tidal profile
+	tracks := synth(t, "tracks",
+		item{id: "t1", added: daysAgo(10), artists: []credit{a}},
+		item{id: "t2", added: daysAgo(10), artists: []credit{b}},
+		item{id: "t3", added: daysAgo(10), artists: []credit{b}})
+	followed := synth(t, "artists", item{added: daysAgo(10), artists: []credit{a}}, item{added: daysAgo(10), artists: []credit{b}})
+
+	artists, stats := Score(followed, synth(t, "albums"), tracks, fixtureNow)
+	if len(artists) != 1 {
+		t.Fatalf("got %d artists %v, want one merged artist", len(artists), artistNames(artists))
+	}
+	m := artists[0]
+	// 200 has three credits (follow + two tracks), 100 has two.
+	if m.TidalID != "200" || len(m.AltIDs) != 1 || m.AltIDs[0] != "100" || stats.Merged != 1 {
+		t.Errorf("merged = id %s alt %v (merged %d), want id 200 alt [100]", m.TidalID, m.AltIDs, stats.Merged)
+	}
+	if m.Signals.LikedTracks != 3 || !near(m.Score, PointsFollowed+WeightTracks*math.Log1p(3*allTimeWeight(daysAgo(10), true, fixtureNow))) {
+		t.Errorf("merged score %v tracks %d: want one follow and three tracks", m.Score, m.Signals.LikedTracks)
+	}
+
+	// A similar artist pointing at the alternate profile is in the library.
+	other := credit{"300", "Other"}
+	followed2 := synth(t, "artists", item{added: daysAgo(10), artists: []credit{other}})
+	all, _ := Score(followed2, synth(t, "albums"), tracks, fixtureNow)
+	e := Build(all, map[string][]tidal.Artist{"300": {{ID: "100", Name: "Sufjan Stevens (alt)"}}}, fixtureNow)
+	if len(e.SimilarArtists) != 0 {
+		t.Errorf("similar_artists = %v, want the merged profile excluded", e.SimilarArtists)
 	}
 }
 
@@ -116,7 +279,7 @@ func TestMainArtistAttribution(t *testing.T) {
 		"Indie/Rock Playlist",            // followed playlist account
 	} {
 		if a, ok := got[name]; ok {
-			t.Errorf("%s should not be in the export, got score %d", name, a.Score)
+			t.Errorf("%s should not be in the export, got score %v", name, a.Score)
 		}
 	}
 
@@ -145,6 +308,8 @@ func TestMainArtistID(t *testing.T) {
 	t.Fatal("fixture track not found")
 }
 
+// ===== Build =====
+
 func names(refs []Ref) []string {
 	out := make([]string, len(refs))
 	for i, r := range refs {
@@ -160,8 +325,8 @@ func TestBuild(t *testing.T) {
 		ids[a.Name] = a.TidalID
 	}
 
-	sva := tidal.Artist{ID: "s1", Name: "Sharon Van Etten"}
-	wilco := tidal.Artist{ID: "s2", Name: "Wilco"}
+	sva := tidal.Artist{ID: "s1", Name: "Sharon Van Etten", Popularity: 0.3}
+	wilco := tidal.Artist{ID: "s2", Name: "Wilco", Popularity: 0.9} // a hub: heavily discounted
 	fleet := tidal.Artist{ID: "s3", Name: "Fleet Foxes"}
 	beirut := tidal.Artist{ID: "s4", Name: "Beirut"}
 	similar := map[string][]tidal.Artist{
@@ -180,15 +345,13 @@ func TestBuild(t *testing.T) {
 	if e.GeneratedAt != "2026-11-21T17:00:00Z" {
 		t.Errorf("generated_at = %s, want UTC", e.GeneratedAt)
 	}
-
-	wantMine := []string{"The National", "Neil Young", "Gorillaz", "Big Thief", "Aldous Harding", "Arctic Monkeys", "Sleaford Mods"}
-	if got := names(e.MyArtists); !equal(got, wantMine) {
-		t.Errorf("my_artists = %v, want %v", got, wantMine)
+	if got := names(e.MyArtists); !equal(got, artistNames(artists)) {
+		t.Errorf("my_artists = %v, want Score order", got)
 	}
 
-	// Sharon Van Etten: 3 cross-refs. Wilco: 2 (National 5 + Neil Young 4).
-	// Fleet Foxes (National, 5) beats Beirut (Big Thief, 3) on source score.
-	wantSim := []string{"Sharon Van Etten", "Wilco", "Fleet Foxes", "Beirut"}
+	// Sharon Van Etten: three sources. Wilco has two (National + Neil Young)
+	// but its popularity drops it below Fleet Foxes (National) and Beirut (Big Thief).
+	wantSim := []string{"Sharon Van Etten", "Fleet Foxes", "Beirut", "Wilco"}
 	if got := names(e.SimilarArtists); !equal(got, wantSim) {
 		t.Errorf("similar_artists = %v, want %v", got, wantSim)
 	}
@@ -216,8 +379,16 @@ func TestOutputHasNoScores(t *testing.T) {
 	if err := json.Unmarshal(data, &raw); err != nil {
 		t.Fatal(err)
 	}
-	if len(raw) != 3 || raw["generated_at"] == nil || raw["my_artists"] == nil || raw["similar_artists"] == nil {
-		t.Errorf("top-level keys = %v, want generated_at, my_artists, similar_artists", keys(raw))
+	for _, k := range []string{"generated_at", "my_artists", "recent_artists", "similar_artists"} {
+		if raw[k] == nil {
+			t.Errorf("missing key %s in %v", k, keys(raw))
+		}
+	}
+	if len(raw) != 4 {
+		t.Errorf("top-level keys = %v", keys(raw))
+	}
+	if string(raw["recent_artists"]) != "[]" {
+		t.Errorf("recent_artists = %s, want [] (nothing recent enough in fixtures)", raw["recent_artists"])
 	}
 	var mine []map[string]any
 	_ = json.Unmarshal(raw["my_artists"], &mine)
@@ -257,6 +428,10 @@ func TestValidateRejectsBadExports(t *testing.T) {
 		"empty":           func(e *Export) { e.MyArtists = nil },
 		"no name":         func(e *Export) { e.MyArtists[0].Name = "" },
 		"duplicate":       func(e *Export) { e.MyArtists[1] = e.MyArtists[0] },
+		"duplicate name":  func(e *Export) { e.MyArtists[1].Name = e.MyArtists[0].Name },
+		"recent null":     func(e *Export) { e.RecentArtists = nil },
+		"recent not mine": func(e *Export) { e.RecentArtists = []Ref{{"x", "X"}} },
+		"recent dup":      func(e *Export) { e.RecentArtists = []Ref{e.MyArtists[0], e.MyArtists[0]} },
 		"similar in lib":  func(e *Export) { e.SimilarArtists = []Ref{e.MyArtists[0]} },
 		"similar dup":     func(e *Export) { e.SimilarArtists = []Ref{{"x", "X"}, {"x", "X"}} },
 		"similar by name": func(e *Export) { e.SimilarArtists = []Ref{{"other-id", e.MyArtists[0].Name}} },

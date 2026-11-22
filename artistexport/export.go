@@ -1,9 +1,10 @@
 // Package artistexport turns a Tidal library into the ranked data/artists.json
-// consumed by the weekly concert check-in.
+// consumed by the weekly concert check-in and the website.
 package artistexport
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 	"time"
@@ -13,20 +14,40 @@ import (
 
 // Scoring. Scores only rank the output; they are not written to the file.
 // Only the main (first-credited) artist of an album or track scores.
+//
+// Each artist gets two scores from the same signals:
+//
+//	score = follow + WeightAlbums·ln(1+Σ album weights) + WeightTracks·ln(1+Σ track weights)
+//
+// The log damps piles of likes: 30 hearted tracks don't outweigh a follow and
+// a few albums. Each item's weight depends on when it was added:
+//
+//   - All-time (my_artists): a slow decay with a floor, so old favourites stay
+//     but fade a little. A follow counts in full whatever its age.
+//   - Lately (recent_artists): only items from the last RecentWindow count,
+//     decaying with RecentHalfLife, follows included.
+//
+// Tidal exposes no listening history, so recent likes stand in for
+// "listening to them a lot lately".
 const (
-	PointsFollowed   = 3
-	PointsLikedAlbum = 2
-	PointsLikedTrack = 1
+	PointsFollowed = 4.0 // about a dozen hearted tracks, or two to three albums
+	WeightAlbums   = 3.0
+	WeightTracks   = 1.5
 
-	// Items liked or followed within RecentWindow count RecentMultiplier times.
-	// Tidal exposes no listening history, so recent likes stand in for
-	// "listening to them a lot lately".
-	RecentWindow     = 183 * 24 * time.Hour // ~6 months
-	RecentMultiplier = 2
+	AllTimeHalfLife = 2 * 365 * 24 * time.Hour
+	AllTimeFloor    = 0.5 // an old like still counts at least half
+
+	RecentWindow   = 90 * 24 * time.Hour
+	RecentHalfLife = 45 * 24 * time.Hour
+	RecentMinItems = 2 // follows/likes in the window to be listed in recent_artists
 
 	// SimilarThreshold: similar artists are fetched only for library artists
-	// with at least this score.
-	SimilarThreshold = 2
+	// with at least this all-time score (a follow, or a recently liked album and track).
+	SimilarThreshold = 3.0
+
+	// PopularityPenalty scales similar artists down by Tidal popularity (0..1)
+	// to favour lesser-known ones: a fully popular artist keeps a quarter.
+	PopularityPenalty = 0.75
 )
 
 // nonArtists are credits that are not real performers (compilations, labels,
@@ -49,11 +70,12 @@ func normName(name string) string {
 
 // ===== Output shape =====
 
-// Export is the file format. Both lists are ranked, most relevant first.
+// Export is the file format. All lists are ranked, most relevant first.
 type Export struct {
 	GeneratedAt    string `json:"generated_at"`
-	MyArtists      []Ref  `json:"my_artists"`
-	SimilarArtists []Ref  `json:"similar_artists"`
+	MyArtists      []Ref  `json:"my_artists"`      // all-time
+	RecentArtists  []Ref  `json:"recent_artists"`  // lately (last 90 days), a subset of my_artists
+	SimilarArtists []Ref  `json:"similar_artists"` // not in the library
 }
 
 type Ref struct {
@@ -67,7 +89,12 @@ type Ref struct {
 type Artist struct {
 	TidalID string
 	Name    string
-	Score   int
+	// AltIDs are other Tidal profiles with the same name, merged into this
+	// one (Tidal has duplicates, e.g. two "Sufjan Stevens"). TidalID is the
+	// profile with the most credits.
+	AltIDs  []string
+	Score   float64 // all-time
+	Recent  float64 // lately; 0 unless Signals.RecentItems >= RecentMinItems
 	Signals Signals
 }
 
@@ -75,7 +102,7 @@ type Signals struct {
 	Followed    bool
 	LikedAlbums int
 	LikedTracks int
-	RecentItems int       // follows/likes within RecentWindow (already in Score)
+	RecentItems int       // follows/likes within RecentWindow
 	LatestAdded time.Time // most recent follow/like, tie-breaker
 }
 
@@ -84,6 +111,7 @@ type Stats struct {
 	Followed, Albums, Tracks int
 	NoArtist                 int // albums/tracks without artist linkage (e.g. unavailable)
 	NonArtistMain            int // albums/tracks whose main credit is a compilation/label
+	Merged                   int // duplicate artist profiles merged by name
 	// Unresolved lists artist ids credited (or followed) but missing from the
 	// included resources, e.g. an artist page Tidal has since removed (404).
 	// Their credits are skipped.
@@ -101,8 +129,46 @@ func MainArtistID(r tidal.Resource) (string, bool) {
 	return ids[0], true
 }
 
-// Score ranks library artists from the three collections: by score desc,
-// then most recent like/follow, then name, then id.
+// decay is 0.5^(age/halfLife); items dated in the future count in full.
+func decay(age, halfLife time.Duration) float64 {
+	if age <= 0 {
+		return 1
+	}
+	return math.Pow(0.5, float64(age)/float64(halfLife))
+}
+
+// allTimeWeight weighs an item for my_artists. Undated items count in full.
+func allTimeWeight(at time.Time, dated bool, now time.Time) float64 {
+	if !dated {
+		return 1
+	}
+	return max(AllTimeFloor, decay(now.Sub(at), AllTimeHalfLife))
+}
+
+// recentWeight weighs an item for recent_artists: 0 if undated or outside RecentWindow.
+func recentWeight(at time.Time, dated bool, now time.Time) float64 {
+	if !dated || now.Sub(at) > RecentWindow {
+		return 0
+	}
+	return decay(now.Sub(at), RecentHalfLife)
+}
+
+func combine(follow, albums, tracks float64) float64 {
+	return follow + WeightAlbums*math.Log1p(albums) + WeightTracks*math.Log1p(tracks)
+}
+
+// tally accumulates one artist's weighted signals before they are combined.
+type tally struct {
+	artist                     Artist
+	credits                    map[string]int // per Tidal profile, to pick the main one
+	followRecent               float64
+	albumsAll, tracksAll       float64
+	albumsRecent, tracksRecent float64
+}
+
+// Score ranks library artists from the three collections, all-time: by score
+// desc, then most recent like/follow, then name, then id. Profiles sharing a
+// name are merged into one artist. RankRecent gives the lately ranking.
 func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, Stats) {
 	names := map[string]string{}
 	for _, col := range []tidal.Collection{followed, albums, tracks} {
@@ -113,41 +179,46 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 		}
 	}
 
-	byID := map[string]*Artist{}
+	byName := map[string]*tally{}
 	stats := Stats{Followed: len(followed.Items), Albums: len(albums.Items), Tracks: len(tracks.Items)}
 
-	// add credits points to an artist, multiplied if the item was added recently.
-	add := func(artistID string, item tidal.ResourceIdentifier, points int, signal func(*Signals)) {
-		if names[artistID] == "" {
+	// add credits an item to an artist; signal records it with its all-time
+	// and recent weights.
+	add := func(artistID string, item tidal.ResourceIdentifier, signal func(t *tally, all, recent float64)) {
+		name := names[artistID]
+		if name == "" {
 			stats.Unresolved = append(stats.Unresolved, artistID)
 			return
 		}
-		a, ok := byID[artistID]
+		key := normName(name)
+		t, ok := byName[key]
 		if !ok {
-			a = &Artist{TidalID: artistID, Name: names[artistID]}
-			byID[artistID] = a
+			t = &tally{credits: map[string]int{}}
+			byName[key] = t
 		}
-		signal(&a.Signals)
-		if at, ok := item.AddedAt(); ok {
-			if now.Sub(at) <= RecentWindow {
-				points *= RecentMultiplier
-				a.Signals.RecentItems++
-			}
-			if at.After(a.Signals.LatestAdded) {
-				a.Signals.LatestAdded = at
-			}
+		t.credits[artistID]++
+		at, dated := item.AddedAt()
+		all, recent := allTimeWeight(at, dated, now), recentWeight(at, dated, now)
+		if recent > 0 {
+			t.artist.Signals.RecentItems++
 		}
-		a.Score += points
+		if dated && at.After(t.artist.Signals.LatestAdded) {
+			t.artist.Signals.LatestAdded = at
+		}
+		signal(t, all, recent)
 	}
 
 	for _, it := range followed.Items {
 		if it.Type != "artists" || IsNonArtist(names[it.ID]) {
 			continue
 		}
-		add(it.ID, it, PointsFollowed, func(s *Signals) { s.Followed = true })
+		add(it.ID, it, func(t *tally, _, recent float64) {
+			t.artist.Signals.Followed = true // counts once, even if two profiles are followed
+			t.followRecent = max(t.followRecent, recent)
+		})
 	}
 
-	credit := func(col tidal.Collection, wantType string, points int, signal func(*Signals)) {
+	credit := func(col tidal.Collection, wantType string, signal func(t *tally, all, recent float64)) {
 		for _, it := range col.Items {
 			if it.Type != wantType {
 				continue
@@ -166,20 +237,69 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 				stats.NonArtistMain++
 				continue
 			}
-			add(main, it, points, signal)
+			add(main, it, signal)
 		}
 	}
-	credit(albums, "albums", PointsLikedAlbum, func(s *Signals) { s.LikedAlbums++ })
-	credit(tracks, "tracks", PointsLikedTrack, func(s *Signals) { s.LikedTracks++ })
+	credit(albums, "albums", func(t *tally, all, recent float64) {
+		t.artist.Signals.LikedAlbums++
+		t.albumsAll += all
+		t.albumsRecent += recent
+	})
+	credit(tracks, "tracks", func(t *tally, all, recent float64) {
+		t.artist.Signals.LikedTracks++
+		t.tracksAll += all
+		t.tracksRecent += recent
+	})
 
-	out := make([]Artist, 0, len(byID))
-	for _, a := range byID {
-		out = append(out, *a)
+	out := make([]Artist, 0, len(byName))
+	for _, t := range byName {
+		a := t.artist
+		ids := make([]string, 0, len(t.credits))
+		for id := range t.credits {
+			ids = append(ids, id)
+		}
+		sort.Slice(ids, func(i, j int) bool {
+			if t.credits[ids[i]] != t.credits[ids[j]] {
+				return t.credits[ids[i]] > t.credits[ids[j]]
+			}
+			return ids[i] < ids[j]
+		})
+		a.TidalID, a.AltIDs = ids[0], ids[1:]
+		a.Name = names[a.TidalID]
+		stats.Merged += len(a.AltIDs)
+
+		follow := 0.0
+		if a.Signals.Followed {
+			follow = PointsFollowed
+		}
+		a.Score = combine(follow, t.albumsAll, t.tracksAll)
+		if a.Signals.RecentItems >= RecentMinItems {
+			a.Recent = combine(PointsFollowed*t.followRecent, t.albumsRecent, t.tracksRecent)
+		}
+		out = append(out, a)
 	}
-	sort.Slice(out, func(i, j int) bool {
-		a, b := out[i], out[j]
-		if a.Score != b.Score {
-			return a.Score > b.Score
+	sortArtists(out, func(a Artist) float64 { return a.Score })
+	return out, stats
+}
+
+// RankRecent returns the artists that have a lately score, ranked by it.
+func RankRecent(artists []Artist) []Artist {
+	out := []Artist{}
+	for _, a := range artists {
+		if a.Recent > 0 {
+			out = append(out, a)
+		}
+	}
+	sortArtists(out, func(a Artist) float64 { return a.Recent })
+	return out
+}
+
+// sortArtists orders by score desc, then most recent like/follow, name, id.
+func sortArtists(artists []Artist, score func(Artist) float64) {
+	sort.Slice(artists, func(i, j int) bool {
+		a, b := artists[i], artists[j]
+		if sa, sb := score(a), score(b); sa != sb {
+			return sa > sb
 		}
 		if !a.Signals.LatestAdded.Equal(b.Signals.LatestAdded) {
 			return a.Signals.LatestAdded.After(b.Signals.LatestAdded)
@@ -189,15 +309,17 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 		}
 		return a.TidalID < b.TidalID
 	})
-	return out, stats
 }
 
 // ===== Assembly =====
 
-// Build ranks similar artists that are not in the library by how many library
-// artists list them as similar (cross-references), then by the summed score of
-// those library artists, then name. similar is keyed by library artist id;
-// artists must come from Score.
+// Build assembles the export. artists must come from Score; similar is keyed
+// by library artist id.
+//
+// Similar artists not in the library are ranked by the summed all-time score
+// of the library artists listing them as similar, scaled down by their Tidal
+// popularity (PopularityPenalty) to favour discovery, then by how many library
+// artists list them, then name.
 //
 // A similar artist counts as "in the library" if its id OR its name matches a
 // library artist: Tidal has duplicate profiles for some artists (e.g. two
@@ -208,6 +330,9 @@ func Build(artists []Artist, similar map[string][]tidal.Artist, now time.Time) E
 	mine := make([]Ref, len(artists))
 	for i, a := range artists {
 		inLibrary[a.TidalID] = true
+		for _, id := range a.AltIDs {
+			inLibrary[id] = true
+		}
 		libraryNames[normName(a.Name)] = true
 		mine[i] = Ref{TidalID: a.TidalID, Name: a.Name}
 	}
@@ -219,10 +344,18 @@ func Build(artists []Artist, similar map[string][]tidal.Artist, now time.Time) E
 		}
 	}
 
+	recentArtists := RankRecent(artists)
+	recent := make([]Ref, len(recentArtists))
+	for i, a := range recentArtists {
+		recent[i] = Ref{TidalID: a.TidalID, Name: a.Name}
+	}
+
 	type cand struct {
 		ref         Ref
 		crossRefs   int
-		sourceScore int
+		sourceScore float64
+		popularity  float64
+		score       float64
 	}
 	cands := map[string]*cand{}
 	for _, a := range artists {
@@ -239,20 +372,22 @@ func Build(artists []Artist, similar map[string][]tidal.Artist, now time.Time) E
 			}
 			c.crossRefs++
 			c.sourceScore += a.Score
+			c.popularity = max(c.popularity, min(max(s.Popularity, 0), 1))
 		}
 	}
 
 	ranked := make([]*cand, 0, len(cands))
 	for _, c := range cands {
+		c.score = c.sourceScore * (1 - PopularityPenalty*c.popularity)
 		ranked = append(ranked, c)
 	}
 	sort.Slice(ranked, func(i, j int) bool {
 		a, b := ranked[i], ranked[j]
+		if a.score != b.score {
+			return a.score > b.score
+		}
 		if a.crossRefs != b.crossRefs {
 			return a.crossRefs > b.crossRefs
-		}
-		if a.sourceScore != b.sourceScore {
-			return a.sourceScore > b.sourceScore
 		}
 		if a.ref.Name != b.ref.Name {
 			return a.ref.Name < b.ref.Name
@@ -267,6 +402,7 @@ func Build(artists []Artist, similar map[string][]tidal.Artist, now time.Time) E
 	return Export{
 		GeneratedAt:    now.UTC().Format(time.RFC3339),
 		MyArtists:      mine,
+		RecentArtists:  recent,
 		SimilarArtists: sim,
 	}
 }
@@ -289,8 +425,27 @@ func (e Export) Validate() error {
 		if mine[a.TidalID] {
 			return fmt.Errorf("duplicate artist %s (%s) in my_artists", a.TidalID, a.Name)
 		}
+		if mine["name:"+normName(a.Name)] {
+			return fmt.Errorf("duplicate artist name %s in my_artists", a.Name)
+		}
 		mine[a.TidalID] = true
 		mine["name:"+normName(a.Name)] = true
+	}
+	if e.RecentArtists == nil {
+		return fmt.Errorf("recent_artists is null, want a list")
+	}
+	seenRecent := map[string]bool{}
+	for i, r := range e.RecentArtists {
+		if r.TidalID == "" || r.Name == "" {
+			return fmt.Errorf("recent_artists #%d has an empty id or name", i)
+		}
+		if !mine[r.TidalID] {
+			return fmt.Errorf("recent artist %s is not in my_artists", r.Name)
+		}
+		if seenRecent[r.TidalID] {
+			return fmt.Errorf("duplicate artist %s (%s) in recent_artists", r.TidalID, r.Name)
+		}
+		seenRecent[r.TidalID] = true
 	}
 	seen := map[string]bool{}
 	for i, s := range e.SimilarArtists {

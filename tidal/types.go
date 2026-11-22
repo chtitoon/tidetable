@@ -71,8 +71,9 @@ type Resource struct {
 	ID         string `json:"id"`
 	Type       string `json:"type"`
 	Attributes struct {
-		Name  string `json:"name"`
-		Title string `json:"title"`
+		Name       string  `json:"name"`
+		Title      string  `json:"title"`
+		Popularity float64 `json:"popularity"` // artists, 0..1
 	} `json:"attributes"`
 	Relationships struct {
 		Artists *struct {
