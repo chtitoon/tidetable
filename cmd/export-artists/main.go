@@ -28,14 +28,18 @@ import (
 func main() {
 	out := flag.String("out", "data/artists.json", "output file")
 	force := flag.Bool("force", false, "write even if the artist count dropped by more than half")
+	explain := flag.Int("explain", 0, "print the score breakdown of the top `n` artists of each list to stderr (local use only: prints library data)")
 	flag.Parse()
 
-	if err := run(*out, *force); err != nil {
+	if *explain > 0 && os.Getenv("GITHUB_ACTIONS") == "true" {
+		log.Fatal("-explain prints library data and is refused in GitHub Actions, whose logs may be public")
+	}
+	if err := run(*out, *force, *explain); err != nil {
 		log.Fatalf("export failed: %v", err)
 	}
 }
 
-func run(out string, force bool) error {
+func run(out string, force bool, explain int) error {
 	cfg, err := config.Load()
 	if err != nil {
 		return err
@@ -63,6 +67,11 @@ func run(out string, force bool) error {
 		// Count only: workflow logs of a public repo are public, and IDs are library data.
 		log.Printf("warning: skipped %d credits to artists Tidal no longer resolves",
 			len(stats.Unresolved))
+	}
+	if explain > 0 {
+		if err := artistexport.Explain(os.Stderr, artists, explain); err != nil {
+			return err
+		}
 	}
 
 	var wanted []string

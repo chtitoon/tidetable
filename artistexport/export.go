@@ -96,6 +96,19 @@ type Artist struct {
 	Score   float64 // all-time
 	Recent  float64 // lately; 0 unless Signals.RecentItems >= RecentMinItems
 	Signals Signals
+	// AllTimeParts and RecentParts break Score and Recent down, for -explain.
+	AllTimeParts, RecentParts Parts
+}
+
+// Parts are the points each signal contributes to a score.
+type Parts struct {
+	Follow, Albums, Tracks float64
+}
+
+func (p Parts) Total() float64 { return p.Follow + p.Albums + p.Tracks }
+
+func parts(follow, albums, tracks float64) Parts {
+	return Parts{Follow: follow, Albums: WeightAlbums * math.Log1p(albums), Tracks: WeightTracks * math.Log1p(tracks)}
 }
 
 type Signals struct {
@@ -151,10 +164,6 @@ func recentWeight(at time.Time, dated bool, now time.Time) float64 {
 		return 0
 	}
 	return decay(now.Sub(at), RecentHalfLife)
-}
-
-func combine(follow, albums, tracks float64) float64 {
-	return follow + WeightAlbums*math.Log1p(albums) + WeightTracks*math.Log1p(tracks)
 }
 
 // tally accumulates one artist's weighted signals before they are combined.
@@ -272,9 +281,11 @@ func Score(followed, albums, tracks tidal.Collection, now time.Time) ([]Artist, 
 		if a.Signals.Followed {
 			follow = PointsFollowed
 		}
-		a.Score = combine(follow, t.albumsAll, t.tracksAll)
+		a.AllTimeParts = parts(follow, t.albumsAll, t.tracksAll)
+		a.Score = a.AllTimeParts.Total()
 		if a.Signals.RecentItems >= RecentMinItems {
-			a.Recent = combine(PointsFollowed*t.followRecent, t.albumsRecent, t.tracksRecent)
+			a.RecentParts = parts(PointsFollowed*t.followRecent, t.albumsRecent, t.tracksRecent)
+			a.Recent = a.RecentParts.Total()
 		}
 		out = append(out, a)
 	}
