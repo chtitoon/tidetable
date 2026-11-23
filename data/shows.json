@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-11-22T04:26:31Z",
+  "generated_at": "2026-11-23T22:46:19Z",
   "venues": [
     {
       "name": "Mercury Lounge",
       "url": "https://mercuryeastpresents.com/mercurylounge/",
       "ok": true,
-      "shows": 102,
+      "shows": 99,
       "skipped": 0,
       "latest_date": "2027-05-07",
       "error": null
@@ -14,7 +14,7 @@
       "name": "Bowery Ballroom",
       "url": "https://mercuryeastpresents.com/boweryballroom/",
       "ok": true,
-      "shows": 73,
+      "shows": 71,
       "skipped": 2,
       "latest_date": "2027-05-25",
       "error": null
@@ -23,7 +23,7 @@
       "name": "Music Hall of Williamsburg",
       "url": "https://www.bowerypresents.com/music-hall-of-williamsburg/",
       "ok": true,
-      "shows": 10,
+      "shows": 9,
       "skipped": 0,
       "latest_date": "2026-12-06",
       "error": null
@@ -41,7 +41,7 @@
       "name": "Webster Hall",
       "url": "https://www.websterhall.com/shows/",
       "ok": true,
-      "shows": 52,
+      "shows": 50,
       "skipped": 0,
       "latest_date": "2027-05-13",
       "error": null
@@ -50,7 +50,7 @@
       "name": "Bowery Presents NYC",
       "url": "https://www.bowerypresents.com/new-york-metro/calendar/",
       "ok": true,
-      "shows": 85,
+      "shows": 82,
       "skipped": 0,
       "latest_date": "2027-08-18",
       "error": null
@@ -59,7 +59,7 @@
       "name": "LPR",
       "url": "https://lpr.com/",
       "ok": true,
-      "shows": 73,
+      "shows": 68,
       "skipped": 0,
       "latest_date": "2027-10-02",
       "error": null
@@ -68,7 +68,7 @@
       "name": "The Capitol Theatre",
       "url": "https://www.thecapitoltheatre.com/shows",
       "ok": true,
-      "shows": 38,
+      "shows": 41,
       "skipped": 0,
       "latest_date": "2027-05-26",
       "error": null
@@ -77,7 +77,7 @@
       "name": "The Grand",
       "url": "https://thegrandcroton.com/",
       "ok": true,
-      "shows": 26,
+      "shows": 24,
       "skipped": 0,
       "latest_date": "2027-02-11",
       "error": null
@@ -86,286 +86,22 @@
       "name": "Tarrytown Music Hall",
       "url": "https://tickets.tarrytownmusichall.org/",
       "ok": true,
-      "shows": 22,
+      "shows": 23,
       "skipped": 0,
       "latest_date": "2027-04-22",
+      "error": null
+    },
+    {
+      "name": "Bearsville Theater",
+      "url": "https://bearsvilletheater.com/",
+      "ok": true,
+      "shows": 30,
+      "skipped": 0,
+      "latest_date": "2027-06-20",
       "error": null
     }
   ],
   "shows": [
-    {
-      "date": "2026-11-21",
-      "time": "20:00",
-      "venue": "Bowery Ballroom",
-      "room": null,
-      "headliner": "Surfing For Daisy",
-      "support": [],
-      "title": "Surfing For Daisy",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/surfing-for-daisy/"
-    },
-    {
-      "date": "2026-11-21",
-      "time": "20:00",
-      "venue": "Bowery Presents NYC",
-      "room": "Knockdown Center",
-      "headliner": "LCD Soundsystem",
-      "support": [
-        "EXEK"
-      ],
-      "title": "LCD Soundsystem",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-09T14:00:00Z",
-      "url": "https://www.axs.com/events/1636862/lcd-soundsystem-tickets"
-    },
-    {
-      "date": "2026-11-21",
-      "time": "20:00",
-      "venue": "Bowery Presents NYC",
-      "room": "Terminal 5",
-      "headliner": "Kapo",
-      "support": [],
-      "title": "Kapo",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-18T14:00:00Z",
-      "url": "https://www.axs.com/events/1610246/kapo-tickets"
-    },
-    {
-      "date": "2026-11-21",
-      "time": "18:30",
-      "venue": "LPR",
-      "room": "National Sawdust",
-      "headliner": "Rising Appalachia",
-      "support": [],
-      "title": "Rising Appalachia",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://lpr.com/lpr_events/rant126nyc/"
-    },
-    {
-      "date": "2026-11-21",
-      "time": "19:00",
-      "venue": "LPR",
-      "room": "Stone Circle Theatre",
-      "headliner": "Catie Turner",
-      "support": [],
-      "title": "Catie Turner",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://lpr.com/lpr_events/ct26nyc/"
-    },
-    {
-      "date": "2026-11-21",
-      "time": "18:00",
-      "venue": "Mercury Lounge",
-      "room": null,
-      "headliner": "aeter",
-      "support": [
-        "Ja66"
-      ],
-      "title": "aeter",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/aeter/"
-    },
-    {
-      "date": "2026-11-21",
-      "time": "21:00",
-      "venue": "Mercury Lounge",
-      "room": null,
-      "headliner": "cortex",
-      "support": [],
-      "title": "cortex",
-      "status": "sold_out",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/cortex/"
-    },
-    {
-      "date": "2026-11-21",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "Tom Hamilton",
-      "support": [
-        "Tasca"
-      ],
-      "title": "Tom Hamilton",
-      "status": "unknown",
-      "on_sale_at": "2026-10-15T15:00:00Z",
-      "url": "https://www.ticketmaster.com/tom-hamilton-port-chester-new-york-11-21-2026/event/1D00654DD35273D2"
-    },
-    {
-      "date": "2026-11-21",
-      "time": "21:00",
-      "venue": "The Grand",
-      "room": null,
-      "headliner": "Honest Dark \u0026 The Last Machine Operators",
-      "support": [],
-      "title": "Honest Dark \u0026 The Last Machine Operators",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://thegrandcroton.com/happening/honest-dark"
-    },
-    {
-      "date": "2026-11-21",
-      "time": "23:00",
-      "venue": "Webster Hall",
-      "room": null,
-      "headliner": "Richard Finger",
-      "support": [
-        "Integrate",
-        "rSun",
-        "D!lemma"
-      ],
-      "title": "Richard Finger",
-      "status": "on_sale",
-      "on_sale_at": "2026-08-14T16:00:00Z",
-      "url": "https://www.axs.com/events/1561826/richard-finger-tickets"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "19:00",
-      "venue": "Bowery Ballroom",
-      "room": null,
-      "headliner": "Father Of Peace",
-      "support": [
-        "Roe Kapara"
-      ],
-      "title": "Father Of Peace – The Year Of Madness \u0026 The Mystery Century Tour",
-      "status": "sold_out",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/father-of-peace-the-year-of-madness-the-mystery-century-tour/"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "20:00",
-      "venue": "Bowery Presents NYC",
-      "room": "Knockdown Center",
-      "headliner": "LCD Soundsystem",
-      "support": [
-        "EXEK"
-      ],
-      "title": "LCD Soundsystem",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-09T14:00:00Z",
-      "url": "https://www.axs.com/events/1636864/lcd-soundsystem-tickets"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "20:00",
-      "venue": "Bowery Presents NYC",
-      "room": "Racket",
-      "headliner": "DREVO",
-      "support": [],
-      "title": "DREVO",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-29T14:00:00Z",
-      "url": "https://www.axs.com/events/1683702/drevo-tickets"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "17:30",
-      "venue": "LPR",
-      "room": "Main Space",
-      "headliner": "Season of What",
-      "support": [],
-      "title": "Season of What",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://lpr.com/lpr_events/sow1126nyc/"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "18:30",
-      "venue": "LPR",
-      "room": "National Sawdust",
-      "headliner": "Rising Appalachia",
-      "support": [],
-      "title": "Rising Appalachia",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://lpr.com/lpr_events/rant226nyc/"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "19:30",
-      "venue": "LPR",
-      "room": "Stone Circle Theatre",
-      "headliner": "Steve Gunn",
-      "support": [
-        "Bridget St John"
-      ],
-      "title": "Steve Gunn \u0026 Bridget St John",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://lpr.com/lpr_events/sb26sct/"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "17:00",
-      "venue": "Mercury Lounge",
-      "room": null,
-      "headliner": "Keenan Te",
-      "support": [],
-      "title": "Keenan Te",
-      "status": "sold_out",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/keenan-te/"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "20:30",
-      "venue": "Mercury Lounge",
-      "room": null,
-      "headliner": "Keenan Te",
-      "support": [],
-      "title": "Keenan Te",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/keenan-te-2/"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "20:00",
-      "venue": "Music Hall of Williamsburg",
-      "room": null,
-      "headliner": "Jamila Woods",
-      "support": [
-        "Mayyadda",
-        "DJ Baby Jazz"
-      ],
-      "title": "Jamila Woods: 10 Years of HEAVN",
-      "status": "on_sale",
-      "on_sale_at": "2026-08-14T14:00:00Z",
-      "url": "https://www.axs.com/events/1554986/jamila-woods-10-years-of-heavn-tickets"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "11:00",
-      "venue": "The Grand",
-      "room": null,
-      "headliner": "Live Music Brunch",
-      "support": [],
-      "title": "Live Music Brunch",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://thegrandcroton.com/happening/live-music-brunch-1-wez97-z7f8b"
-    },
-    {
-      "date": "2026-11-22",
-      "time": "20:00",
-      "venue": "Webster Hall",
-      "room": null,
-      "headliner": "Yaelokre",
-      "support": [
-        "Ben Caplan"
-      ],
-      "title": "Yaelokre",
-      "status": "on_sale",
-      "on_sale_at": "2026-06-19T14:00:00Z",
-      "url": "https://www.axs.com/events/1491309/yaelokre-tickets"
-    },
     {
       "date": "2026-11-23",
       "time": "16:00",
@@ -412,7 +148,8 @@
       "room": null,
       "headliner": "Annalise \u0026 The Mother Underground",
       "support": [
-        "Roisin McKeown"
+        "Roisin McKeown",
+        "Liliana \u0026 Manuela"
       ],
       "title": "Annalise \u0026 The Mother Underground",
       "status": "on_sale",
@@ -674,7 +411,7 @@
       "headliner": "Bill Kelly",
       "support": [],
       "title": "Bill Kelly",
-      "status": "on_sale",
+      "status": "sold_out",
       "on_sale_at": "2026-11-13T17:00:00Z",
       "url": "https://tickets.tarrytownmusichall.org/eventperformances.asp?evt=3299"
     },
@@ -769,6 +506,18 @@
       "status": "unknown",
       "on_sale_at": null,
       "url": "https://thegrandcroton.com/happening/live-music-brunch-1-wez97"
+    },
+    {
+      "date": "2026-11-30",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "The John Lodge Celebration",
+      "support": [],
+      "title": "The John Lodge Celebration: An Evening Of Moody Blues Magic",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/31836929/the-john-lodge-celebrationan-evening-of-moody-blues-magic-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2026-11-30",
@@ -1149,6 +898,18 @@
     },
     {
       "date": "2026-12-04",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Martin Sexton",
+      "support": [],
+      "title": "Martin Sexton",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/60847144/martin-sexton-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2026-12-04",
       "time": "19:30",
       "venue": "Bowery Ballroom",
       "room": null,
@@ -1316,6 +1077,38 @@
       "status": "on_sale",
       "on_sale_at": "2026-10-09T14:00:00Z",
       "url": "https://www.axs.com/events/1642561/dj-mandy-tickets"
+    },
+    {
+      "date": "2026-12-05",
+      "time": "16:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Cosmic Charlie Brown Christmas",
+      "support": [
+        "Jason Crosby",
+        "Johnny Kimock",
+        "Kevin Reilly"
+      ],
+      "title": "Cosmic Charlie Brown Christmas ft. Jason Crosby, Johnny Kimock, \u0026 Kevin Reilly",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/40376806/cosmic-charlie-brown-christmas-ftjason-crosbyjohnny-kimockkevin-reilly-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2026-12-05",
+      "time": "19:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Cosmic Charlie Brown Christmas",
+      "support": [
+        "Jason Crosby",
+        "Johnny Kimock",
+        "Kevin Reilly"
+      ],
+      "title": "Cosmic Charlie Brown Christmas ft. Jason Crosby, Johnny Kimock, \u0026 Kevin Reilly",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/75858280/cosmic-charlie-brown-christmas-ftjason-crosbyjohnny-kimockkevin-reilly-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2026-12-05",
@@ -1642,6 +1435,20 @@
     },
     {
       "date": "2026-12-08",
+      "time": "19:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "The Wood Brothers",
+      "support": [
+        "Tyler Ramsey"
+      ],
+      "title": "The Wood Brothers",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/84920758/the-wood-brothers-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2026-12-08",
       "time": "19:30",
       "venue": "Bowery Ballroom",
       "room": null,
@@ -1660,7 +1467,9 @@
       "venue": "Bowery Presents NYC",
       "room": "Racket",
       "headliner": "Margaret Glaspy",
-      "support": [],
+      "support": [
+        "Sami Stevens"
+      ],
       "title": "Margaret Glaspy",
       "status": "on_sale",
       "on_sale_at": "2026-06-05T14:00:00Z",
@@ -1731,6 +1540,20 @@
       "status": "on_sale",
       "on_sale_at": "2026-10-27T16:00:00Z",
       "url": "https://www.axs.com/events/1678851/jalen-ngonda-tickets"
+    },
+    {
+      "date": "2026-12-09",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Mihali presents",
+      "support": [
+        "Stone Throwers"
+      ],
+      "title": "Mihali presents: Mihalidaze",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/88733902/mihali-presentsmihalidaze-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2026-12-09",
@@ -1935,6 +1758,20 @@
     },
     {
       "date": "2026-12-11",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "An Intimate Evening",
+      "support": [
+        "Moe."
+      ],
+      "title": "An Intimate Evening with Moe.",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/57271446/an-intimate-evening-with-moe-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2026-12-11",
       "time": "19:30",
       "venue": "Bowery Ballroom",
       "room": null,
@@ -2091,6 +1928,20 @@
     },
     {
       "date": "2026-12-12",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "An Intimate Evening",
+      "support": [
+        "Moe."
+      ],
+      "title": "An Intimate Evening with Moe.",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/67819314/an-intimate-evening-with-moe-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2026-12-12",
       "time": "19:00",
       "venue": "Bowery Ballroom",
       "room": null,
@@ -2116,6 +1967,18 @@
       "status": "on_sale",
       "on_sale_at": "2026-10-09T14:00:00Z",
       "url": "https://www.axs.com/events/1636872/lcd-soundsystem-tickets"
+    },
+    {
+      "date": "2026-12-12",
+      "time": "22:00",
+      "venue": "Bowery Presents NYC",
+      "room": "Racket",
+      "headliner": "Amtrac",
+      "support": [],
+      "title": "Amtrac",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-23T16:00:00Z",
+      "url": "https://www.axs.com/events/1716952/amtrac-tickets"
     },
     {
       "date": "2026-12-12",
@@ -2205,18 +2068,6 @@
     },
     {
       "date": "2026-12-12",
-      "time": "23:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "She Sings Dylan Afterparty in Garcia's",
-      "support": [],
-      "title": "She Sings Dylan Afterparty in Garcia's",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://www.thecapitoltheatre.com/shows/rooms/garcia-s"
-    },
-    {
-      "date": "2026-12-12",
       "time": "20:00",
       "venue": "The Grand",
       "room": null,
@@ -2242,16 +2093,16 @@
       "url": "https://www.axs.com/events/1570689/lucy-bedroque-tickets"
     },
     {
-      "date": "2026-12-12",
-      "time": "23:59",
-      "venue": "Webster Hall",
+      "date": "2026-12-13",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
       "room": null,
-      "headliner": "Amtrac",
+      "headliner": "Rickie Lee Jones",
       "support": [],
-      "title": "Amtrac",
-      "status": "on_sale",
-      "on_sale_at": "2026-08-21T16:00:00Z",
-      "url": "https://www.axs.com/events/1569823/amtrac-tickets"
+      "title": "Rickie Lee Jones",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/57701665/rickie-lee-jones-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2026-12-13",
@@ -2424,6 +2275,18 @@
     },
     {
       "date": "2026-12-15",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Gillian Welch and David Rawlings Play Grateful Dead Acoustic Reckoning",
+      "support": [],
+      "title": "Gillian Welch and David Rawlings Play Grateful Dead Acoustic Reckoning",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/42673774/gillian-welch-and-david-rawlings-play-grateful-dead-acoustic-reckoning-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2026-12-15",
       "time": "19:00",
       "venue": "Bowery Ballroom",
       "room": null,
@@ -2500,6 +2363,18 @@
       "status": "on_sale",
       "on_sale_at": "2026-10-02T14:00:00Z",
       "url": "https://www.ticketmaster.com/brandi-carlile-burn-the-setlist-the-port-chester-new-york-12-15-2026/event/1D006538A1CD389B"
+    },
+    {
+      "date": "2026-12-16",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Gillian Welch and David Rawlings Play Grateful Dead Acoustic Reckoning",
+      "support": [],
+      "title": "Gillian Welch and David Rawlings Play Grateful Dead Acoustic Reckoning",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/45369822/gillian-welch-and-david-rawlings-play-grateful-dead-acoustic-reckoning-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2026-12-16",
@@ -2815,6 +2690,20 @@
     {
       "date": "2026-12-19",
       "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Rhett Miller \u0026 The All-Stars",
+      "support": [
+        "Pete Mancini"
+      ],
+      "title": "Rhett Miller \u0026 The All-Stars: Christmas All-Stars",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/51775712/rhett-miller-the-allstarschristmas-allstars-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2026-12-19",
+      "time": "20:00",
       "venue": "Bowery Ballroom",
       "room": null,
       "headliner": "Matt Rogers",
@@ -2979,6 +2868,18 @@
     },
     {
       "date": "2026-12-20",
+      "time": "12:00",
+      "venue": "The Capitol Theatre",
+      "room": "The Capitol Theatre",
+      "headliner": "A Christmas Market at The Capitol Theatre!",
+      "support": [],
+      "title": "A Christmas Market at The Capitol Theatre!",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.thecapitoltheatre.com/shows/rooms/the-capitol-theatre"
+    },
+    {
+      "date": "2026-12-20",
       "time": "11:00",
       "venue": "The Grand",
       "room": null,
@@ -3091,6 +2992,22 @@
     },
     {
       "date": "2026-12-29",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Medeski",
+      "support": [
+        "Martin",
+        "Metzger",
+        "Cline"
+      ],
+      "title": "Medeski, Martin, Metzger, Cline",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/54563827/medeskimartinmetzgercline-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2026-12-29",
       "time": "19:00",
       "venue": "Bowery Ballroom",
       "room": null,
@@ -3136,6 +3053,21 @@
       "status": "unknown",
       "on_sale_at": null,
       "url": "https://lpr.com/lpr_events/phish26nyc/"
+    },
+    {
+      "date": "2026-12-30",
+      "time": "18:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "DJR",
+      "support": [
+        "Circle Drive",
+        "2/14"
+      ],
+      "title": "DJR",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/djr/"
     },
     {
       "date": "2026-12-31",
@@ -3227,6 +3159,18 @@
     },
     {
       "date": "2027-01-01",
+      "time": "18:00",
+      "venue": "The Capitol Theatre",
+      "room": "Garcia's",
+      "headliner": "Gregory McLoughlin \u0026 The Lemonade Band Pre-Show in Garcia's",
+      "support": [],
+      "title": "Gregory McLoughlin \u0026 The Lemonade Band Pre-Show in Garcia's",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.thecapitoltheatre.com/shows/rooms/garcia-s"
+    },
+    {
+      "date": "2027-01-01",
       "time": "20:00",
       "venue": "The Capitol Theatre",
       "room": "The Capitol Theatre",
@@ -3276,6 +3220,20 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/two-headed-girl-sky-castles-at-risk-desk-job/"
+    },
+    {
+      "date": "2027-01-02",
+      "time": "18:00",
+      "venue": "The Capitol Theatre",
+      "room": "Garcia's",
+      "headliner": "The Seth Winters Band Pre-Show",
+      "support": [
+        "Afterparty in Garcia's"
+      ],
+      "title": "The Seth Winters Band Pre-Show \u0026 Afterparty in Garcia's",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.thecapitoltheatre.com/shows/rooms/garcia-s"
     },
     {
       "date": "2027-01-02",
@@ -3418,6 +3376,18 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/silver-cup/"
+    },
+    {
+      "date": "2027-01-09",
+      "time": "12:00",
+      "venue": "The Capitol Theatre",
+      "room": "Garcia's",
+      "headliner": "The Rock and Roll Playhouse",
+      "support": [],
+      "title": "The Music Of Bob Marley For Kids + More",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-23T15:00:00Z",
+      "url": "https://www.ticketmaster.com/the-music-of-bob-marley-for-port-chester-new-york-01-09-2027/event/1D006572A943393B"
     },
     {
       "date": "2027-01-09",
@@ -3585,6 +3555,18 @@
     },
     {
       "date": "2027-01-15",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "*SOLD OUT* Claudio Sanchez The Very First Shows",
+      "support": [],
+      "title": "*SOLD OUT* Claudio Sanchez The Very First Shows",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/40531314/sold-outclaudio-sanchez-the-very-first-shows-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2027-01-15",
       "time": "21:00",
       "venue": "Mercury Lounge",
       "room": null,
@@ -3641,8 +3623,10 @@
       "venue": "Mercury Lounge",
       "room": null,
       "headliner": "Amani Burnham",
-      "support": [],
-      "title": "Amani Burnham",
+      "support": [
+        "Bette Smith"
+      ],
+      "title": "Amani Burnham \u0026 Bette Smith",
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/amani-burnham/"
@@ -3732,6 +3716,20 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/bandits-on-the-run-john-gallagher-jr-one-very-special-show/"
+    },
+    {
+      "date": "2027-01-20",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "First Day Back",
+      "support": [
+        "Rainer Maria"
+      ],
+      "title": "First Day Back + Rainer Maria",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/94307487/first-day-back-rainer-maria-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2027-01-20",
@@ -3840,6 +3838,18 @@
       "status": "on_sale",
       "on_sale_at": "2026-11-09T15:00:00Z",
       "url": "https://www.axs.com/events/1695343/dumb-nathan-fielder-rave-tickets"
+    },
+    {
+      "date": "2027-01-23",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Harvest And Rust",
+      "support": [],
+      "title": "Harvest And Rust: A Tribute To Neil Young",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/57664215/harvest-and-rusta-tribute-to-neil-young-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2027-01-23",
@@ -4037,6 +4047,20 @@
     {
       "date": "2027-01-29",
       "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Larry Campbell",
+      "support": [
+        "Teresa Williams"
+      ],
+      "title": "Larry Campbell \u0026 Teresa Williams",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/62002778/larry-campbell-teresa-williams-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2027-01-29",
+      "time": "20:00",
       "venue": "Bowery Ballroom",
       "room": null,
       "headliner": "Hans Williams",
@@ -4137,6 +4161,18 @@
     },
     {
       "date": "2027-01-30",
+      "time": "12:00",
+      "venue": "The Capitol Theatre",
+      "room": "Garcia's",
+      "headliner": "The Rock and Roll Playhouse",
+      "support": [],
+      "title": "The Music Of Grateful Dead For Kids + More",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-23T15:00:00Z",
+      "url": "https://www.ticketmaster.com/the-music-of-grateful-dead-for-port-chester-new-york-01-30-2027/event/1D006572A948393E"
+    },
+    {
+      "date": "2027-01-30",
       "time": "20:30",
       "venue": "The Grand",
       "room": null,
@@ -4149,6 +4185,18 @@
     },
     {
       "date": "2027-01-30",
+      "time": "09:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "9AM Banger",
+      "support": [],
+      "title": "9AM Banger",
+      "status": "coming_soon",
+      "on_sale_at": "2026-11-25T17:00:00Z",
+      "url": "https://www.axs.com/events/1705447/9am-banger-tickets"
+    },
+    {
+      "date": "2027-01-30",
       "time": "18:00",
       "venue": "Webster Hall",
       "room": null,
@@ -4158,6 +4206,18 @@
       "status": "coming_soon",
       "on_sale_at": "2026-12-03T15:00:00Z",
       "url": "https://www.axs.com/events/1705446/earlybirds-club-decades-party-tickets"
+    },
+    {
+      "date": "2027-01-31",
+      "time": "18:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "DakhaBrakha",
+      "support": [],
+      "title": "DakhaBrakha",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://dice.fm/partner/tickets/event/v357xv-dakhabrakha-31st-jan-bearsville-theater-woodstock-tickets?dice_id=10727730\u0026dice_channel=web\u0026dice_tags=organic\u0026dice_campaign=Hudson+Valley+Live+Presents+Inc\u0026dice_feature=mio_marketing\u0026_branch_match_id=1478818118479513627\u0026utm_source=web\u0026utm_campaign=Hudson+Valley+Live+Presents+Inc\u0026utm_medium=mio_marketing\u0026_branch_referrer=H4sIAAAAAAAAA8soKSkottLXz8nMy9ZLyUxO1UvL1c9PtkhJsrBMMTczTbavK0pNSy0qysxLj08qyi8vTi2ydc4oys9NBQB7JocBOwAAAA%3D%3D"
     },
     {
       "date": "2027-01-31",
@@ -4236,6 +4296,18 @@
     {
       "date": "2027-02-05",
       "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Don Was and the Pan-Detroit Ensemble",
+      "support": [],
+      "title": "Don Was and the Pan-Detroit Ensemble",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/79758874/don-was-and-the-pandetroit-ensemble-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2027-02-05",
+      "time": "20:00",
       "venue": "Brooklyn Steel",
       "room": null,
       "headliner": "La Roux",
@@ -4256,6 +4328,18 @@
       "status": "on_sale",
       "on_sale_at": "2026-04-17T14:00:00Z",
       "url": "https://www.axs.com/events/1407908/french-79-tickets"
+    },
+    {
+      "date": "2027-02-06",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Assembly Of Dust",
+      "support": [],
+      "title": "Assembly Of Dust",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/90774546/assembly-of-dust-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2027-02-06",
@@ -4457,6 +4541,18 @@
     },
     {
       "date": "2027-02-12",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "The Weight Band",
+      "support": [],
+      "title": "The Weight Band",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/93226749/the-weight-band-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2027-02-12",
       "time": "21:00",
       "venue": "Bowery Presents NYC",
       "room": "Terminal 5",
@@ -4497,6 +4593,18 @@
     },
     {
       "date": "2027-02-13",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "JUDY COLLINS",
+      "support": [],
+      "title": "JUDY COLLINS – SWEET JUDY BLUE EYES: FAREWELL",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/99757916/judy-collins-sweet-judy-blue-eyesfarewell-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2027-02-13",
       "time": "19:00",
       "venue": "Bowery Presents NYC",
       "room": "Racket",
@@ -4534,6 +4642,18 @@
       "status": "on_sale",
       "on_sale_at": "2026-11-20T15:00:00Z",
       "url": "https://tickets.tarrytownmusichall.org/eventperformances.asp?evt=3302"
+    },
+    {
+      "date": "2027-02-14",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "JUDY COLLINS",
+      "support": [],
+      "title": "JUDY COLLINS – SWEET JUDY BLUE EYES: FAREWELL",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/80632475/judy-collins-sweet-judy-blue-eyesfarewell-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2027-02-15",
@@ -4836,7 +4956,9 @@
       "venue": "Mercury Lounge",
       "room": null,
       "headliner": "Zach Seabaugh",
-      "support": [],
+      "support": [
+        "Habe"
+      ],
       "title": "Zach Seabaugh",
       "status": "on_sale",
       "on_sale_at": null,
@@ -4901,6 +5023,18 @@
       "status": "unknown",
       "on_sale_at": null,
       "url": "https://lpr.com/lpr_events/grg27nyc/"
+    },
+    {
+      "date": "2027-02-26",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Muscle Shoals",
+      "support": [],
+      "title": "Muscle Shoals: The Music Of The Allman Brothers Band \u0026 Friends",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/48589219/muscle-shoalsthe-music-of-the-allman-brothers-band-friends-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2027-02-26",
@@ -5237,6 +5371,18 @@
     },
     {
       "date": "2027-03-10",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Richy Mitch \u0026 The Coal Miners",
+      "support": [],
+      "title": "Richy Mitch \u0026 The Coal Miners",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/73048855/richy-mitch-the-coal-miners-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2027-03-10",
       "time": "19:00",
       "venue": "Bowery Ballroom",
       "room": null,
@@ -5432,6 +5578,20 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/anna-shoemaker/"
+    },
+    {
+      "date": "2027-03-19",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Blackmore’s Night",
+      "support": [
+        "Wizards Consort"
+      ],
+      "title": "Blackmore’s Night with Wizards Consort",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/83592151/blackmores-night-with-wizards-consort-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2027-03-19",
@@ -5828,6 +5988,30 @@
       "url": "https://lpr.com/lpr_events/hd27nyc/"
     },
     {
+      "date": "2027-04-02",
+      "time": "20:00",
+      "venue": "Tarrytown Music Hall",
+      "room": null,
+      "headliner": "Bronx Wanderers",
+      "support": [],
+      "title": "Bronx Wanderers",
+      "status": "coming_soon",
+      "on_sale_at": "2026-11-27T15:00:00Z",
+      "url": "https://tickets.tarrytownmusichall.org/eventperformances.asp?evt=3303"
+    },
+    {
+      "date": "2027-04-03",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Todd Rundgren",
+      "support": [],
+      "title": "Todd Rundgren: DAMNED IF I DO TOUR",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/47885834/todd-rundgrendamned-if-i-do-tour-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
       "date": "2027-04-03",
       "time": "20:00",
       "venue": "Brooklyn Steel",
@@ -5857,7 +6041,10 @@
       "venue": "Bowery Presents NYC",
       "room": "Terminal 5",
       "headliner": "The Plot In You",
-      "support": [],
+      "support": [
+        "The Devil Wears Prada",
+        "156/Silence"
+      ],
       "title": "The Plot In You",
       "status": "on_sale",
       "on_sale_at": "2026-10-30T14:00:00Z",
@@ -6161,6 +6348,18 @@
     },
     {
       "date": "2027-04-17",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Sons Of Cream",
+      "support": [],
+      "title": "Sons Of Cream",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/84797194/sons-of-cream-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2027-04-17",
       "time": "18:00",
       "venue": "Mercury Lounge",
       "room": null,
@@ -6194,6 +6393,20 @@
       "status": "unknown",
       "on_sale_at": null,
       "url": "https://lpr.com/lpr_events/th27nyc/"
+    },
+    {
+      "date": "2027-04-21",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Cursive",
+      "support": [
+        "The Casket Lottery"
+      ],
+      "title": "Cursive – Happy Hollow 20th Anniversary",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/71439017/cursive-happy-hollow-20th-anniversary-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2027-04-21",
@@ -6831,6 +7044,20 @@
       "status": "on_sale",
       "on_sale_at": "2026-11-20T15:00:00Z",
       "url": "https://www.axs.com/events/1695440/big-thief-tickets"
+    },
+    {
+      "date": "2027-06-20",
+      "time": "20:00",
+      "venue": "Bearsville Theater",
+      "room": null,
+      "headliner": "Whitney",
+      "support": [
+        "Tyler Ballgame"
+      ],
+      "title": "Whitney: Light Upon The Lake (10th Anniversary Tour)",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.etix.com/ticket/p/75978214/whitneylight-upon-the-lake-10th-anniversary-tour-woodstock-bearsville-theater?partner_id=100"
     },
     {
       "date": "2027-06-21",
