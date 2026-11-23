@@ -462,4 +462,64 @@ func TestTarrytown(t *testing.T) {
 	}
 }
 
+func TestBearsvilleTheater(t *testing.T) {
+	useFixtures(t, map[string]string{bearsvilleURL: "bearsville_home.html"})
+	shows := scrape(t, "Bearsville Theater")
+
+	// 30 cards in the "Upcoming Shows" list (Nov 30 to Jun 20), none
+	// cancelled. The 4 slideshow and 3 "Featured Shows" cards above it are
+	// repeats and not counted. "moe. 2-Day Pass" is kept here; the shared
+	// non-concert filter drops it later.
+	if len(shows) != 30 {
+		t.Errorf("got %d shows, want 30", len(shows))
+	}
+	checkShow(t, findShow(t, shows, day(2026, 12, 8), "The Wood Brothers"), core.Show{
+		Venue: "Bearsville Theater", Date: day(2026, 12, 8), Time: "19:00", Status: core.StatusUnknown,
+		Support: []string{"Tyler Ramsey"},
+		URL:     "https://www.etix.com/ticket/p/84920758/the-wood-brothers-woodstock-bearsville-theater?partner_id=100",
+	})
+	// Past New Year: the year rolls over; "w/ …" support line.
+	checkShow(t, findShow(t, shows, day(2027, 6, 20), "Whitney: Light Upon The Lake (10th Anniversary Tour)"), core.Show{
+		Venue: "Bearsville Theater", Date: day(2027, 6, 20), Time: "20:00", Status: core.StatusUnknown,
+		Support: []string{"Tyler Ballgame"},
+		URL:     "https://www.etix.com/ticket/p/75978214/whitneylight-upon-the-lake-10th-anniversary-tour-woodstock-bearsville-theater?partner_id=100",
+	})
+	// Two performances the same day: the matinee is listed first.
+	var cosmic []string
+	for _, s := range shows {
+		if s.Date.Equal(day(2026, 12, 5)) {
+			cosmic = append(cosmic, s.Time)
+		}
+	}
+	if !reflect.DeepEqual(cosmic, []string{"16:00", "19:00"}) {
+		t.Errorf("Dec 5 show times = %v, want [16:00 19:00]", cosmic)
+	}
+}
+
+func TestBearsvilleYears(t *testing.T) {
+	card := func(md string) string {
+		return `<div class="bv-event-wrapper"><span class="bv-event-monthday">` + md +
+			`</span><a class="bv-event-url" href="https://bearsvilletheater.com/event/x">X</a>` +
+			`<span class="bv-event-show">Show: 8:00 PM</span></div>`
+	}
+	page := `<div class="et_pb_post_content">` + card("Dec 31") + card("Jan 3") + card("Dec 5") + `</div>`
+	// On New Year's Day, a stale Dec 31 card is last year's.
+	shows, err := parseBearsville([]byte(page), time.Date(2027, 1, 1, 9, 0, 0, 0, newYork))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []time.Time{day(2026, 12, 31), day(2027, 1, 3), day(2027, 12, 5)}
+	if len(shows) != len(want) {
+		t.Fatalf("got %d shows, want %d", len(shows), len(want))
+	}
+	for i, s := range shows {
+		if !s.Date.Equal(want[i]) {
+			t.Errorf("card %d: date %s, want %s", i, s.Date.Format("2006-01-02"), want[i].Format("2006-01-02"))
+		}
+	}
+	if _, err := parseBearsville([]byte(`<html><body>maintenance</body></html>`), fixtureNow); err == nil {
+		t.Error("page without the upcoming list: want an error")
+	}
+}
+
 func itoa(n int) string { return strconv.Itoa(n) }
