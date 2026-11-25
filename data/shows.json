@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-11-23T22:46:19Z",
+  "generated_at": "2026-11-25T20:31:52Z",
   "venues": [
     {
       "name": "Mercury Lounge",
       "url": "https://mercuryeastpresents.com/mercurylounge/",
       "ok": true,
-      "shows": 99,
+      "shows": 97,
       "skipped": 0,
       "latest_date": "2027-05-07",
       "error": null
@@ -14,7 +14,7 @@
       "name": "Bowery Ballroom",
       "url": "https://mercuryeastpresents.com/boweryballroom/",
       "ok": true,
-      "shows": 71,
+      "shows": 68,
       "skipped": 2,
       "latest_date": "2027-05-25",
       "error": null
@@ -23,7 +23,7 @@
       "name": "Music Hall of Williamsburg",
       "url": "https://www.bowerypresents.com/music-hall-of-williamsburg/",
       "ok": true,
-      "shows": 9,
+      "shows": 7,
       "skipped": 0,
       "latest_date": "2026-12-06",
       "error": null
@@ -59,7 +59,7 @@
       "name": "LPR",
       "url": "https://lpr.com/",
       "ok": true,
-      "shows": 68,
+      "shows": 70,
       "skipped": 0,
       "latest_date": "2027-10-02",
       "error": null
@@ -68,7 +68,7 @@
       "name": "The Capitol Theatre",
       "url": "https://www.thecapitoltheatre.com/shows",
       "ok": true,
-      "shows": 41,
+      "shows": 42,
       "skipped": 0,
       "latest_date": "2027-05-26",
       "error": null
@@ -102,139 +102,6 @@
     }
   ],
   "shows": [
-    {
-      "date": "2026-11-23",
-      "time": "16:00",
-      "venue": "Bowery Ballroom",
-      "room": null,
-      "headliner": "Alyssa Grace",
-      "support": [],
-      "title": "Alyssa Grace",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/alyssa-grace-2/"
-    },
-    {
-      "date": "2026-11-23",
-      "time": "20:00",
-      "venue": "Bowery Ballroom",
-      "room": null,
-      "headliner": "Alyssa Grace",
-      "support": [],
-      "title": "Alyssa Grace",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/alyssa-grace/"
-    },
-    {
-      "date": "2026-11-23",
-      "time": "18:00",
-      "venue": "Mercury Lounge",
-      "room": null,
-      "headliner": "Hello Dreamer",
-      "support": [
-        "ELIS",
-        "Audrey Mason"
-      ],
-      "title": "Hello Dreamer, ELIS, Audrey Mason",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/hello-dreamer-elis-audrey-mason/"
-    },
-    {
-      "date": "2026-11-23",
-      "time": "21:00",
-      "venue": "Mercury Lounge",
-      "room": null,
-      "headliner": "Annalise \u0026 The Mother Underground",
-      "support": [
-        "Roisin McKeown",
-        "Liliana \u0026 Manuela"
-      ],
-      "title": "Annalise \u0026 The Mother Underground",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/annalise-the-mother-underground/"
-    },
-    {
-      "date": "2026-11-23",
-      "time": "20:00",
-      "venue": "Music Hall of Williamsburg",
-      "room": null,
-      "headliner": "Glassjaw",
-      "support": [],
-      "title": "Glassjaw",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-18T14:00:00Z",
-      "url": "https://www.axs.com/events/1610516/glassjaw-tickets"
-    },
-    {
-      "date": "2026-11-24",
-      "time": "19:00",
-      "venue": "Bowery Ballroom",
-      "room": null,
-      "headliner": "GHOSTWOMAN",
-      "support": [
-        "Croaker"
-      ],
-      "title": "GHOSTWOMAN",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/ghostwoman/"
-    },
-    {
-      "date": "2026-11-24",
-      "time": "19:00",
-      "venue": "LPR",
-      "room": "Main Space",
-      "headliner": "Action Bronson",
-      "support": [
-        "Human Growth Hormone"
-      ],
-      "title": "Action Bronson \u0026 Human Growth Hormone",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://lpr.com/lpr_events/abnov26nyc/"
-    },
-    {
-      "date": "2026-11-24",
-      "time": "18:00",
-      "venue": "Mercury Lounge",
-      "room": null,
-      "headliner": "Del Coda",
-      "support": [
-        "Off the Hook",
-        "Dylan Taganas"
-      ],
-      "title": "Del Coda, Off the Hook, Dylan Taganas, and more!",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/del-coda-off-the-hook-dylan-taganas-and-more/"
-    },
-    {
-      "date": "2026-11-24",
-      "time": "20:00",
-      "venue": "Music Hall of Williamsburg",
-      "room": null,
-      "headliner": "Glassjaw",
-      "support": [],
-      "title": "Glassjaw",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-18T17:00:00Z",
-      "url": "https://www.axs.com/events/1619533/glassjaw-tickets"
-    },
-    {
-      "date": "2026-11-24",
-      "time": "20:00",
-      "venue": "Webster Hall",
-      "room": null,
-      "headliner": "Alyssa Grace",
-      "support": [],
-      "title": "Alyssa Grace",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-11T14:30:00Z",
-      "url": "https://www.axs.com/events/1607312/alyssa-grace-tickets"
-    },
     {
       "date": "2026-11-25",
       "time": "18:00",
@@ -326,7 +193,8 @@
         "Mila Culpa",
         "mer marcum",
         "Babe City",
-        "Cooper Moore"
+        "Cooper Moore",
+        "Alana Markel"
       ],
       "title": "Stayofftherocks Fest",
       "status": "on_sale",
@@ -446,12 +314,13 @@
       "room": null,
       "headliner": "Adham",
       "support": [
-        "Suri"
+        "Suri",
+        "Dannyboydummy"
       ],
       "title": "M.E.A.T. x Webster Hall - Adham + Suri + More",
       "status": "on_sale",
       "on_sale_at": "2026-10-16T14:00:00Z",
-      "url": "https://www.axs.com/events/1662617/-tickets"
+      "url": "https://www.axs.com/events/1662617/meat-x-webster-hall-adham-suri-more-tickets"
     },
     {
       "date": "2026-11-29",
@@ -2068,6 +1937,18 @@
     },
     {
       "date": "2026-12-12",
+      "time": "23:00",
+      "venue": "The Capitol Theatre",
+      "room": "Garcia's",
+      "headliner": "She Sings Dylan Afterparty in Garcia's",
+      "support": [],
+      "title": "She Sings Dylan Afterparty in Garcia's",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://www.thecapitoltheatre.com/shows/rooms/garcia-s"
+    },
+    {
+      "date": "2026-12-12",
       "time": "20:00",
       "venue": "The Grand",
       "room": null,
@@ -2852,6 +2733,21 @@
     },
     {
       "date": "2026-12-20",
+      "time": "18:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "Day Drooler",
+      "support": [
+        "Why Another",
+        "KMPH"
+      ],
+      "title": "Day Drooler, Why Another, KMPH",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/day-drooler-why-another-kmph/"
+    },
+    {
+      "date": "2026-12-20",
       "time": "20:00",
       "venue": "Mercury Lounge",
       "room": null,
@@ -3305,7 +3201,10 @@
       "venue": "Mercury Lounge",
       "room": null,
       "headliner": "Alan Vuong",
-      "support": [],
+      "support": [
+        "Makeout City",
+        "Morning Silk"
+      ],
       "title": "Alan Vuong",
       "status": "on_sale",
       "on_sale_at": null,
@@ -3773,7 +3672,9 @@
       "venue": "Bowery Presents NYC",
       "room": "Racket",
       "headliner": "Dead Pioneers",
-      "support": [],
+      "support": [
+        "Iron Roses"
+      ],
       "title": "Dead Pioneers",
       "status": "on_sale",
       "on_sale_at": "2026-09-11T14:00:00Z",
@@ -4191,7 +4092,7 @@
       "headliner": "9AM Banger",
       "support": [],
       "title": "9AM Banger",
-      "status": "coming_soon",
+      "status": "on_sale",
       "on_sale_at": "2026-11-25T17:00:00Z",
       "url": "https://www.axs.com/events/1705447/9am-banger-tickets"
     },
@@ -4230,6 +4131,18 @@
       "status": "unknown",
       "on_sale_at": null,
       "url": "https://lpr.com/lpr_events/eaay27nyc/"
+    },
+    {
+      "date": "2027-01-31",
+      "time": "09:00",
+      "venue": "Webster Hall",
+      "room": null,
+      "headliner": "9AM Banger",
+      "support": [],
+      "title": "9AM Banger",
+      "status": "on_sale",
+      "on_sale_at": "2026-11-25T17:00:00Z",
+      "url": "https://www.axs.com/events/1721117/9am-banger-tickets"
     },
     {
       "date": "2027-02-01",
@@ -4654,6 +4567,18 @@
       "status": "unknown",
       "on_sale_at": null,
       "url": "https://www.etix.com/ticket/p/80632475/judy-collins-sweet-judy-blue-eyesfarewell-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2027-02-14",
+      "time": "19:00",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Filthy Gorgeous Burlesque Valentine’s Day Spectacular!",
+      "support": [],
+      "title": "Filthy Gorgeous Burlesque Valentine’s Day Spectacular!",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/vday27nyc/"
     },
     {
       "date": "2027-02-15",
@@ -5226,6 +5151,18 @@
     },
     {
       "date": "2027-03-04",
+      "time": "18:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "BEYOND CREATION",
+      "support": [],
+      "title": "BEYOND CREATION",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/bc27nyc/"
+    },
+    {
+      "date": "2027-03-04",
       "time": "20:00",
       "venue": "Webster Hall",
       "room": null,
@@ -5613,7 +5550,7 @@
       "headliner": "Angrybaby",
       "support": [
         "IN PARALLEL",
-        "JEV.",
+        "jev",
         "Lutea"
       ],
       "title": "Angrybaby",
@@ -5804,6 +5741,18 @@
       "status": "unknown",
       "on_sale_at": null,
       "url": "https://lpr.com/lpr_events/tfb27nyc/"
+    },
+    {
+      "date": "2027-03-25",
+      "time": "22:00",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "SML",
+      "support": [],
+      "title": "SML",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/sml0227nyc/"
     },
     {
       "date": "2027-03-25",
