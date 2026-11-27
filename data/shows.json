@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T20:31:52Z",
+  "generated_at": "2026-11-27T20:04:37Z",
   "venues": [
     {
       "name": "Mercury Lounge",
@@ -59,7 +59,7 @@
       "name": "LPR",
       "url": "https://lpr.com/",
       "ok": true,
-      "shows": 70,
+      "shows": 71,
       "skipped": 0,
       "latest_date": "2027-10-02",
       "error": null
@@ -67,17 +67,17 @@
     {
       "name": "The Capitol Theatre",
       "url": "https://www.thecapitoltheatre.com/shows",
-      "ok": true,
-      "shows": 42,
+      "ok": false,
+      "shows": 0,
       "skipped": 0,
-      "latest_date": "2027-05-26",
-      "error": null
+      "latest_date": null,
+      "error": "The Capitol Theatre: fetching https://www.thecapitoltheatre.com/shows/rooms/the-capitol-theatre: HTTP 429"
     },
     {
       "name": "The Grand",
       "url": "https://thegrandcroton.com/",
       "ok": true,
-      "shows": 24,
+      "shows": 23,
       "skipped": 0,
       "latest_date": "2027-02-11",
       "error": null
@@ -102,45 +102,6 @@
     }
   ],
   "shows": [
-    {
-      "date": "2026-11-25",
-      "time": "18:00",
-      "venue": "Mercury Lounge",
-      "room": null,
-      "headliner": "The Deep Drags",
-      "support": [
-        "Density Black Cat",
-        "Toasted"
-      ],
-      "title": "The Deep Drags",
-      "status": "on_sale",
-      "on_sale_at": null,
-      "url": "https://mercuryeastpresents.com/tm-event/the-deep-drags/"
-    },
-    {
-      "date": "2026-11-25",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "8Track",
-      "support": [],
-      "title": "8Track",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-28T15:00:00Z",
-      "url": "https://www.ticketmaster.com/8track-port-chester-new-york-11-25-2026/event/1D006539EE93B36C"
-    },
-    {
-      "date": "2026-11-25",
-      "time": "20:30",
-      "venue": "The Grand",
-      "room": null,
-      "headliner": "THANKSGIVING EVE",
-      "support": [],
-      "title": "THANKSGIVING EVE",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://thegrandcroton.com/happening/thanksgiving-eve-1"
-    },
     {
       "date": "2026-11-27",
       "time": "18:00",
@@ -170,18 +131,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/chemical-x/"
-    },
-    {
-      "date": "2026-11-27",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Twiddle",
-      "support": [],
-      "title": "Twiddle",
-      "status": "on_sale",
-      "on_sale_at": "2026-07-24T14:00:00Z",
-      "url": "https://www.ticketmaster.com/twiddle-port-chester-new-york-11-27-2026/event/1D0064F19782879C"
     },
     {
       "date": "2026-11-28",
@@ -285,18 +234,6 @@
     },
     {
       "date": "2026-11-28",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Twiddle",
-      "support": [],
-      "title": "Twiddle",
-      "status": "on_sale",
-      "on_sale_at": "2026-07-24T14:00:00Z",
-      "url": "https://www.ticketmaster.com/twiddle-port-chester-new-york-11-28-2026/event/1D0064F1978787A4"
-    },
-    {
-      "date": "2026-11-28",
       "time": "20:30",
       "venue": "The Grand",
       "room": null,
@@ -351,18 +288,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/p-h-0/"
-    },
-    {
-      "date": "2026-11-29",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Twiddle",
-      "support": [],
-      "title": "Twiddle",
-      "status": "on_sale",
-      "on_sale_at": "2026-07-24T14:00:00Z",
-      "url": "https://www.ticketmaster.com/twiddle-port-chester-new-york-11-29-2026/event/1D0064F1978B87AF"
     },
     {
       "date": "2026-11-29",
@@ -730,18 +655,6 @@
     {
       "date": "2026-12-03",
       "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Jason Bonham's Led Zeppelin Evening",
-      "support": [],
-      "title": "Jason Bonham's Led Zeppelin Evening",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-18T14:00:00Z",
-      "url": "https://www.ticketmaster.com/jason-bonhams-led-zeppelin-evening-port-chester-new-york-12-03-2026/event/1D00652AF9472FB6"
-    },
-    {
-      "date": "2026-12-03",
-      "time": "20:00",
       "venue": "The Grand",
       "room": null,
       "headliner": "Songwriters Circle Holiday Showcase",
@@ -896,18 +809,6 @@
       "status": "on_sale",
       "on_sale_at": "2026-09-11T16:00:00Z",
       "url": "https://tickets.tarrytownmusichall.org/eventperformances.asp?evt=3275"
-    },
-    {
-      "date": "2026-12-04",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "The Allman Betts Family Revival",
-      "support": [],
-      "title": "Allman Betts Family Revival: A DECADE OF REVIVAL",
-      "status": "on_sale",
-      "on_sale_at": "2026-08-21T14:00:00Z",
-      "url": "https://www.ticketmaster.com/allman-betts-family-revival-a-decade-port-chester-new-york-12-04-2026/event/1D00650BDF03D2BB"
     },
     {
       "date": "2026-12-04",
@@ -1575,6 +1476,18 @@
     },
     {
       "date": "2026-12-10",
+      "time": "18:00",
+      "venue": "Mercury Lounge",
+      "room": null,
+      "headliner": "Antonia Mila",
+      "support": [],
+      "title": "Antonia Mila",
+      "status": "on_sale",
+      "on_sale_at": null,
+      "url": "https://mercuryeastpresents.com/tm-event/antonia-mila/"
+    },
+    {
+      "date": "2026-12-10",
       "time": "21:00",
       "venue": "Mercury Lounge",
       "room": null,
@@ -1758,20 +1671,6 @@
     {
       "date": "2026-12-11",
       "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "The Waterboys",
-      "support": [
-        "Steve Earle"
-      ],
-      "title": "12th JH Friends: Fishermans Blues Revue -The Waterboys ft. Steve Earle",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-25T14:00:00Z",
-      "url": "https://www.ticketmaster.com/12th-jh-friends-fishermans-blues-revue-port-chester-new-york-12-11-2026/event/1D0065310B7AA35E"
-    },
-    {
-      "date": "2026-12-11",
-      "time": "20:00",
       "venue": "The Grand",
       "room": null,
       "headliner": "A Paul Connors Holiday",
@@ -1910,42 +1809,6 @@
       "status": "on_sale",
       "on_sale_at": "2026-08-21T16:00:00Z",
       "url": "https://tickets.tarrytownmusichall.org/eventperformances.asp?evt=3269"
-    },
-    {
-      "date": "2026-12-12",
-      "time": "12:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "The Rock and Roll Playhouse",
-      "support": [],
-      "title": "The Music Of The Beatles For Kids + More",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-13T17:00:00Z",
-      "url": "https://www.ticketmaster.com/the-music-of-the-beatles-for-port-chester-new-york-12-12-2026/event/1D006546AECE4043"
-    },
-    {
-      "date": "2026-12-12",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Gillian Welch \u0026 David Rawlings",
-      "support": [],
-      "title": "Gillian Welch And David Rawlings Play Grateful Dead",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-18T14:00:00Z",
-      "url": "https://www.ticketmaster.com/gillian-welch-and-david-rawlings-play-port-chester-new-york-12-12-2026/event/1D00652AE70BF0B1"
-    },
-    {
-      "date": "2026-12-12",
-      "time": "23:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "She Sings Dylan Afterparty in Garcia's",
-      "support": [],
-      "title": "She Sings Dylan Afterparty in Garcia's",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://www.thecapitoltheatre.com/shows/rooms/garcia-s"
     },
     {
       "date": "2026-12-12",
@@ -2092,18 +1955,6 @@
     },
     {
       "date": "2026-12-13",
-      "time": "19:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Gillian Welch \u0026 David Rawlings",
-      "support": [],
-      "title": "Gillian Welch And David Rawlings Play Grateful Dead",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-18T14:00:00Z",
-      "url": "https://www.ticketmaster.com/gillian-welch-and-david-rawlings-play-port-chester-new-york-12-13-2026/event/1D00652AE80BF26D"
-    },
-    {
-      "date": "2026-12-13",
       "time": "11:00",
       "venue": "The Grand",
       "room": null,
@@ -2234,18 +2085,6 @@
       "url": "https://mercuryeastpresents.com/tm-event/jack-armbrust-alaina-may-molly-frances/"
     },
     {
-      "date": "2026-12-15",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Brandi Carlile",
-      "support": [],
-      "title": "Brandi Carlile: Burn The Setlist (The All Request Tour)",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-02T14:00:00Z",
-      "url": "https://www.ticketmaster.com/brandi-carlile-burn-the-setlist-the-port-chester-new-york-12-15-2026/event/1D006538A1CD389B"
-    },
-    {
       "date": "2026-12-16",
       "time": "20:00",
       "venue": "Bearsville Theater",
@@ -2318,18 +2157,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/hailo/"
-    },
-    {
-      "date": "2026-12-16",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Brandi Carlile",
-      "support": [],
-      "title": "Brandi Carlile: Burn The Setlist (The All Request Tour)",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-02T14:00:00Z",
-      "url": "https://www.ticketmaster.com/brandi-carlile-burn-the-setlist-the-port-chester-new-york-12-16-2026/event/1D006538A1D2389F"
     },
     {
       "date": "2026-12-16",
@@ -2422,18 +2249,6 @@
       "status": "on_sale",
       "on_sale_at": "2026-09-15T14:00:00Z",
       "url": "https://tickets.tarrytownmusichall.org/eventperformances.asp?evt=3278"
-    },
-    {
-      "date": "2026-12-17",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Brandi Carlile",
-      "support": [],
-      "title": "Brandi Carlile: Burn The Setlist (The All Request Tour)",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-02T14:00:00Z",
-      "url": "https://www.ticketmaster.com/brandi-carlile-burn-the-setlist-the-port-chester-new-york-12-17-2026/event/1D006538A1D738A3"
     },
     {
       "date": "2026-12-17",
@@ -2545,18 +2360,6 @@
     {
       "date": "2026-12-18",
       "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Gillian Welch \u0026 David Rawlings",
-      "support": [],
-      "title": "Gillian Welch And David Rawlings Play Grateful Dead",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-18T14:00:00Z",
-      "url": "https://www.ticketmaster.com/gillian-welch-and-david-rawlings-play-port-chester-new-york-12-18-2026/event/1D00652AE710F0C5"
-    },
-    {
-      "date": "2026-12-18",
-      "time": "20:00",
       "venue": "Webster Hall",
       "room": null,
       "headliner": "Club 1BD",
@@ -2658,18 +2461,6 @@
     },
     {
       "date": "2026-12-19",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Get the Led Out",
-      "support": [],
-      "title": "Get the Led Out",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-02T14:00:00Z",
-      "url": "https://www.ticketmaster.com/get-the-led-out-port-chester-new-york-12-19-2026/event/1D006538D57C6C26"
-    },
-    {
-      "date": "2026-12-19",
       "time": "21:00",
       "venue": "The Grand",
       "room": null,
@@ -2764,18 +2555,6 @@
     },
     {
       "date": "2026-12-20",
-      "time": "12:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "A Christmas Market at The Capitol Theatre!",
-      "support": [],
-      "title": "A Christmas Market at The Capitol Theatre!",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://www.thecapitoltheatre.com/shows/rooms/the-capitol-theatre"
-    },
-    {
-      "date": "2026-12-20",
       "time": "11:00",
       "venue": "The Grand",
       "room": null,
@@ -2828,18 +2607,6 @@
     },
     {
       "date": "2026-12-23",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "Stella Blue's Band",
-      "support": [],
-      "title": "Stella Blue's Band",
-      "status": "on_sale",
-      "on_sale_at": "2026-11-09T16:00:00Z",
-      "url": "https://www.ticketmaster.com/stella-blues-band-port-chester-new-york-12-23-2026/event/1D006564CEEA366D"
-    },
-    {
-      "date": "2026-12-23",
       "time": "19:30",
       "venue": "The Grand",
       "room": null,
@@ -2861,30 +2628,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/big-shrimp-visions-album-release-party/"
-    },
-    {
-      "date": "2026-12-26",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "Sweet n' Meaty",
-      "support": [],
-      "title": "Sweet n' Meaty",
-      "status": "on_sale",
-      "on_sale_at": "2026-11-02T18:00:00Z",
-      "url": "https://www.ticketmaster.com/sweet-n-meaty-port-chester-new-york-12-26-2026/event/1D00655ED08A484C"
-    },
-    {
-      "date": "2026-12-28",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Gov't Mule",
-      "support": [],
-      "title": "Gov't Mule",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-02T16:00:00Z",
-      "url": "https://www.ticketmaster.com/govt-mule-port-chester-new-york-12-28-2026/event/1D006536F193A5C5"
     },
     {
       "date": "2026-12-29",
@@ -2913,18 +2656,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/marc-rebillet/"
-    },
-    {
-      "date": "2026-12-29",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Gov't Mule",
-      "support": [],
-      "title": "Gov't Mule",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-02T16:00:00Z",
-      "url": "https://www.ticketmaster.com/govt-mule-port-chester-new-york-12-29-2026/event/1D006536F198A5CD"
     },
     {
       "date": "2026-12-30",
@@ -3031,18 +2762,6 @@
     },
     {
       "date": "2026-12-31",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Dark Star Orchestra",
-      "support": [],
-      "title": "Dark Star Orchestra",
-      "status": "on_sale",
-      "on_sale_at": "2026-08-21T14:00:00Z",
-      "url": "https://www.ticketmaster.com/dark-star-orchestra-port-chester-new-york-12-31-2026/event/1D00650C0CF62CAA"
-    },
-    {
-      "date": "2026-12-31",
       "time": "22:30",
       "venue": "Webster Hall",
       "room": null,
@@ -3052,30 +2771,6 @@
       "status": "on_sale",
       "on_sale_at": "2026-11-17T17:00:00Z",
       "url": "https://www.axs.com/events/1704391/heated-rivalry-night-new-year-s-eve-tickets"
-    },
-    {
-      "date": "2027-01-01",
-      "time": "18:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "Gregory McLoughlin \u0026 The Lemonade Band Pre-Show in Garcia's",
-      "support": [],
-      "title": "Gregory McLoughlin \u0026 The Lemonade Band Pre-Show in Garcia's",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://www.thecapitoltheatre.com/shows/rooms/garcia-s"
-    },
-    {
-      "date": "2027-01-01",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Dark Star Orchestra",
-      "support": [],
-      "title": "Dark Star Orchestra",
-      "status": "on_sale",
-      "on_sale_at": "2026-08-21T14:00:00Z",
-      "url": "https://www.ticketmaster.com/dark-star-orchestra-port-chester-new-york-01-01-2027/event/1D00650C0CEC2C7B"
     },
     {
       "date": "2027-01-02",
@@ -3118,32 +2813,6 @@
       "url": "https://mercuryeastpresents.com/tm-event/two-headed-girl-sky-castles-at-risk-desk-job/"
     },
     {
-      "date": "2027-01-02",
-      "time": "18:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "The Seth Winters Band Pre-Show",
-      "support": [
-        "Afterparty in Garcia's"
-      ],
-      "title": "The Seth Winters Band Pre-Show \u0026 Afterparty in Garcia's",
-      "status": "unknown",
-      "on_sale_at": null,
-      "url": "https://www.thecapitoltheatre.com/shows/rooms/garcia-s"
-    },
-    {
-      "date": "2027-01-02",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Dark Star Orchestra",
-      "support": [],
-      "title": "Dark Star Orchestra",
-      "status": "on_sale",
-      "on_sale_at": "2026-08-21T14:00:00Z",
-      "url": "https://www.ticketmaster.com/dark-star-orchestra-port-chester-new-york-01-02-2027/event/1D00650C0CF22C94"
-    },
-    {
       "date": "2027-01-03",
       "time": "19:00",
       "venue": "Bowery Ballroom",
@@ -3182,18 +2851,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/olth/"
-    },
-    {
-      "date": "2027-01-07",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "The Dave Matthews Tribute Band",
-      "support": [],
-      "title": "The Dave Matthews Tribute Band",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-26T15:00:00Z",
-      "url": "https://www.ticketmaster.com/the-dave-matthews-tribute-band-port-chester-new-york-01-07-2027/event/1D006557016A667F"
     },
     {
       "date": "2027-01-08",
@@ -3275,32 +2932,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/silver-cup/"
-    },
-    {
-      "date": "2027-01-09",
-      "time": "12:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "The Rock and Roll Playhouse",
-      "support": [],
-      "title": "The Music Of Bob Marley For Kids + More",
-      "status": "on_sale",
-      "on_sale_at": "2026-11-23T15:00:00Z",
-      "url": "https://www.ticketmaster.com/the-music-of-bob-marley-for-port-chester-new-york-01-09-2027/event/1D006572A943393B"
-    },
-    {
-      "date": "2027-01-09",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "The Moonrise Cartel",
-      "support": [
-        "Unruly Mane"
-      ],
-      "title": "The Moonrise Cartel",
-      "status": "on_sale",
-      "on_sale_at": "2026-11-02T15:00:00Z",
-      "url": "https://www.ticketmaster.com/the-moonrise-cartel-port-chester-new-york-01-09-2027/event/1D00655EC38A3FB4"
     },
     {
       "date": "2027-01-10",
@@ -3441,18 +3072,6 @@
       "url": "https://lpr.com/lpr_events/wjz27nyc/"
     },
     {
-      "date": "2027-01-14",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "Kovac Brothers",
-      "support": [],
-      "title": "Kovac Brothers",
-      "status": "on_sale",
-      "on_sale_at": "2026-11-19T18:00:00Z",
-      "url": "https://www.ticketmaster.com/kovac-brothers-port-chester-new-york-01-14-2027/event/1D006571F33A4653"
-    },
-    {
       "date": "2027-01-15",
       "time": "20:00",
       "venue": "Bearsville Theater",
@@ -3463,6 +3082,18 @@
       "status": "unknown",
       "on_sale_at": null,
       "url": "https://www.etix.com/ticket/p/40531314/sold-outclaudio-sanchez-the-very-first-shows-woodstock-bearsville-theater?partner_id=100"
+    },
+    {
+      "date": "2027-01-15",
+      "time": "17:30",
+      "venue": "LPR",
+      "room": "Main Space",
+      "headliner": "Winter Jazzfest Manhattan Marathon",
+      "support": [],
+      "title": "Winter Jazzfest Manhattan Marathon",
+      "status": "unknown",
+      "on_sale_at": null,
+      "url": "https://lpr.com/lpr_events/wjfm27nyc/"
     },
     {
       "date": "2027-01-15",
@@ -3477,18 +3108,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/sink-or-swim/"
-    },
-    {
-      "date": "2027-01-15",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Joe Russo's Almost Dead",
-      "support": [],
-      "title": "Joe Russo's Almost Dead",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-30T14:00:00Z",
-      "url": "https://www.ticketmaster.com/joe-russos-almost-dead-port-chester-new-york-01-15-2027/event/1D006556C0AC35B9"
     },
     {
       "date": "2027-01-16",
@@ -3533,18 +3152,6 @@
     {
       "date": "2027-01-16",
       "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Joe Russo's Almost Dead",
-      "support": [],
-      "title": "Joe Russo's Almost Dead",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-30T14:00:00Z",
-      "url": "https://www.ticketmaster.com/joe-russos-almost-dead-port-chester-new-york-01-16-2027/event/1D006556C0B235BB"
-    },
-    {
-      "date": "2027-01-16",
-      "time": "20:00",
       "venue": "Webster Hall",
       "room": null,
       "headliner": "The Womack Sisters",
@@ -3553,18 +3160,6 @@
       "status": "on_sale",
       "on_sale_at": "2026-10-09T14:00:00Z",
       "url": "https://www.axs.com/events/1644571/the-womack-sisters-tickets"
-    },
-    {
-      "date": "2027-01-17",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Joe Russo's Almost Dead",
-      "support": [],
-      "title": "Joe Russo's Almost Dead",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-30T14:00:00Z",
-      "url": "https://www.ticketmaster.com/joe-russos-almost-dead-port-chester-new-york-01-17-2027/event/1D006556C0B735BF"
     },
     {
       "date": "2027-01-17",
@@ -3834,18 +3429,6 @@
       "url": "https://mercuryeastpresents.com/tm-event/isabel-van-gelder/"
     },
     {
-      "date": "2027-01-23",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Jessie's Girl",
-      "support": [],
-      "title": "Jessie's Girl",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-09T14:00:00Z",
-      "url": "https://www.ticketmaster.com/jessies-girl-port-chester-new-york-01-23-2027/event/1D00653EE23D7C88"
-    },
-    {
       "date": "2027-01-24",
       "time": "18:30",
       "venue": "Bowery Ballroom",
@@ -4011,18 +3594,6 @@
     },
     {
       "date": "2027-01-29",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "The Ledbetters",
-      "support": [],
-      "title": "The Ledbetters",
-      "status": "on_sale",
-      "on_sale_at": "2026-11-18T18:00:00Z",
-      "url": "https://www.ticketmaster.com/the-ledbetters-port-chester-new-york-01-29-2027/event/1D00657097811C16"
-    },
-    {
-      "date": "2027-01-29",
       "time": "19:30",
       "venue": "Webster Hall",
       "room": null,
@@ -4059,18 +3630,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/the-coux-no-stupid-questions/"
-    },
-    {
-      "date": "2027-01-30",
-      "time": "12:00",
-      "venue": "The Capitol Theatre",
-      "room": "Garcia's",
-      "headliner": "The Rock and Roll Playhouse",
-      "support": [],
-      "title": "The Music Of Grateful Dead For Kids + More",
-      "status": "on_sale",
-      "on_sale_at": "2026-11-23T15:00:00Z",
-      "url": "https://www.ticketmaster.com/the-music-of-grateful-dead-for-port-chester-new-york-01-30-2027/event/1D006572A948393E"
     },
     {
       "date": "2027-01-30",
@@ -4491,18 +4050,6 @@
       "status": "on_sale",
       "on_sale_at": "2026-08-28T16:00:00Z",
       "url": "https://www.axs.com/events/1587768/dinosaur-jr-tickets"
-    },
-    {
-      "date": "2027-02-12",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Umphrey's McGee",
-      "support": [],
-      "title": "UMPHREY'S McGEE - Fresh Cut 2027",
-      "status": "on_sale",
-      "on_sale_at": "2026-10-16T14:00:00Z",
-      "url": "https://www.ticketmaster.com/umphreys-mcgee-fresh-cut-2027-port-chester-new-york-02-12-2027/event/1D006547F0929107"
     },
     {
       "date": "2027-02-13",
@@ -5595,20 +5142,6 @@
       "url": "https://mercuryeastpresents.com/tm-event/gyasi/"
     },
     {
-      "date": "2027-03-21",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Collective Soul",
-      "support": [
-        "Reach NYC"
-      ],
-      "title": "Collective Soul",
-      "status": "unknown",
-      "on_sale_at": "2026-10-30T14:00:00Z",
-      "url": "https://www.ticketmaster.com/collective-soul-port-chester-new-york-03-21-2027/event/1D0064B4B2316F1E"
-    },
-    {
       "date": "2027-03-22",
       "time": "20:00",
       "venue": "Bowery Presents NYC",
@@ -5944,7 +5477,7 @@
       "headliner": "Bronx Wanderers",
       "support": [],
       "title": "Bronx Wanderers",
-      "status": "coming_soon",
+      "status": "on_sale",
       "on_sale_at": "2026-11-27T15:00:00Z",
       "url": "https://tickets.tarrytownmusichall.org/eventperformances.asp?evt=3303"
     },
@@ -6078,20 +5611,6 @@
       "url": "https://www.axs.com/events/1647282/john-splithoff-tickets"
     },
     {
-      "date": "2027-04-09",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Nathaniel Rateliff",
-      "support": [
-        "Hannah Cohen"
-      ],
-      "title": "Nathaniel Rateliff: Endless Horizon Tour",
-      "status": "on_sale",
-      "on_sale_at": "2026-11-20T15:00:00Z",
-      "url": "https://www.ticketmaster.com/nathaniel-rateliff-endless-horizon-tour-port-chester-new-york-04-09-2027/event/1D006569EDC2512B"
-    },
-    {
       "date": "2027-04-10",
       "time": "20:00",
       "venue": "Bowery Presents NYC",
@@ -6130,18 +5649,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/sarah-julia-2027-tour/"
-    },
-    {
-      "date": "2027-04-11",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "The Concert: A Tribute To ABBA",
-      "support": [],
-      "title": "The Concert: A Tribute To ABBA",
-      "status": "on_sale",
-      "on_sale_at": "2026-11-13T17:00:00Z",
-      "url": "https://www.ticketmaster.com/the-concert-a-tribute-to-abba-port-chester-new-york-04-11-2027/event/1D0065649FD521BB"
     },
     {
       "date": "2027-04-12",
@@ -6549,20 +6056,6 @@
     },
     {
       "date": "2027-04-30",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Foreigner",
-      "support": [
-        "Whale"
-      ],
-      "title": "Foreigner: Celebrating Fifty Years",
-      "status": "on_sale",
-      "on_sale_at": "2026-09-03T14:00:00Z",
-      "url": "https://www.ticketmaster.com/foreigner-celebrating-fifty-years-port-chester-new-york-04-30-2027/event/1D006518F04A1D60"
-    },
-    {
-      "date": "2027-04-30",
       "time": "19:30",
       "venue": "Webster Hall",
       "room": null,
@@ -6943,18 +6436,6 @@
       "status": "on_sale",
       "on_sale_at": null,
       "url": "https://mercuryeastpresents.com/tm-event/sydney-ross-mitchell-the-veil-is-thinner-on-tour/"
-    },
-    {
-      "date": "2027-05-26",
-      "time": "20:00",
-      "venue": "The Capitol Theatre",
-      "room": "The Capitol Theatre",
-      "headliner": "Leonid \u0026 Friends",
-      "support": [],
-      "title": "Leonid \u0026 Friends",
-      "status": "on_sale",
-      "on_sale_at": "2026-08-14T14:00:00Z",
-      "url": "https://www.ticketmaster.com/leonid-friends-port-chester-new-york-05-26-2027/event/1D006506F6F4F51F"
     },
     {
       "date": "2027-06-02",
